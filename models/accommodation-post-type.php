@@ -97,7 +97,7 @@ function accommodation_post_type() {
 /**
  * Define the metabox and field configurations.
  */
-function vb_wpv_accomodation_custom_fields() {
+function vb_wpv_accommodation_custom_fields() {
 
   global $vb_wpv_custom_fields_prefix ;
   // Start with an underscore to hide fields from custom fields list
@@ -107,9 +107,9 @@ function vb_wpv_accomodation_custom_fields() {
    * Initiate the metabox
    */
   $cmb = new_cmb2_box( array(
-      'id'            => 'accomodation_meta',
+      'id'            => 'accommodation_meta',
       'title'         => __( 'Accomodation data', 'wpvancance' ),
-      'object_types'  => array( 'accomodation_type', ), // Post type
+      'object_types'  => array( 'accommodation_type', ), // Post type
       'context'       => 'normal',
       'priority'      => 'high',
       'show_names'    => true, // Show field names on the left
@@ -119,9 +119,9 @@ function vb_wpv_accomodation_custom_fields() {
 
    
   $cmb->add_field( array(
-      'name'       => __( 'Map URL', 'wpvancance' ),
-      'desc'       => __( 'The URL of the image to be used as background map to locate this accomodation unit', 'wpvancance' ),
-      'id'         => $prefix . 'map_url',
+      'name'       => __( 'Map ID', 'wpvancance' ),
+      'desc'       => __( 'The ID of the map where this accommodation unit is placed', 'wpvancance' ),
+      'id'         => $prefix . 'acc_map_id',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -131,9 +131,45 @@ function vb_wpv_accomodation_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-      'name'       => __( 'Map CSS', 'wpvancance' ),
-      'desc'       => __( 'The CSS code (style attribute value) to give the accomodation box a position and a size', 'wpvancance' ),
-      'id'         => $prefix . 'map_box_style',
+      'name'       => __( 'Unit left position', 'wpvancance' ),
+      'desc'       => __( 'The X coordinate of the upper-left corner of the unit box (in percentage of the map width)', 'wpvancance' ),
+      'id'         => $prefix . 'acc_unit_box_x',
+      'type'       => 'text',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+
+  $cmb->add_field( array(
+      'name'       => __( 'Unit top position', 'wpvancance' ),
+      'desc'       => __( 'The Y coordinate of the upper-left corner of the unit box (in percentage of the map height)', 'wpvancance' ),
+      'id'         => $prefix . 'acc_unit_box_y',
+      'type'       => 'text',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  
+  $cmb->add_field( array(
+      'name'       => __( 'Unit width', 'wpvancance' ),
+      'desc'       => __( 'The width of the unit box (in percentage of the map width)', 'wpvancance' ),
+      'id'         => $prefix . 'acc_unit_box_w',
+      'type'       => 'text',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+
+  $cmb->add_field( array(
+      'name'       => __( 'Unit height', 'wpvancance' ),
+      'desc'       => __( 'The height of the unit box (in percentage of the map height)', 'wpvancance' ),
+      'id'         => $prefix . 'acc_unit_box_h',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -144,8 +180,20 @@ function vb_wpv_accomodation_custom_fields() {
 
   $cmb->add_field( array(
       'name'       => __( 'Name', 'wpvancance' ),
-      'desc'       => __( 'The name of this accomodation unit', 'wpvancance' ),
+      'desc'       => __( 'The name of this accommodation unit', 'wpvancance' ),
       'id'         => $prefix . 'name',
+      'type'       => 'text',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+
+  $cmb->add_field( array(
+      'name'       => __( 'Extra CSS class', 'wpvancance' ),
+      'desc'       => __( 'Optional extra CSS class to apply', 'wpvancance' ),
+      'id'         => $prefix . 'css_class',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -168,7 +216,7 @@ function vb_wpv_accomodation_custom_fields() {
 
 }
 
-add_action( 'cmb2_admin_init', 'vb_wpv_accomodation_custom_fields' );
+add_action( 'cmb2_admin_init', 'vb_wpv_accommodation_custom_fields' );
 
   
 

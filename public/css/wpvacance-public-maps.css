@@ -1,0 +1,24 @@
+.wpv-booking-accomodations-maps {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+  margin: 1rem;
+}
+
+.wpv-booking-accommodations-map {
+  flex: 1;
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  position: relative;
+}
+
+.wpv-booking-accommodation-unit {
+  position: absolute;
+  display: block;
+  background: transparent;
+  border: 2px dashed red;
+  border-radius: 2px;
+}

@@ -68,6 +68,13 @@ class Wpvacance {
    * @var $script_params_callbacks array
    */
   private $script_params_callbacks;
+  
+  
+  /**
+   *
+   * @var $bookingform WPV_BookingForm
+   */
+  public $bookingform;
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -137,9 +144,12 @@ class Wpvacance {
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpvacance-public.php';
 
+    require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/accommodationmap-post-type.php';
     require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/accommodation-post-type.php';
     require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/season-post-type.php';
     require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/booking-post-type.php';
+
+    require_once plugin_dir_path(dirname(__FILE__)) . 'includes/WPV_BookingForm.php';
 
     $this->loader = new Wpvacance_Loader();
 
@@ -253,12 +263,16 @@ class Wpvacance {
   {    
     $jsfileurl = plugin_dir_url( __FILE__ ) . '../public/js/wpvacance-public.js';
     wp_register_script($this->script_handle, $jsfileurl );
+    
+    $this->bookingform = new WPV_BookingForm();
 
     $hooks_data_events = array();
-    
-    foreach ($this->script_params_callbacks as $callback)
+
+    foreach ($this->script_params_callbacks as $callback_pack)
     {
-      $cbarr = $callback();
+      $callback = $callback_pack['call'];
+      $params = $callback_pack['params'];
+      $cbarr = $callback($params);
       $hooks_data_events[count($hooks_data_events)] = $cbarr;
     }
 
@@ -270,10 +284,10 @@ class Wpvacance {
     wp_enqueue_script($this->script_handle);
 	}
 
-  public function registerScriptParamsCallback($callable_arg)
+  public function registerScriptParamsCallback($callable_arg, array $params = array())
   {
     if (is_callable($callable_arg))
-      array_push($this->script_params_callbacks, $callable_arg);
+      array_push($this->script_params_callbacks, array('call' => $callable_arg, 'params' => $params));
     return is_callable($callable_arg);
   }
  

@@ -11,7 +11,7 @@
  *
  * @author lucio
  */
-class WPV_Calendario
+class WPV_Calendar
 {
   function __construct()
   {
@@ -19,7 +19,7 @@ class WPV_Calendario
     
   }
 
-  public function tremesi($atts, $content = '')
+  public function months($atts, $content = '')
   {
     if (isset($_GET['prm']))
     {
@@ -30,9 +30,9 @@ class WPV_Calendario
       $m = date("m");
     }
 
-    $html = '<div class="ds-calendario-tremesi">';
+    $html = '<div class="wpv-calendar-wrapper">';
 
-    $meseiniziale = $m - 1;
+    $meseiniziale = $m;
     $mesefinale = $m + 1;
     for ($meseincostruzione = $meseiniziale; $meseincostruzione <= $mesefinale; $meseincostruzione++)
     {
@@ -47,38 +47,55 @@ class WPV_Calendario
       {
         $j = "0";
       }
-      $MONTHS = array(1 => __('Gennaio', 'wpvacance'), 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre');
+      $MONTHS = array(1 =>  __('Jan', 'wpvacance'), 
+                            __('Feb', 'wpvacance'), 
+                            __('Mar', 'wpvacance'), 
+                            __('Apr', 'wpvacance'),
+                            __('May', 'wpvacance'),
+                            __('Jun', 'wpvacance'),
+                            __('Jul', 'wpvacance'),
+                            __('Aug', 'wpvacance'),
+                            __('Sep', 'wpvacance'),
+                            __('Oct', 'wpvacance'),
+                            __('Nov', 'wpvacance'),
+                            __('Dec', 'wpvacance'));
       for ($k = 1; $k <= $j; $k++)
       {
-        $adj .= '<td class="ds-calendario-giorno"> </td>';
+        $adj .= '<td class="wpv-calendar-day wpv-calendar-day-disabled"> </td>';
       }
 
-      $html .= '<div class="ds-contenitore-calendario">';
+      $html .= '<div class="wpv-calendar-month">';
       $html .= '<table cellspacing="0" cellpadding="5" align="center" width="100" border="1">';
       $html .= '<tr>';
       $html .= '<td align="center" bgcolor="#ffff00">';
-      $html .= '<a href="?prm=' . $m . '&chm=-1">&lt;</a>';
+      
+      if ($meseincostruzione == $meseiniziale)
+        $html .= '<a href="?prm=' . $m . '&chm=-1">&lt;</a>';
+      
       $html .= '</td>';
-      $html .= '<td colspan="5" align="center" bgcolor="#ffff00">';
+      $html .= '<td colspan="5" bgcolor="#ffff00">';
       $html .= $MONTHS[$mn] . " " . $yn;
       $html .= '</td>';
       $html .= '<td align="center" bgcolor="#ffff00">';
-      $html .= '<a href="?prm=' . $m . '&chm=1">&gt;</a>';
+      
+      if ($meseincostruzione == $mesefinale)
+        $html .= '<a href="?prm=' . $m . '&chm=1">&gt;</a>';
+      
       $html .= '</td>';
       $html .= '</tr>';
       $html .= '<tr>';
-      $html .= '<td class="ds-calendario-giorno"><strong>S</strong></td>';
-      $html .= '<td class="ds-calendario-giorno"><strong>D</strong></td>';
-      $html .= '<td class="ds-calendario-giorno"><strong>L</strong></td>';
-      $html .= '<td class="ds-calendario-giorno"><strong>M</strong></td>';
-      $html .= '<td class="ds-calendario-giorno"><strong>M</strong></td>';
-      $html .= '<td class="ds-calendario-giorno"><strong>G</strong></td>';
-      $html .= '<td class="ds-calendario-giorno"><strong>V</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>S</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>D</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>L</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>M</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>M</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>G</strong></td>';
+      $html .= '<td class="wpv-calendar-giorno"><strong>V</strong></td>';
       $html .= '</tr>';
       $html .= '<tr>';
       for ($giornodelmese = 1; $giornodelmese <= $nd; $giornodelmese++)
       {
-        $html .= $adj . '<td valign="top" class="ds-calendario-giorno">' . $giornodelmese . '</td>';
+        $html .= $adj . '<td valign="top" class="wpv-calendar-giorno">' . $giornodelmese . '</td>';
         $adj = '';
         $j++;
         if ($j == 7)
@@ -100,7 +117,7 @@ class WPV_Calendario
   {
     return array('click', 
                   'updateBookingAvailabilityFromCalendarClick', 
-                  array('ds-calendario-giorno'));
+                  array('wpv-calendar-giorno'));
     
   }
 

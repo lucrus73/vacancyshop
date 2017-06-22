@@ -1,0 +1,64 @@
+.wpv-booking-rangeslider {
+  width: 100%;
+  height: 3.3rem;
+  position: relative;
+}
+
+.wpv-booking-range-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.wpv-booking-range-ruler {
+  border: 1px solid darkgray;
+  border-radius: 0.55rem;
+  background-color: #E5F2B1;
+  position: absolute;
+  width: 100%;
+  height: 1.1rem;
+  top: 1.1rem;
+}
+
+.wpv-booking-range-tick-wrapper {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.wpv-booking-range-tick {
+  position: absolute;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.wpv-booking-range-tick-label {
+  color: #d39323;
+  font-size: 0.6rem;
+  font-weight: 900;
+}
+
+.wpv-booking-range-tick-image {
+  width: 1px;
+  height: 0.2rem;
+  background-color: black;
+}
+
+.wpv-booking-range-thumb {
+    position: absolute;
+    height: 3.3rem;
+    display: flex;
+    justify-content: space-around;
+    flex-direction: column;
+    font-size: 2rem;
+}
+
+.wpv-booking-range-thumb-icon {
+    position: absolute;
+    left: -1rem;
+}

@@ -74,7 +74,10 @@ class Wpvacance_Public {
 		 */
 
 		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wpvacance-public.css', array(), $this->version, 'all' );
-
+		wp_enqueue_style( $this->plugin_name.'rangeslider', plugin_dir_url( __FILE__ ) . 'css/wpvacance-public-rangeslider.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name.'calendar', plugin_dir_url( __FILE__ ) . 'css/wpvacance-public-calendar.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name.'maps', plugin_dir_url( __FILE__ ) . 'css/wpvacance-public-maps.css', array(), $this->version, 'all' );
+    wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
 	}
 
 	/**

@@ -16,7 +16,7 @@
  * Plugin Name:       wpvacance
  * Plugin URI:        https://www.virtualbit.it/wpvacance
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.3
+ * Version:           1.0.4
  * Author:            Lucio Crusca
  * Author URI:        https://www.virtualbit.it/
  * License:           GPL-2.0+
@@ -100,29 +100,3 @@ function run_wpvacance()
 
 }
 run_wpvacance();
-add_action( 'cmb2_init', 'cmb2_add_metabox' );
-function cmb2_add_metabox() {
-
-	$prefix = '_vacance_';
-
-	$cmb = new_cmb2_box( array(
-		'id'           => $prefix . 'accomm_details',
-		'title'        => __( 'Details', 'wpvacance' ),
-		'object_types' => array( 'accommodation' ),
-		'context'      => 'normal',
-		'priority'     => 'default',
-	) );
-
-	$cmb->add_field( array(
-		'name' => __( 'Address', 'wpvacance' ),
-		'id' => $prefix . 'address',
-		'type' => 'text_medium',
-	) );
-
-	$cmb->add_field( array(
-		'name' => __( 'Type', 'wpvacance' ),
-		'id' => $prefix . 'type',
-		'type' => 'text_url',
-	) );
-
-}

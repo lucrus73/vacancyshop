@@ -1,6 +1,8 @@
 (function( $ ) {
 	'use strict';
 
+var rangeStart = -1;
+
 function getAccomodationsAvailability(startdate, enddate)
 {
   
@@ -21,11 +23,39 @@ function updateBookingAvailabilityFromCalendarClick(jqThis, event, argsarray)
   var inputclass = argsarray[0];
 }
 
-function updateBookingAvailabilityFromDurationInput(jqThis, event, argsarray)
+function showDurationSlider(jqThis, event, argsarray)
 {
+  var sliderclass = argsarray[0];
+  var handleclass = argsarray[1];
+  $("." + sliderclass).slider({
+            value: 1,
+            min: 1,
+            max: 60,
+            step: 1,
+            slide: function( s_event, ui ) {
+              $("." + handleclass).html(ui.value + " giorni");
+            }
+          });
+ }
+
+function updateBookingAvailabilityFromDurationDrag(jqThis, event, argsarray)
+{
+  event.preventDefault();  
+  event.stopPropagation();
   var inputclass = argsarray[0];
+  var moveclass = argsarray[1];
+  var pos = jqThis.position();  
 }
  
+function updateBookingAvailabilityFromDurationDrop(jqThis, event, argsarray)
+{
+  event.preventDefault();  
+  event.stopPropagation();
+  var inputclass = argsarray[0];
+  var moveclass = argsarray[1];
+  var pos = jqThis.position();  
+}
+
 function updateBookingAvailabilityFromAccomodationClick(jqThis, event, argsarray)
 {
   var inputclass = argsarray[0];
