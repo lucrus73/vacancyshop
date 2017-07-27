@@ -138,7 +138,6 @@ class WPV_AccommodationsMap
       $result .= '</div>';
       Wpvacance::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
       Wpvacance::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
-      Wpvacance::$instance->registerScriptParamsCallback(array($this, "load"), array($u->ID)); 
     }
     return $result;
   }
@@ -156,6 +155,9 @@ class WPV_AccommodationsMap
   public function viewMoreOfAccommodationItem(array $params)
   {  
     $postid = $params[0];
+    $postlink = get_permalink($postid, false);
+    strpos($postlink,'?') !== false ? $postlink .= '&' : $postlink .= '?';
+    $postlink .= $this->lightbox_template_postid.'='.$postid; 
     $target = $params[1];
     return array('click', 
                  'viewMoreOfAccommodationItem', 
@@ -163,23 +165,11 @@ class WPV_AccommodationsMap
                         'wpv-booking-accomodations-maps-lightbox', 
                         'fast', 
                         'wpv-booking-accomodations-maps-lightbox-frame',
-                        $postid,
+                        $postlink,
                         'wpv-booking-accomodations-maps-lightbox-close'
                         ));    
   }
-  
-  public function load(array $params)
-  {
-    $postid = $params[0];
-    return array('load', 
-                  'loadPostUrlForPostId', 
-                  array(get_rest_url(), 
-                        WPV_BookingForm::$namespace, 
-                        $postid
-                      ));
     
-  }
-  
   public function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8)
   {
     $thumb = get_post_thumbnail_id($post->ID);
@@ -223,7 +213,7 @@ class WPV_AccommodationsMap
   
   public function registerRoutes()
   {    
-    register_rest_route(WPV_BookingForm::$namespace, '/getLightboxPermalink', array(
+    register_rest_route(WPV_BookingForm::$namespace, '/'.self::$endpoint, array(
     'methods'  => WP_REST_Server::READABLE,
     'callback' => array($this, 'get_lightbox_permalink'),
       ) );

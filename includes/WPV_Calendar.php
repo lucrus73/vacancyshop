@@ -13,29 +13,59 @@
  */
 class WPV_Calendar
 {
+  private static $endpoint = 'getCalendarMarkup';
+  private static $wrapperclass = 'wpv-calendar-wrapper';
+  private static $previousMonthButton = 'wpv-calendar-previous-month-button';
+  private static $nextMonthButton = 'wpv-calendar-next-month-button';
+  
+  
   function __construct()
   {
     Wpvacance::$instance->registerScriptParamsCallback(array($this, "bookingData"));
-    
+    Wpvacance::$instance->registerScriptParamsCallback(array($this, "load"));
+    add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
   }
 
-  public function months($atts, $content = '')
+  public function registerRoutes()
+  {    
+    register_rest_route(WPV_BookingForm::$namespace, '/'.self::$endpoint, array(
+    'methods'  => WP_REST_Server::READABLE,
+    'callback' => array($this, 'get_calendar_markup'),
+      ) );
+  }
+  
+  public function get_calendar_markup(WP_REST_Request $request)
   {
-    
-    if (isset($_GET['prm']))
-    {
-      $m = strip_tags($_GET['prm']) + strip_tags($_GET['chm']);
-    }
-    else
-    {
-      $m = date("m");
-    }
+    $offset = $request->get_param("offset");
+    $span = $request->get_param("span");
 
-    $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">'.__('When does your holiday start?', 'wpvacance').'</div>';
-    $html .= '<div class="wpv-calendar-wrapper">';
+    if (empty($offset) || empty($span) || intval($span) >= 3 || intval($span) < 1)
+    {
+      $offset = 0;
+      $span = 2;
+    }
     
+    $result["markup"] = $this->months(intval($offset), intval($span));
+    
+    return $result;
+  }
+  
+  public function getCalendar()
+  {
+    $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">'.__('When does your holiday start?', 'wpvacance').'</div>';
+    $html .= '<div class="'.self::$wrapperclass.'">';
+    $html .= '</div>';
+    return $html;
+  }
+
+  public function months($offset = 0, $span = 2)
+  {
+    $ut_now = time(null);
+    $m = date("m", $ut_now) + $offset;
+    $utnow_day = (int)($ut_now / 86400);
+    $html = '';
     $meseiniziale = $m;
-    $mesefinale = $m + 1;
+    $mesefinale = $m + ($span - 1);
     for ($meseincostruzione = $meseiniziale; $meseincostruzione <= $mesefinale; $meseincostruzione++)
     {
       $adj = "";
@@ -73,7 +103,7 @@ class WPV_Calendar
       $html .= '<th>';
       
       if ($meseincostruzione == $meseiniziale)
-        $html .= '<a href="?prm=' . $m . '&chm=-1"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>';
+        $html .= '<i class="fa fa-arrow-left '.self::$previousMonthButton.'" data-wpvoffset="'.($offset - 1).'" data-wpvspan="'.$span.'" aria-hidden="true"></i>';
       
       $html .= '</th>';
       $html .= '<th colspan="5">';
@@ -82,25 +112,33 @@ class WPV_Calendar
       $html .= '<th align="center">';
       
       if ($meseincostruzione == $mesefinale)
-        $html .= '<a href="?prm=' . $m . '&chm=1"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>';
+        $html .= '<i class="fa fa-arrow-right '.self::$nextMonthButton.'" data-wpvoffset="'.($offset + 1).'" data-wpvspan="'.$span.'" aria-hidden="true"></i>';
       
       $html .= '</th>';
       $html .= '</tr>';
       $html .= '<tr>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Saturday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Sunday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Monday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Tuesday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Wednesday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Thursday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-giorno">'.$this->fl(__('Friday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Saturday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Sunday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Monday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Tuesday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Wednesday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Thursday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Friday', 'wpvacance')).'</th>';
       $html .= '</tr>';
       $html .= '</thead>';
       $html .= '<tbody>';
       $html .= '<tr>';
       for ($giornodelmese = 1; $giornodelmese <= $nd; $giornodelmese++)
       {
-        $html .= $adj . '<td valign="top" class="wpv-calendar-giorno">' . $giornodelmese . '</td>';
+        $ut_dayofmonth = (int)(mktime(0, 0, 0, $meseincostruzione, $giornodelmese, $y) / 86400);
+        $timeline_class = "wpv-calendar-day-today";
+        if ($ut_dayofmonth < $utnow_day)
+          $timeline_class = "wpv-calendar-day-inthepast";
+        else
+        if ($ut_dayofmonth > $utnow_day)
+          $timeline_class = "wpv-calendar-day-inthefuture";
+          
+        $html .= $adj . '<td valign="top" data-wpvdayid="'.$ut_dayofmonth.'" class="wpv-calendar-day '.$timeline_class.'">' . $giornodelmese . '</td>';
         $adj = '';
         $j++;
         if ($j == 7)
@@ -114,7 +152,6 @@ class WPV_Calendar
       $html .= '</table>';
       $html .= '</div>';
     }
-    $html .= '</div>';
 
     return $html; //ob_get_flush();
   }
@@ -123,11 +160,26 @@ class WPV_Calendar
   {
     return array('click', 
                   'updateBookingAvailabilityFromCalendarClick', 
-                  array('wpv-calendar-giorno'));
+                  array('wpv-calendar-day'));
     
   }
   
-  private function fl($string)
+  public function load()
+  {
+    return array('load', 
+                  'loadCalendar', 
+                  array('', // dummy value, used only when loading on button click, while here is onLoad
+                        get_rest_url(),
+                        WPV_BookingForm::$namespace, 
+                        self::$wrapperclass,
+                        0, // offset 0 = current month
+                        2,  // span 2 months (current and next one)
+                        self::$previousMonthButton,
+                        self::$nextMonthButton
+                      ));    
+  }
+  
+  private function fc($string) // First Character
   {
     return strtoupper(substr($string, 0, 1));
   }

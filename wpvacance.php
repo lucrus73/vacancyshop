@@ -16,7 +16,7 @@
  * Plugin Name:       wpvacance
  * Plugin URI:        https://www.virtualbit.it/wpvacance
  * Description:       This is a short description of what the plugin does. It's displayed in the WordPress admin area.
- * Version:           1.0.5
+ * Version:           1.0.6
  * Author:            Lucio Crusca
  * Author URI:        https://www.virtualbit.it/
  * License:           GPL-2.0+

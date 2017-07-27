@@ -25,7 +25,7 @@ class WPV_BookingForm
     if (is_array($atts))
       extract($atts, EXTR_OVERWRITE);    
     
-    $res = $this->cal->months($atts, $content);
+    $res = $this->cal->getCalendar();
     
     $res .= $this->range->range(31, 'startfrom1');
     

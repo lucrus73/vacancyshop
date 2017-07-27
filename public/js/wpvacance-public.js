@@ -94,15 +94,21 @@ function showSelectionDialog(jqThis, event, argsarray)
   });
 }
 
+function initWPAPI(restRoute)
+{
+  if (typeof wpv_wp_api === 'undefined' || wpv_wp_api == null) 
+  {
+    wpv_wp_api = WPAPI.discover(restRoute);
+  }
+}
+
+/* Not used anymore */
 function loadPostUrlForPostId(jqThis, event, argsarray)
 {
   var restRoute = argsarray[0];
   var namespace = argsarray[1];
   var postid = argsarray[2];
-  if (typeof wpv_wp_api === 'undefined' || ies_wp_api == null) 
-  {
-    wpv_wp_api = WPAPI.discover(restRoute);
-  }
+  initWPAPI(restRoute);
   wpv_wp_api.then(function (site) 
   {
     site.namespace(namespace).getLightboxPermalink().
@@ -118,12 +124,13 @@ function loadPostUrlForPostId(jqThis, event, argsarray)
   });  
 }
 
+
 function viewMoreOfAccommodationItem(jqThis, event, argsarray)
 {
   var lightboxclass = argsarray[1];
   var lightboxspeed = argsarray[2];
   var iframeid = argsarray[3];
-  var sourcedocument = postids_to_urls_map[argsarray[4]];
+  var sourcedocument = argsarray[4];
   var closebuttonclass = argsarray[5];
   
   event.stopImmediatePropagation();
@@ -136,6 +143,45 @@ function viewMoreOfAccommodationItem(jqThis, event, argsarray)
   $("." + closebuttonclass).on("click", function(e) {
     $("." + lightboxclass).fadeOut(lightboxspeed);
   });
+}
+
+function loadCalendar(jqThis, event, argsarray)
+{
+  var restRoute = argsarray[1];
+  var namespace = argsarray[2];
+  var wrapperclass = argsarray[3];
+  var offset = argsarray[4];
+  var span = argsarray[5];
+  var previousMonth = argsarray[6];
+  var nextMonth = argsarray[7];
+  initWPAPI(restRoute);
+  wpv_wp_api.then(function (site) 
+  {
+    site.namespace(namespace).getCalendarMarkup().
+                                    param('offset', offset).
+                                    param('span', span).
+                                              then(function (results)
+    {
+      var markup = results.markup;
+      $("." + wrapperclass).html(markup);
+      $("." + previousMonth).off("click");
+      $("." + nextMonth).off("click");
+      $("." + previousMonth).on("click", function (event)
+      {
+        var newargs = argsarray;
+        newargs[4]--; // previous month;
+        loadCalendar($(this), event, newargs);
+      });
+      $("." + nextMonth).off("click");
+      $("." + nextMonth).on("click", function (event)
+      {
+        var newargs = argsarray;
+        newargs[4]++; // next month;
+        loadCalendar($(this), event, newargs);
+      });
+    });
+  });  
+  
 }
  
 $(document).ready(function()
