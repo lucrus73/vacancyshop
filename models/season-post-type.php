@@ -84,9 +84,9 @@ function season_post_type() {
   );
 
 	/* this adds your post categories to your custom post type */
-	register_taxonomy_for_object_type( 'category', 'season_type' );
+	register_taxonomy_for_object_type( 'season_cat', 'season_type' );
 	/* this adds your post tags to your custom post type */
-	register_taxonomy_for_object_type( 'post_tag', 'season_type' );
+	register_taxonomy_for_object_type( 'season_tag', 'season_type' );
 	
 }
 

@@ -41,6 +41,7 @@
   color: #d39323;
   font-size: 0.6rem;
   font-weight: 900;
+  font-family: serif;
 }
 
 .wpv-booking-range-tick-image {
@@ -61,4 +62,26 @@
 .wpv-booking-range-thumb-icon {
     position: absolute;
     left: -1rem;
+}
+
+.wpv-booking-duration-slider {
+    margin: 1rem 0 3rem 0;
+}
+
+.wpv-booking-duration-slider-custom-handle {
+  z-index: 0;  
+}
+
+.wpv-booking-duration-slider-custom-handle-baloon {
+    width: 8rem;
+    margin: 1rem 0 2rem 0;
+    padding: 0.2rem;
+    border: 2px dashed darkblue;
+    border-radius: 1rem;
+    text-align: center;
+    z-index: 0;
+    font-family: serif;
+}
+
+.wpv-booking-duration-title {
 }

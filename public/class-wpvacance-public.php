@@ -40,6 +40,9 @@ class Wpvacance_Public {
 	 */
 	private $version;
 
+  
+  private $extrastyles;
+  
 	/**
 	 * Initialize the class and set its properties.
 	 *
@@ -51,7 +54,7 @@ class Wpvacance_Public {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
-
+    $this->extrastyles = array();
 	}
 
 	/**
@@ -78,6 +81,24 @@ class Wpvacance_Public {
 		wp_enqueue_style( $this->plugin_name.'calendar', plugin_dir_url( __FILE__ ) . 'css/wpvacance-public-calendar.css', array(), $this->version, 'all' );
 		wp_enqueue_style( $this->plugin_name.'maps', plugin_dir_url( __FILE__ ) . 'css/wpvacance-public-maps.css', array(), $this->version, 'all' );
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
+    $wp_scripts = wp_scripts();
+    wp_enqueue_style(
+      'jquery-ui-theme-smoothness',
+      sprintf(
+        'http://ajax.googleapis.com/ajax/libs/jqueryui/%s/themes/smoothness/jquery-ui.css',
+        $wp_scripts->registered['jquery-ui-core']->ver
+      )
+    );
+  }
+  
+  public function enqueue_extra_styles()
+  {
+    $index = 0;
+    foreach ($this->extrastyles as $st)
+    {
+      $index++;
+      wp_enqueue_style( $this->plugin_name.'extrast-'.$index, plugin_dir_url( __FILE__ ).'css/'.$st);
+    }
 	}
 
 	/**
@@ -102,5 +123,10 @@ class Wpvacance_Public {
 		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpvacance-public.js', array( 'jquery' ), $this->version, false );
 
 	}
+  
+  public function addStyle($style)
+  {
+    array_push($this->extrastyles, $style);
+  }
 
 }

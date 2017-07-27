@@ -5,7 +5,7 @@ class WPVacanceShortcodes
 
   public static function bookingform($atts, $content = '')
   {
-    return Wpvacance::$instance->bookingform->getHtml();
+    return Wpvacance::$instance->bookingform->getHtml($atts, $content);
   }
   
 }

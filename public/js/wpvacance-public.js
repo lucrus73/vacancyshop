@@ -2,6 +2,11 @@
 	'use strict';
 
 var rangeStart = -1;
+var currentDuration = 1;
+var currentStartDateTime = 0;
+var currentAccommodation = 0;
+var postids_to_urls_map = [];
+var wpv_wp_api;
 
 function getAccomodationsAvailability(startdate, enddate)
 {
@@ -18,7 +23,7 @@ function getDurationAvailability(startdate, accomodations)
   
 }
 
-function updateBookingAvailabilityFromCalendarClick(jqThis, event, argsarray)
+function updateAvailability(jqThis, event, argsarray)
 {
   var inputclass = argsarray[0];
 }
@@ -27,24 +32,34 @@ function showDurationSlider(jqThis, event, argsarray)
 {
   var sliderclass = argsarray[0];
   var handleclass = argsarray[1];
+  var baloonclass = argsarray[2];
+  var singularlabel = argsarray[3];
+  var plurallabel = argsarray[4];
+  var init = argsarray[5];
+  var min = argsarray[6];
+  var max = argsarray[7];
+  var step = argsarray[8];
   $("." + sliderclass).slider({
-            value: 1,
-            min: 1,
-            max: 60,
-            step: 1,
+            value: init,
+            min: min,
+            max: max,
+            step: step,
             slide: function( s_event, ui ) {
-              $("." + handleclass).html(ui.value + " giorni");
+              sliderBaloon(ui.value, handleclass, baloonclass, singularlabel, plurallabel);
             }
           });
+  sliderBaloon(init, handleclass, baloonclass, singularlabel, plurallabel);
  }
-
-function updateBookingAvailabilityFromDurationDrag(jqThis, event, argsarray)
+ 
+function sliderBaloon(value, handleclass, baloonclass, singularlabel, plurallabel)
 {
-  event.preventDefault();  
-  event.stopPropagation();
-  var inputclass = argsarray[0];
-  var moveclass = argsarray[1];
-  var pos = jqThis.position();  
+  var label = plurallabel;
+  if (value == 1)
+   label = singularlabel;
+  var str = value + " " + label;
+  $("." + handleclass).html(
+         '<div class="' + baloonclass +'">' + str + '</div>');
+  $("." + baloonclass).css("width", str.length + "rem");
 }
  
 function updateBookingAvailabilityFromDurationDrop(jqThis, event, argsarray)
@@ -59,6 +74,68 @@ function updateBookingAvailabilityFromDurationDrop(jqThis, event, argsarray)
 function updateBookingAvailabilityFromAccomodationClick(jqThis, event, argsarray)
 {
   var inputclass = argsarray[0];
+}
+
+function showSelectionDialog(jqThis, event, argsarray)
+{
+  var buttonclass = argsarray[0];
+  var dialogclass = argsarray[1];  
+  $("." + dialogclass).fadeIn("fast", "linear", function(e) {
+    $("." + buttonclass).off("click");
+    $("." + buttonclass).on("click", function(e) {
+      $("." + buttonclass).off("click");
+      $("." + dialogclass).fadeOut("fast", "linear", function(e) {
+        $("." + buttonclass).off("click");
+        $("." + buttonclass).on("click", function (e) {
+            showSelectionDialog(jqThis, e, argsarray);
+        });    
+      });
+    });
+  });
+}
+
+function loadPostUrlForPostId(jqThis, event, argsarray)
+{
+  var restRoute = argsarray[0];
+  var namespace = argsarray[1];
+  var postid = argsarray[2];
+  if (typeof wpv_wp_api === 'undefined' || ies_wp_api == null) 
+  {
+    wpv_wp_api = WPAPI.discover(restRoute);
+  }
+  wpv_wp_api.then(function (site) 
+  {
+    site.namespace(namespace).getLightboxPermalink().
+                                    param('postid', postid).
+                                              then(function (results)
+    {
+      var url = results.url;
+      if (url != "404")
+      {
+        postids_to_urls_map[postid] = url;
+      }
+    });
+  });  
+}
+
+function viewMoreOfAccommodationItem(jqThis, event, argsarray)
+{
+  var lightboxclass = argsarray[1];
+  var lightboxspeed = argsarray[2];
+  var iframeid = argsarray[3];
+  var sourcedocument = postids_to_urls_map[argsarray[4]];
+  var closebuttonclass = argsarray[5];
+  
+  event.stopImmediatePropagation();
+  event.preventDefault();
+  
+  $("#" + iframeid).attr("src", sourcedocument);
+  $("." + lightboxclass).css("width", $(window).width() + "px");
+  $("." + lightboxclass).css("height", $(window).height() + "px");
+  $("." + lightboxclass).fadeIn(lightboxspeed);
+  $("." + closebuttonclass).on("click", function(e) {
+    $("." + lightboxclass).fadeOut(lightboxspeed);
+  });
 }
  
 $(document).ready(function()

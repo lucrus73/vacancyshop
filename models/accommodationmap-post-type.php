@@ -39,7 +39,7 @@ function accommodationmap_post_type() {
 	
 	// now let's add custom categories (these act like categories)
 	
-  register_taxonomy( 'accommodationmap_cat', 
+  register_taxonomy( 'accmmap_cat', 
     array('accm_map_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
     array('hierarchical' => true,     /* if this is true, it acts like categories */
       'labels' => array(
@@ -62,7 +62,7 @@ function accommodationmap_post_type() {
   );
 
   // now let's add custom tags (these act like categories)
-  register_taxonomy( 'accommodationmap_tag', 
+  register_taxonomy( 'accmmap_tag', 
     array('accm_map_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
     array('hierarchical' => false,    /* if this is false, it acts like tags */
       'labels' => array(
@@ -84,9 +84,9 @@ function accommodationmap_post_type() {
   );
 
 	/* this adds your post categories to your custom post type */
-	register_taxonomy_for_object_type( 'category', 'accm_map_type' );
+	register_taxonomy_for_object_type( 'accmmap_cat', 'accm_map_type' );
 	/* this adds your post tags to your custom post type */
-	register_taxonomy_for_object_type( 'post_tag', 'accm_map_type' );
+	register_taxonomy_for_object_type( 'accmmap_tag', 'accm_map_type' );
 	
 }
 
@@ -101,7 +101,7 @@ function wpv_accommodationmap_editor_content( $content, $post )
 {
   if ( $post->post_type == 'accm_map_type') 
   {
-    $content = __('Please set the map image as post thumbnail', 'wpvacance');
+    $content = __('Please use the featured image of this post to set the map image', 'wpvacance');
   }
 
   return $content;

@@ -62,6 +62,12 @@ class Wpvacance {
    * @var $instance Wpvacance
    */
   public static $instance = null; // singleton
+  
+  /**
+   *
+   * @var $plugin_public Wpvacance_Public
+   */
+  public $plugin_public;
 
   private $script_handle;
   /** 
@@ -152,6 +158,7 @@ class Wpvacance {
     require_once plugin_dir_path(dirname(__FILE__)) . 'includes/WPV_BookingForm.php';
 
     $this->loader = new Wpvacance_Loader();
+    $this->bookingform = new WPV_BookingForm();
 
 	}
 
@@ -199,11 +206,12 @@ class Wpvacance {
 	 */
 	private function define_public_hooks() {
 
-		$plugin_public = new Wpvacance_Public( $this->get_plugin_name(), $this->get_version() );
+		$this->plugin_public = new Wpvacance_Public( $this->get_plugin_name(), $this->get_version() );
 
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-    add_action( 'wp_enqueue_scripts', array(&$this, 'enqueue_scripts') );
+		$this->loader->add_action( 'wp_enqueue_scripts', $this->plugin_public, 'enqueue_styles' );
+		$this->loader->add_action( 'wp_enqueue_scripts', $this->plugin_public, 'enqueue_scripts' );
+    add_action( 'wp_enqueue_scripts', array($this, 'enqueue_scripts'));
+		$this->loader->add_action( 'wp_enqueue_scripts', $this->plugin_public, 'enqueue_extra_styles', PHP_INT_MAX);
 
 	}
 
@@ -212,8 +220,9 @@ class Wpvacance {
 	 *
 	 * @since    1.0.0
 	 */
-	public function run() {
-		$this->loader->run();
+	public function run() 
+  {
+    $this->loader->run();
 
     $scclasses = array('WPVacanceShortcodes' => 'vb_wpv_');
     foreach ($scclasses as $cname => $prefix)
@@ -225,8 +234,9 @@ class Wpvacance {
         $shortcodename = $prefix.$m->name; 
         add_shortcode($shortcodename, array($m->class, $m->name));
       }
-    }
-	}
+    }    
+  }
+   
 
 	/**
 	 * The name of the plugin used to uniquely identify it within the context of
@@ -261,11 +271,16 @@ class Wpvacance {
 
   public function enqueue_scripts()
   {    
+    $wpapifileurl = plugin_dir_url( __FILE__ ) . '../public/js/wpapi.min.js';
+    $wpapihandle = "wpv-node-wpapi";
+    wp_register_script($wpapihandle, $wpapifileurl);
+    wp_enqueue_script($wpapihandle);
+
+    wp_enqueue_script( 'jquery-ui-slider');
+
     $jsfileurl = plugin_dir_url( __FILE__ ) . '../public/js/wpvacance-public.js';
     wp_register_script($this->script_handle, $jsfileurl );
     
-    $this->bookingform = new WPV_BookingForm();
-
     $hooks_data_events = array();
 
     foreach ($this->script_params_callbacks as $callback_pack)
@@ -279,8 +294,6 @@ class Wpvacance {
     $hooks_data = array('events' => $hooks_data_events);
     
     wp_localize_script($this->script_handle, 'jshooks_params', $hooks_data);
-    wp_enqueue_script("jquery-ui-dialog", "/wp-includes/js/jquery/ui/jquery.ui.dialog.min.js");
-    wp_enqueue_script("jquery-ui-slider");
     wp_enqueue_script($this->script_handle);
 	}
 

@@ -2,3 +2,12 @@
  * All of the CSS for your public-facing functionality should be
  * included in this file.
  */
+
+.wpv-booking-option-title {
+  font-family: serif;
+  font-size: 150%;
+  text-align: center;
+  width: 100%;
+  padding: 2rem 1rem 1rem 1rem;
+
+}

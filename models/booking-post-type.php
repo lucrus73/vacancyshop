@@ -84,9 +84,9 @@ function booking_post_type() {
   );
 
 	/* this adds your post categories to your custom post type */
-	register_taxonomy_for_object_type( 'category', 'booking_type' );
+	register_taxonomy_for_object_type( 'booking_cat', 'booking_type' );
 	/* this adds your post tags to your custom post type */
-	register_taxonomy_for_object_type( 'post_tag', 'booking_type' );
+	register_taxonomy_for_object_type( 'booking_tag', 'booking_type' );
 	
 }
 
