@@ -6,21 +6,21 @@ function accommodation_post_type() {
 	register_post_type( 'accommodation_type', /* (http://codex.wordpress.org/Function_Reference/register_post_type) */
 		// let's now add all the options for this post type
 		array( 'labels' => array(
-			'name' => __( 'Accommodations', 'wpvacance' ), /* This is the Title of the Group */
-			'singular_name' => __( 'Accommodation', 'wpvacance' ), /* This is the individual type */
-			'all_items' => __( 'All accommodations', 'wpvacance' ), /* the all items menu item */
-			'add_new' => __( 'Add accommodation', 'wpvacance' ), /* The add new menu item */
-			'add_new_item' => __( 'Add a new accommodation', 'wpvacance' ), /* Add New Display Title */
-			'edit' => __( 'Edit', 'wpvacance' ), /* Edit Dialog */
-			'edit_item' => __( 'Edit accommodation', 'wpvacance' ), /* Edit Display Title */
-			'new_item' => __( 'New accommodation', 'wpvacance' ), /* New Display Title */
-			'view_item' => __( 'Show accommodation', 'wpvacance' ), /* View Display Title */
-			'search_items' => __( 'Search accommodations', 'wpvacance' ), /* Search Custom Type Title */ 
-			'not_found' =>  __( 'No accommodations found', 'wpvacance' ), /* This displays if there are no entries yet */ 
-			'not_found_in_trash' => __( 'No accommodations in trash', 'wpvacance' ), /* This displays if there is nothing in the trash */
+			'name' => __( 'Accommodations', 'wpvacancy' ), /* This is the Title of the Group */
+			'singular_name' => __( 'Accommodation', 'wpvacancy' ), /* This is the individual type */
+			'all_items' => __( 'All accommodations', 'wpvacancy' ), /* the all items menu item */
+			'add_new' => __( 'Add accommodation', 'wpvacancy' ), /* The add new menu item */
+			'add_new_item' => __( 'Add a new accommodation', 'wpvacancy' ), /* Add New Display Title */
+			'edit' => __( 'Edit', 'wpvacancy' ), /* Edit Dialog */
+			'edit_item' => __( 'Edit accommodation', 'wpvacancy' ), /* Edit Display Title */
+			'new_item' => __( 'New accommodation', 'wpvacancy' ), /* New Display Title */
+			'view_item' => __( 'Show accommodation', 'wpvacancy' ), /* View Display Title */
+			'search_items' => __( 'Search accommodations', 'wpvacancy' ), /* Search Custom Type Title */ 
+			'not_found' =>  __( 'No accommodations found', 'wpvacancy' ), /* This displays if there are no entries yet */ 
+			'not_found_in_trash' => __( 'No accommodations in trash', 'wpvacancy' ), /* This displays if there is nothing in the trash */
 			'parent_item_colon' => ''
 			), /* end of arrays */
-			'description' => __( 'Accommodations in your resort or rooms in your hotel', 'wpvacance' ), /* Custom Type Description */
+			'description' => __( 'Accommodations in your resort or rooms in your hotel', 'wpvacancy' ), /* Custom Type Description */
 			'public' => true,
 			'publicly_queryable' => true,
 			'exclude_from_search' => false,
@@ -43,16 +43,16 @@ function accommodation_post_type() {
     array('accommodation_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
     array('hierarchical' => true,     /* if this is true, it acts like categories */
       'labels' => array(
-        'name' => __( 'Accommodation category', 'wpvacance' ), /* name of the custom taxonomy */
-        'singular_name' => __( 'Accommodation category', 'wpvacance' ), /* single taxonomy name */
-        'search_items' =>  __( 'Search accommodation categories', 'wpvacance' ), /* search title for taxomony */
-        'all_items' => __( 'All accommodation categories', 'wpvacance' ), /* all title for taxonomies */
-        'parent_item' => __( 'Parent category', 'wpvacance' ), /* parent title for taxonomy */
-        'parent_item_colon' => __( 'Parent category:', 'wpvacance' ), /* parent taxonomy title */
-        'edit_item' => __( 'Edit accommodation category', 'wpvacance' ), /* edit custom taxonomy title */
-        'update_item' => __( 'Update accommodation category', 'wpvacance' ), /* update title for taxonomy */
-        'add_new_item' => __( 'Add accommodation category', 'wpvacance' ), /* add new title for taxonomy */
-        'new_item_name' => __( 'New accommodation category', 'wpvacance' ) /* name title for taxonomy */
+        'name' => __( 'Accommodation category', 'wpvacancy' ), /* name of the custom taxonomy */
+        'singular_name' => __( 'Accommodation category', 'wpvacancy' ), /* single taxonomy name */
+        'search_items' =>  __( 'Search accommodation categories', 'wpvacancy' ), /* search title for taxomony */
+        'all_items' => __( 'All accommodation categories', 'wpvacancy' ), /* all title for taxonomies */
+        'parent_item' => __( 'Parent category', 'wpvacancy' ), /* parent title for taxonomy */
+        'parent_item_colon' => __( 'Parent category:', 'wpvacancy' ), /* parent taxonomy title */
+        'edit_item' => __( 'Edit accommodation category', 'wpvacancy' ), /* edit custom taxonomy title */
+        'update_item' => __( 'Update accommodation category', 'wpvacancy' ), /* update title for taxonomy */
+        'add_new_item' => __( 'Add accommodation category', 'wpvacancy' ), /* add new title for taxonomy */
+        'new_item_name' => __( 'New accommodation category', 'wpvacancy' ) /* name title for taxonomy */
       ),
       'show_admin_column' => true, 
       'show_ui' => true,
@@ -66,16 +66,16 @@ function accommodation_post_type() {
     array('accommodation_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
     array('hierarchical' => false,    /* if this is false, it acts like tags */
       'labels' => array(
-        'name' => __( 'Accommodation Features', 'wpvacance' ), /* name of the custom taxonomy */
-        'singular_name' => __( 'Accommodation Feature', 'wpvacance' ), /* single taxonomy name */
-        'search_items' =>  __( 'Search features', 'wpvacance' ), /* search title for taxomony */
-        'all_items' => __( 'All features', 'wpvacance' ), /* all title for taxonomies */
-        'parent_item' => __( 'Parent feature', 'wpvacance' ), /* parent title for taxonomy */
-        'parent_item_colon' => __( 'Parent feature:', 'wpvacance' ), /* parent taxonomy title */
-        'edit_item' => __( 'Edit feature', 'wpvacance' ), /* edit custom taxonomy title */
-        'update_item' => __( 'Update feature', 'wpvacance' ), /* update title for taxonomy */
-        'add_new_item' => __( 'Add feature', 'wpvacance' ), /* add new title for taxonomy */
-        'new_item_name' => __( 'New feature name', 'wpvacance' ) /* name title for taxonomy */
+        'name' => __( 'Accommodation Features', 'wpvacancy' ), /* name of the custom taxonomy */
+        'singular_name' => __( 'Accommodation Feature', 'wpvacancy' ), /* single taxonomy name */
+        'search_items' =>  __( 'Search features', 'wpvacancy' ), /* search title for taxomony */
+        'all_items' => __( 'All features', 'wpvacancy' ), /* all title for taxonomies */
+        'parent_item' => __( 'Parent feature', 'wpvacancy' ), /* parent title for taxonomy */
+        'parent_item_colon' => __( 'Parent feature:', 'wpvacancy' ), /* parent taxonomy title */
+        'edit_item' => __( 'Edit feature', 'wpvacancy' ), /* edit custom taxonomy title */
+        'update_item' => __( 'Update feature', 'wpvacancy' ), /* update title for taxonomy */
+        'add_new_item' => __( 'Add feature', 'wpvacancy' ), /* add new title for taxonomy */
+        'new_item_name' => __( 'New feature name', 'wpvacancy' ) /* name title for taxonomy */
       ),
       'show_admin_column' => true,
       'show_ui' => true,

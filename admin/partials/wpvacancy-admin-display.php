@@ -8,8 +8,8 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/admin/partials
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/admin/partials
  */
 ?>
 

@@ -15,12 +15,12 @@ class WPV_RangeSlider
 {
   function __construct()
   {
-    Wpvacance::$instance->registerScriptParamsCallback(array($this, "load"));    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));    
   }
 
   public function range($ticks = false, $labels = false, $balloon = false, $snaptoticks = false)
   {
-    $res = '<div class="wpv-booking-option-title wpv-booking-duration-title">'.__('How long does your holiday last?', 'wpvacance').'</div>';
+    $res = '<div class="wpv-booking-option-title wpv-booking-duration-title">'.__('How long does your holiday last?', 'wpvacancy').'</div>';
     $res .= '<div class="wpv-booking-duration-slider">';
     $res .= '<div class="wpv-booking-duration-slider-custom-handle ui-slider-handle" style="z-index:0;"></div>';
     $res .= '</div>';
@@ -35,8 +35,8 @@ class WPV_RangeSlider
                   array('wpv-booking-duration-slider', 
                       'wpv-booking-duration-slider-custom-handle', 
                       'wpv-booking-duration-slider-custom-handle-baloon',
-                      __('night', 'wpvacance'),
-                      __('nights', 'wpvacance'),
+                      __('night', 'wpvacancy'),
+                      __('nights', 'wpvacancy'),
                       14, 1, 60, 1
                       ));
     

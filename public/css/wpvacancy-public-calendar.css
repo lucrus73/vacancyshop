@@ -29,3 +29,7 @@
 .wpv-calendar-day-inthefuture {
   color: darkgreen;
 }
+
+.wpv-calendar-previous-month-button, .wpv-calendar-next-month-button {
+  cursor: pointer;
+}

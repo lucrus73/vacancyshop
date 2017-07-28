@@ -22,7 +22,7 @@ class WPV_AccommodationsMap
     if ($post->post_type == 'accommodation_type' && $this->postid > 0)
     {
       $single_template = dirname( __FILE__ ) . '/show-post-in-lightbox.php';
-      Wpvacance::$instance->plugin_public->addStyle('wpvacance-single-post-lightbox.css');
+      Wpvacancy::$instance->plugin_public->addStyle('wpvacancy-single-post-lightbox.css');
     }
     return $single_template;
   }    
@@ -77,7 +77,7 @@ class WPV_AccommodationsMap
     if (!is_array($maps))
       $maps = array($maps);
     
-    $res = '<div class="wpv-booking-option-title wpv-booking-accommodation-title">'.__('Which accommodation do you want?', 'wpvacance').'</div>';
+    $res = '<div class="wpv-booking-option-title wpv-booking-accommodation-title">'.__('Which accommodation do you want?', 'wpvacancy').'</div>';
     $res .= '<div class="wpv-booking-accomodations-maps">';
     foreach ($maps as $map)
     {
@@ -131,13 +131,13 @@ class WPV_AccommodationsMap
                     '%; height:'.$height.'%; position: absolute; background-image: url('.plugin_dir_url( __FILE__ ) . 'res/accm-unit.png);">';
       $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
       $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 4);
-      $result .= '<div class="wpv-accommodation-hint-image-buttons"><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'"><span>'.__("View more", 'wpvacance').'</span></div><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-choosethis"><span>'.__('Choose this', 'wpvacance').'</span></div></div>';
+      $result .= '<div class="wpv-accommodation-hint-image-buttons"><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'"><span>'.__("View more", 'wpvacancy').'</span></div><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-choosethis"><span>'.__('Choose this', 'wpvacancy').'</span></div></div>';
       $result .= '</div>';      
       
       $result .= '</div>';
       $result .= '</div>';
-      Wpvacance::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
-      Wpvacance::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
+      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
+      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
     }
     return $result;
   }

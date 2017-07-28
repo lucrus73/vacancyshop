@@ -6,8 +6,8 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  */
 
 /**
@@ -16,11 +16,11 @@
  * This class defines all code necessary to run during the plugin's deactivation.
  *
  * @since      1.0.0
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  * @author     Lucio Crusca <lucio@sulweb.org>
  */
-class Wpvacance_Deactivator {
+class Wpvacancy_Deactivator {
 
 	/**
 	 * Short Description. (use period)

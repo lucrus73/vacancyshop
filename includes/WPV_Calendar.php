@@ -17,12 +17,15 @@ class WPV_Calendar
   private static $wrapperclass = 'wpv-calendar-wrapper';
   private static $previousMonthButton = 'wpv-calendar-previous-month-button';
   private static $nextMonthButton = 'wpv-calendar-next-month-button';
+  private static $defaultoffset = 0;
+  private static $defaultspan = 3;
+  
   
   
   function __construct()
   {
-    Wpvacance::$instance->registerScriptParamsCallback(array($this, "bookingData"));
-    Wpvacance::$instance->registerScriptParamsCallback(array($this, "load"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
   }
 
@@ -39,27 +42,27 @@ class WPV_Calendar
     $offset = $request->get_param("offset");
     $span = $request->get_param("span");
 
-    if (empty($offset) || empty($span) || intval($span) >= 3 || intval($span) < 1)
-    {
-      $offset = 0;
-      $span = 2;
-    }
-    
-    $result["markup"] = $this->months(intval($offset), intval($span));
+    $result["markup"] = $this->months($offset, $span);
     
     return $result;
   }
   
   public function getCalendar()
   {
-    $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">'.__('When does your holiday start?', 'wpvacance').'</div>';
+    $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">'.__('When does your holiday start?', 'wpvacancy').'</div>';
     $html .= '<div class="'.self::$wrapperclass.'">';
     $html .= '</div>';
     return $html;
   }
 
-  public function months($offset = 0, $span = 2)
+  public function months($offset = null, $span = null)
   {
+    if (empty($offset) || empty($span) || intval($span) >= 4 || intval($span) < 1)
+    {
+      $offset = self::$defaultoffset;
+      $span = self::$defaultspan;
+    }
+
     $ut_now = time(null);
     $m = date("m", $ut_now) + $offset;
     $utnow_day = (int)($ut_now / 86400);
@@ -79,18 +82,18 @@ class WPV_Calendar
       {
         $j = "0";
       }
-      $MONTHS = array(1 =>  __('Jan', 'wpvacance'), 
-                            __('Feb', 'wpvacance'), 
-                            __('Mar', 'wpvacance'), 
-                            __('Apr', 'wpvacance'),
-                            __('May', 'wpvacance'),
-                            __('Jun', 'wpvacance'),
-                            __('Jul', 'wpvacance'),
-                            __('Aug', 'wpvacance'),
-                            __('Sep', 'wpvacance'),
-                            __('Oct', 'wpvacance'),
-                            __('Nov', 'wpvacance'),
-                            __('Dec', 'wpvacance'));
+      $MONTHS = array(1 =>  __('Jan', 'wpvacancy'), 
+                            __('Feb', 'wpvacancy'), 
+                            __('Mar', 'wpvacancy'), 
+                            __('Apr', 'wpvacancy'),
+                            __('May', 'wpvacancy'),
+                            __('Jun', 'wpvacancy'),
+                            __('Jul', 'wpvacancy'),
+                            __('Aug', 'wpvacancy'),
+                            __('Sep', 'wpvacancy'),
+                            __('Oct', 'wpvacancy'),
+                            __('Nov', 'wpvacancy'),
+                            __('Dec', 'wpvacancy'));
       for ($k = 1; $k <= $j; $k++)
       {
         $adj .= '<td class="wpv-calendar-day wpv-calendar-day-disabled"> </td>';
@@ -117,13 +120,13 @@ class WPV_Calendar
       $html .= '</th>';
       $html .= '</tr>';
       $html .= '<tr>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Saturday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Sunday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Monday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Tuesday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Wednesday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Thursday', 'wpvacance')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Friday', 'wpvacance')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Saturday', 'wpvacancy')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Sunday', 'wpvacancy')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Monday', 'wpvacancy')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Tuesday', 'wpvacancy')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Wednesday', 'wpvacancy')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Thursday', 'wpvacancy')).'</th>';
+      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Friday', 'wpvacancy')).'</th>';
       $html .= '</tr>';
       $html .= '</thead>';
       $html .= '<tbody>';
@@ -172,8 +175,8 @@ class WPV_Calendar
                         get_rest_url(),
                         WPV_BookingForm::$namespace, 
                         self::$wrapperclass,
-                        0, // offset 0 = current month
-                        2,  // span 2 months (current and next one)
+                        self::$defaultoffset, // offset 0 = current month
+                        self::$defaultspan,  // span N months (2 -> current and next one)
                         self::$previousMonthButton,
                         self::$nextMonthButton
                       ));    

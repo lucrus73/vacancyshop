@@ -6,8 +6,8 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  */
 
 /**
@@ -17,11 +17,11 @@
  * the plugin, and register them with the WordPress API. Call the
  * run function to execute the list of actions and filters.
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  * @author     Lucio Crusca <lucio@sulweb.org>
  */
-class Wpvacance_Loader {
+class Wpvacancy_Loader {
 
 	/**
 	 * The array of actions registered with WordPress.

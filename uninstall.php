@@ -22,7 +22,7 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
+ * @package    Wpvacancy
  */
 
 // If uninstall not called from WordPress, then exit.

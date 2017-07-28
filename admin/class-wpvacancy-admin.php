@@ -6,8 +6,8 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/admin
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/admin
  */
 
 /**
@@ -16,11 +16,11 @@
  * Defines the plugin name, version, and two examples hooks for how to
  * enqueue the admin-specific stylesheet and JavaScript.
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/admin
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/admin
  * @author     Lucio Crusca <lucio@sulweb.org>
  */
-class Wpvacance_Admin {
+class Wpvacancy_Admin {
 
 	/**
 	 * The ID of this plugin.
@@ -65,15 +65,15 @@ class Wpvacance_Admin {
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in Wpvacance_Loader as all of the hooks are defined
+		 * defined in Wpvacancy_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The Wpvacance_Loader will then create the relationship
+		 * The Wpvacancy_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wpvacance-admin.css', array(), $this->version, 'all' );
+		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wpvacancy-admin.css', array(), $this->version, 'all' );
 
 	}
 
@@ -88,15 +88,15 @@ class Wpvacance_Admin {
 		 * This function is provided for demonstration purposes only.
 		 *
 		 * An instance of this class should be passed to the run() function
-		 * defined in Wpvacance_Loader as all of the hooks are defined
+		 * defined in Wpvacancy_Loader as all of the hooks are defined
 		 * in that particular class.
 		 *
-		 * The Wpvacance_Loader will then create the relationship
+		 * The Wpvacancy_Loader will then create the relationship
 		 * between the defined hooks and the functions defined in this
 		 * class.
 		 */
 
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpvacance-admin.js', array( 'jquery' ), $this->version, false );
+		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpvacancy-admin.js', array( 'jquery' ), $this->version, false );
 
 	}
 

@@ -7,7 +7,7 @@ class WPV_BookingForm
   private $cal;
   private $range;
   private $maps;
-  public static $namespace = 'wpvacance/v1';
+  public static $namespace = 'wpvacancy/v1';
 
   
   function __construct()

@@ -9,8 +9,8 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  */
 
 /**
@@ -20,11 +20,11 @@
  * so that it is ready for translation.
  *
  * @since      1.0.0
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  * @author     Lucio Crusca <lucio@sulweb.org>
  */
-class Wpvacance_i18n {
+class Wpvacancy_i18n {
 
 
 	/**
@@ -35,7 +35,7 @@ class Wpvacance_i18n {
 	public function load_plugin_textdomain() {
 
 		load_plugin_textdomain(
-			'wpvacance',
+			'wpvacancy',
 			false,
 			dirname( dirname( plugin_basename( __FILE__ ) ) ) . '/languages/'
 		);

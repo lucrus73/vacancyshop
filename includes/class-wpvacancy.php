@@ -9,8 +9,8 @@
  * @link       https://www.virtualbit.it/
  * @since      1.0.0
  *
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  */
 
 /**
@@ -23,11 +23,11 @@
  * version of the plugin.
  *
  * @since      1.0.0
- * @package    Wpvacance
- * @subpackage Wpvacance/includes
+ * @package    Wpvacancy
+ * @subpackage Wpvacancy/includes
  * @author     Lucio Crusca <lucio@sulweb.org>
  */
-class Wpvacance {
+class Wpvacancy {
 
 	/**
 	 * The loader that's responsible for maintaining and registering all hooks that power
@@ -35,7 +35,7 @@ class Wpvacance {
 	 *
 	 * @since    1.0.0
 	 * @access   protected
-	 * @var      Wpvacance_Loader    $loader    Maintains and registers all hooks for the plugin.
+	 * @var      Wpvacancy_Loader    $loader    Maintains and registers all hooks for the plugin.
 	 */
 	protected $loader;
 
@@ -59,13 +59,13 @@ class Wpvacance {
 
   /**
    *
-   * @var $instance Wpvacance
+   * @var $instance Wpvacancy
    */
   public static $instance = null; // singleton
   
   /**
    *
-   * @var $plugin_public Wpvacance_Public
+   * @var $plugin_public Wpvacancy_Public
    */
   public $plugin_public;
 
@@ -91,12 +91,12 @@ class Wpvacance {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct($wpvacance_prefix) {
+	public function __construct($wpvacancy_prefix) {
 
     if (empty(self::$instance))
       self::$instance = &$this;
 
-		$this->plugin_name = 'wpvacance';
+		$this->plugin_name = 'wpvacancy';
 		$this->version = '1.0.0';
     $this->script_params_callbacks = array();
     $this->script_handle = 'wpv_formsubmitter';
@@ -113,10 +113,10 @@ class Wpvacance {
 	 *
 	 * Include the following files that make up the plugin:
 	 *
-	 * - Wpvacance_Loader. Orchestrates the hooks of the plugin.
-	 * - Wpvacance_i18n. Defines internationalization functionality.
-	 * - Wpvacance_Admin. Defines all hooks for the admin area.
-	 * - Wpvacance_Public. Defines all hooks for the public side of the site.
+	 * - Wpvacancy_Loader. Orchestrates the hooks of the plugin.
+	 * - Wpvacancy_i18n. Defines internationalization functionality.
+	 * - Wpvacancy_Admin. Defines all hooks for the admin area.
+	 * - Wpvacancy_Public. Defines all hooks for the public side of the site.
 	 *
 	 * Create an instance of the loader which will be used to register the hooks
 	 * with WordPress.
@@ -130,25 +130,25 @@ class Wpvacance {
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpvacance-loader.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpvacancy-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpvacance-i18n.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/WPVacanceShortcodes.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpvacancy-i18n.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/WPVacancyShortcodes.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpvacance-admin.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpvacancy-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpvacance-public.php';
+		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpvacancy-public.php';
 
     require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/accommodationmap-post-type.php';
     require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/accommodation-post-type.php';
@@ -157,7 +157,7 @@ class Wpvacance {
 
     require_once plugin_dir_path(dirname(__FILE__)) . 'includes/WPV_BookingForm.php';
 
-    $this->loader = new Wpvacance_Loader();
+    $this->loader = new Wpvacancy_Loader();
     $this->bookingform = new WPV_BookingForm();
 
 	}
@@ -165,7 +165,7 @@ class Wpvacance {
 	/**
 	 * Define the locale for this plugin for internationalization.
 	 *
-	 * Uses the Wpvacance_i18n class in order to set the domain and to register the hook
+	 * Uses the Wpvacancy_i18n class in order to set the domain and to register the hook
 	 * with WordPress.
 	 *
 	 * @since    1.0.0
@@ -173,7 +173,7 @@ class Wpvacance {
 	 */
 	private function set_locale() {
 
-		$plugin_i18n = new Wpvacance_i18n();
+		$plugin_i18n = new Wpvacancy_i18n();
 
 		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
 
@@ -188,7 +188,7 @@ class Wpvacance {
 	 */
 	private function define_admin_hooks() {
 
-		$plugin_admin = new Wpvacance_Admin( $this->get_plugin_name(), $this->get_version() );
+		$plugin_admin = new Wpvacancy_Admin( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
 		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
@@ -206,7 +206,7 @@ class Wpvacance {
 	 */
 	private function define_public_hooks() {
 
-		$this->plugin_public = new Wpvacance_Public( $this->get_plugin_name(), $this->get_version() );
+		$this->plugin_public = new Wpvacancy_Public( $this->get_plugin_name(), $this->get_version() );
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $this->plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $this->plugin_public, 'enqueue_scripts' );
@@ -224,7 +224,7 @@ class Wpvacance {
   {
     $this->loader->run();
 
-    $scclasses = array('WPVacanceShortcodes' => 'vb_wpv_');
+    $scclasses = array('WPVacancyShortcodes' => 'vb_wpv_');
     foreach ($scclasses as $cname => $prefix)
     {
       $class = new ReflectionClass($cname);
@@ -253,7 +253,7 @@ class Wpvacance {
 	 * The reference to the class that orchestrates the hooks with the plugin.
 	 *
 	 * @since     1.0.0
-	 * @return    Wpvacance_Loader    Orchestrates the hooks of the plugin.
+	 * @return    Wpvacancy_Loader    Orchestrates the hooks of the plugin.
 	 */
 	public function get_loader() {
 		return $this->loader;
@@ -278,7 +278,7 @@ class Wpvacance {
 
     wp_enqueue_script( 'jquery-ui-slider');
 
-    $jsfileurl = plugin_dir_url( __FILE__ ) . '../public/js/wpvacance-public.js';
+    $jsfileurl = plugin_dir_url( __FILE__ ) . '../public/js/wpvacancy-public.js';
     wp_register_script($this->script_handle, $jsfileurl );
     
     $hooks_data_events = array();

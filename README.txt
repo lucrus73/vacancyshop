@@ -1,6 +1,6 @@
-=== WPVacance ===
+=== WPVacancy ===
 Contributors: Lucrus
-Donate link: https://www.virtualbit.it/wpvacance
+Donate link: https://www.virtualbit.it/wpvacancy
 Tags: bookings
 Requires at least: 4.7
 Tested up to: 4.8
@@ -12,7 +12,7 @@ Provides shortcodes and admin screens to create a full booking system for accomo
 
 == Description ==
 
-The WPVacance WordPress plugin turns your WordPress site into a booking site for any kind of accomodation. It supports different seasons for different prices and rules based on dates of the booking, any number of accomodation units and standard WordPress users database. Once paired with WooCommerce and Ultimate Member (both are third party products) it makes your site a wonderful ecommerce selling services for holidays or other type of space booking.
+The WPVacancy WordPress plugin turns your WordPress site into a booking site for any kind of accomodation. It supports different seasons for different prices and rules based on dates of the booking, any number of accomodation units and standard WordPress users database. Once paired with WooCommerce and Ultimate Member (both are third party products) it makes your site a wonderful ecommerce selling services for holidays or other type of space booking.
 
 Features:
 
@@ -39,7 +39,7 @@ Planned features (implementation time depends on received donations):
 
 == Installation ==
 
-1. Unzip `wpvacance.zip` into the `/wp-content/plugins/` directory
+1. Unzip `wpvacancy.zip` into the `/wp-content/plugins/` directory
 1. Activate the plugin through the 'Plugins' menu in WordPress
 
 == Frequently Asked Questions ==

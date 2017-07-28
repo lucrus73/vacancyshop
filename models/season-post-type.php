@@ -6,21 +6,21 @@ function season_post_type() {
 	register_post_type( 'season_type', /* (http://codex.wordpress.org/Function_Reference/register_post_type) */
 		// let's now add all the options for this post type
 		array( 'labels' => array(
-			'name' => __( 'Seasons', 'wpvacance' ), /* This is the Title of the Group */
-			'singular_name' => __( 'Season', 'wpvacance' ), /* This is the individual type */
-			'all_items' => __( 'All seasons', 'wpvacance' ), /* the all items menu item */
-			'add_new' => __( 'Add season', 'wpvacance' ), /* The add new menu item */
-			'add_new_item' => __( 'Add a new season', 'wpvacance' ), /* Add New Display Title */
-			'edit' => __( 'Edit', 'wpvacance' ), /* Edit Dialog */
-			'edit_item' => __( 'Edit season', 'wpvacance' ), /* Edit Display Title */
-			'new_item' => __( 'New season', 'wpvacance' ), /* New Display Title */
-			'view_item' => __( 'Show season', 'wpvacance' ), /* View Display Title */
-			'search_items' => __( 'Search seasons', 'wpvacance' ), /* Search Custom Type Title */ 
-			'not_found' =>  __( 'No seasons found', 'wpvacance' ), /* This displays if there are no entries yet */ 
-			'not_found_in_trash' => __( 'No seasons in trash', 'wpvacance' ), /* This displays if there is nothing in the trash */
+			'name' => __( 'Seasons', 'wpvacancy' ), /* This is the Title of the Group */
+			'singular_name' => __( 'Season', 'wpvacancy' ), /* This is the individual type */
+			'all_items' => __( 'All seasons', 'wpvacancy' ), /* the all items menu item */
+			'add_new' => __( 'Add season', 'wpvacancy' ), /* The add new menu item */
+			'add_new_item' => __( 'Add a new season', 'wpvacancy' ), /* Add New Display Title */
+			'edit' => __( 'Edit', 'wpvacancy' ), /* Edit Dialog */
+			'edit_item' => __( 'Edit season', 'wpvacancy' ), /* Edit Display Title */
+			'new_item' => __( 'New season', 'wpvacancy' ), /* New Display Title */
+			'view_item' => __( 'Show season', 'wpvacancy' ), /* View Display Title */
+			'search_items' => __( 'Search seasons', 'wpvacancy' ), /* Search Custom Type Title */ 
+			'not_found' =>  __( 'No seasons found', 'wpvacancy' ), /* This displays if there are no entries yet */ 
+			'not_found_in_trash' => __( 'No seasons in trash', 'wpvacancy' ), /* This displays if there is nothing in the trash */
 			'parent_item_colon' => ''
 			), /* end of arrays */
-			'description' => __( 'Seasons in your resort or hotel', 'wpvacance' ), /* Custom Type Description */
+			'description' => __( 'Seasons in your resort or hotel', 'wpvacancy' ), /* Custom Type Description */
 			'public' => true,
 			'publicly_queryable' => true,
 			'exclude_from_search' => false,
@@ -43,16 +43,16 @@ function season_post_type() {
     array('season_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
     array('hierarchical' => true,     /* if this is true, it acts like categories */
       'labels' => array(
-        'name' => __( 'Season categories', 'wpvacance' ), /* name of the custom taxonomy */
-        'singular_name' => __( 'Season category', 'wpvacance' ), /* single taxonomy name */
-        'search_items' =>  __( 'Search season categories', 'wpvacance' ), /* search title for taxomony */
-        'all_items' => __( 'All season categories', 'wpvacance' ), /* all title for taxonomies */
-        'parent_item' => __( 'Parent category', 'wpvacance' ), /* parent title for taxonomy */
-        'parent_item_colon' => __( 'Parent category:', 'wpvacance' ), /* parent taxonomy title */
-        'edit_item' => __( 'Edit season category', 'wpvacance' ), /* edit custom taxonomy title */
-        'update_item' => __( 'Update season category', 'wpvacance' ), /* update title for taxonomy */
-        'add_new_item' => __( 'Add season category', 'wpvacance' ), /* add new title for taxonomy */
-        'new_item_name' => __( 'New season category', 'wpvacance' ) /* name title for taxonomy */
+        'name' => __( 'Season categories', 'wpvacancy' ), /* name of the custom taxonomy */
+        'singular_name' => __( 'Season category', 'wpvacancy' ), /* single taxonomy name */
+        'search_items' =>  __( 'Search season categories', 'wpvacancy' ), /* search title for taxomony */
+        'all_items' => __( 'All season categories', 'wpvacancy' ), /* all title for taxonomies */
+        'parent_item' => __( 'Parent category', 'wpvacancy' ), /* parent title for taxonomy */
+        'parent_item_colon' => __( 'Parent category:', 'wpvacancy' ), /* parent taxonomy title */
+        'edit_item' => __( 'Edit season category', 'wpvacancy' ), /* edit custom taxonomy title */
+        'update_item' => __( 'Update season category', 'wpvacancy' ), /* update title for taxonomy */
+        'add_new_item' => __( 'Add season category', 'wpvacancy' ), /* add new title for taxonomy */
+        'new_item_name' => __( 'New season category', 'wpvacancy' ) /* name title for taxonomy */
       ),
       'show_admin_column' => true, 
       'show_ui' => true,
@@ -66,16 +66,16 @@ function season_post_type() {
     array('season_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
     array('hierarchical' => false,    /* if this is false, it acts like tags */
       'labels' => array(
-        'name' => __( 'Season Tags', 'wpvacance' ), /* name of the custom taxonomy */
-        'singular_name' => __( 'Season Tag', 'wpvacance' ), /* single taxonomy name */
-        'search_items' =>  __( 'Search season tags', 'wpvacance' ), /* search title for taxomony */
-        'all_items' => __( 'All season tags', 'wpvacance' ), /* all title for taxonomies */
-        'parent_item' => __( 'Parent tag', 'wpvacance' ), /* parent title for taxonomy */
-        'parent_item_colon' => __( 'Parent tag:', 'wpvacance' ), /* parent taxonomy title */
-        'edit_item' => __( 'Edit tag', 'wpvacance' ), /* edit custom taxonomy title */
-        'update_item' => __( 'Update tag', 'wpvacance' ), /* update title for taxonomy */
-        'add_new_item' => __( 'Add season tag', 'wpvacance' ), /* add new title for taxonomy */
-        'new_item_name' => __( 'New season tag name', 'wpvacance' ) /* name title for taxonomy */
+        'name' => __( 'Season Tags', 'wpvacancy' ), /* name of the custom taxonomy */
+        'singular_name' => __( 'Season Tag', 'wpvacancy' ), /* single taxonomy name */
+        'search_items' =>  __( 'Search season tags', 'wpvacancy' ), /* search title for taxomony */
+        'all_items' => __( 'All season tags', 'wpvacancy' ), /* all title for taxonomies */
+        'parent_item' => __( 'Parent tag', 'wpvacancy' ), /* parent title for taxonomy */
+        'parent_item_colon' => __( 'Parent tag:', 'wpvacancy' ), /* parent taxonomy title */
+        'edit_item' => __( 'Edit tag', 'wpvacancy' ), /* edit custom taxonomy title */
+        'update_item' => __( 'Update tag', 'wpvacancy' ), /* update title for taxonomy */
+        'add_new_item' => __( 'Add season tag', 'wpvacancy' ), /* add new title for taxonomy */
+        'new_item_name' => __( 'New season tag name', 'wpvacancy' ) /* name title for taxonomy */
       ),
       'show_admin_column' => true,
       'show_ui' => true,
