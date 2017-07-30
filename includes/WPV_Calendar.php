@@ -28,6 +28,7 @@ class WPV_Calendar
   {
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "daySelection"));
     $this->controlpanel();
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
   }
@@ -155,10 +156,14 @@ class WPV_Calendar
         else
         if ($ut_dayofmonth > $utnow_day)
           $timeline_class = "wpv-calendar-day-inthefuture";
-          
-        $html .= '<td valign="top" data-wpvdayid="'.$ut_dayofmonth.'" class="wpv-calendar-day '.$timeline_class.'">';
+        
+        $clickable = $showavailability ? "wpv-calendar-clickable-day" : "";
+        
+        $html .= '<td class="wpv-calendar-day '.$clickable.'" data-wpvdayid="'.$ut_dayofmonth.'">'; 
         $html .= $this->allTheTagsForADay($ut_dayofmonth, $weekday, $showavailability);
+        $html .= '<div class="wpv-calendar-daynumber '.$timeline_class.'">';
         $html .= $giornodelmese;
+        $html .= '</div>';
         $html .= '</td>';
         $column++;
         if ($column == 7)
@@ -238,7 +243,7 @@ class WPV_Calendar
     $res .= '<div class="wpv-calendar-options">';
     $res .= '<div class="wpv-calendar-controlpanel">';
     
-      $res .= '<div class="wpv-calendar-show-festivities">';
+      $res .= '<div class="wpv-calendar-option wpv-calendar-show-festivities">';
       $res .= '<input type="checkbox" class="wpv-calendar-show-festivities-check">'.__('Show festivities', 'wpvacancy').'</input>';
 
       $res .= '<div class="wpv-calendar-legend">';
@@ -254,25 +259,25 @@ class WPV_Calendar
 
       $res .= '</div>';
     
-      $res .= '<div class="wpv-calendar-show-availability">';
+      $res .= '<div class="wpv-calendar-option wpv-calendar-show-availability">';
       $res .= '<input type="checkbox" class="wpv-calendar-show-availability-check">'.__('Show availability', 'wpvacancy').'</input>';
 
       $res .= '<div class="wpv-calendar-legend">';
-        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-empty">';
-          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-empty"></div>';
-          $res .= '<div class="wpv-calendar-legend-text">'.__('Sold out', 'wpvacancy').'</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-full">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-full"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Wide choice', 'wpvacancy').'</div>';
+        $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-normal">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-normal"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Some choice', 'wpvacancy').'</div>';
         $res .= '</div>';
         $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-low">';
           $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-low"></div>';
           $res .= '<div class="wpv-calendar-legend-text">'.__('Nearly sold out', 'wpvacancy').'</div>';
         $res .= '</div>';
-        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-normal">';
-          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-normal"></div>';
-          $res .= '<div class="wpv-calendar-legend-text">'.__('A few', 'wpvacancy').'</div>';
-        $res .= '</div>';
-        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-full">';
-          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-full"></div>';
-          $res .= '<div class="wpv-calendar-legend-text">'.__('Wide choice', 'wpvacancy').'</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-empty">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-empty"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Sold out', 'wpvacancy').'</div>';
         $res .= '</div>';
       $res .= '</div>';
 
@@ -307,7 +312,9 @@ class WPV_Calendar
                         self::$previousMonthButton,
                         self::$nextMonthButton,
                         'wpv-calendar-daytag-daytype',
-                        'wpv-calendar-daytag-availability'
+                        'wpv-calendar-daytag-availability',
+                        'wpv-calendar-options',
+                        array('wpv-calendar-clickable-day', 'wpv-calendar-selected-day')
                       ));    
   }
   
@@ -336,6 +343,15 @@ class WPV_Calendar
                   'toggleOptions', 
                   array('wpv-calendar-options-gear',
                         'wpv-calendar-options'));
+    
+  }
+
+  public function daySelection()
+  {
+    return array('click', 
+                  'daySelection', 
+                  array('wpv-calendar-clickable-day',
+                        'wpv-calendar-selected-day'));
     
   }
 
