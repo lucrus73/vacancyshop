@@ -91,7 +91,7 @@ class Wpvacancy {
 	 *
 	 * @since    1.0.0
 	 */
-	public function __construct($wpvacancy_prefix) {
+	public function __construct($vb_wpv_basedir) {
 
     if (empty(self::$instance))
       self::$instance = &$this;
@@ -101,7 +101,7 @@ class Wpvacancy {
     $this->script_params_callbacks = array();
     $this->script_handle = 'wpv_formsubmitter';
 
-		$this->load_dependencies();
+		$this->load_dependencies($vb_wpv_basedir);
 		$this->set_locale();
 		$this->define_admin_hooks();
 		$this->define_public_hooks();
@@ -124,9 +124,8 @@ class Wpvacancy {
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function load_dependencies() {
+	private function load_dependencies($vb_wpv_basedir) {
 
-    global $vb_wpv_basedir;
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
