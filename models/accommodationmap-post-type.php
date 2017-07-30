@@ -1,7 +1,8 @@
 <?php
 
 // let's create the function for the custom type
-function accommodationmap_post_type() { 
+function accommodationmap_post_type() {
+  global $vb_wpv_basedir;
 	// creating (registering) the custom type 
 	register_post_type( 'accm_map_type', /* (http://codex.wordpress.org/Function_Reference/register_post_type) */
 		// let's now add all the options for this post type
@@ -27,7 +28,7 @@ function accommodationmap_post_type() {
 			'show_ui' => true,
 			'query_var' => true,
 			'menu_position' => 10, /* this is what order you want it to appear in on the left hand side menu */ 
-			'menu_icon' => plugin_dir_path( __FILE__ ) . 'images/accm_map_type-icon.png', /* the icon for the custom post type menu */
+			'menu_icon' => $vb_wpv_basedir.'images/accm_map_type-icon.png', /* the icon for the custom post type menu */
 			'rewrite'	=> array( 'slug' => 'accm_map_type', 'with_front' => true ), /* you can specify its url slug */
 			'has_archive' => false, /* you can rename the slug here */
 			'capability_type' => 'post',

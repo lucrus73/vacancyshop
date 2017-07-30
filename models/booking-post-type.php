@@ -2,6 +2,7 @@
 
 // let's create the function for the custom type
 function booking_post_type() { 
+  global $vb_wpv_basedir;
 	// creating (registering) the custom type 
 	register_post_type( 'booking_type', /* (http://codex.wordpress.org/Function_Reference/register_post_type) */
 		// let's now add all the options for this post type
@@ -27,7 +28,7 @@ function booking_post_type() {
 			'show_ui' => true,
 			'query_var' => true,
 			'menu_position' => 9, /* this is what order you want it to appear in on the left hand side menu */ 
-			'menu_icon' => plugin_dir_path( __FILE__ ) . 'images/booking_type-icon.png', /* the icon for the custom post type menu */
+			'menu_icon' => $vb_wpv_basedir.'images/booking_type-icon.png', /* the icon for the custom post type menu */
 			'rewrite'	=> array( 'slug' => 'booking_type', 'with_front' => true ), /* you can specify its url slug */
 			'has_archive' => false, /* you can rename the slug here */
 			'capability_type' => 'post',
@@ -93,6 +94,137 @@ function booking_post_type() {
 	// adding the function to the Wordpress init
 	add_action( 'init', 'booking_post_type');
 	
+/**
+ * Define the metabox and field configurations.
+ */
+function vb_wpv_booking_custom_fields() {
+
+  global $vb_wpv_custom_fields_prefix ;
+  // Start with an underscore to hide fields from custom fields list
+  $prefix = $vb_wpv_custom_fields_prefix;
+
+  /**
+   * Initiate the metabox
+   */
+  $cmb = new_cmb2_box( array(
+      'id'            => 'booking_meta',
+      'title'         => __( 'Booking data', 'wpvancancy' ),
+      'object_types'  => array( 'booking_type', ), // Post type
+      'context'       => 'normal',
+      'priority'      => 'high',
+      'show_names'    => true, // Show field names on the left
+      // 'cmb_styles' => false, // false to disable the CMB stylesheet
+      'closed'     => false, // Keep the metabox closed by default
+  ) );
+
+  $cmb->add_field( array(
+		'name'    => __( 'User', 'wpvacancy' ),
+		'desc'    => __( 'The user this booking belongs to', 'wpvacancy' ),
+		'id'      => $prefix . 'booking_user_id',
+		'type'    => 'custom_attached_posts',
+		'options' => array(
+			'show_thumbnails' => true, // Show thumbnails on the left
+			'filter_boxes'    => true, // Show a text box for filtering the results
+      'query_users'     => true
+		                  ),
+      'attributes' => array(
+          'data-validation' => 'required',
+      ),
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+	));
+   
+  $cmb->add_field( array(
+      'name'       => __( 'Accommodation', 'wpvancancy' ),
+      'desc'       => __( 'The accommodation unit this booking refers to', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_acc_unit_id',
+  		'type'       => 'custom_attached_posts',
+      'options' => array(
+        'show_thumbnails' => true, // Show thumbnails on the left
+        'filter_boxes'    => true, // Show a text box for filtering the results
+        'query_args'      => array(
+          'posts_per_page' => 10,
+          'post_type'      => 'accommodation_type',
+        ), // override the get_posts args
+      ),
+      'attributes' => array(
+          'data-validation' => 'required',
+      ),
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ));
+
+  $cmb->add_field( array(
+      'name'       => __( 'Booking price', 'wpvacancy' ),
+      'desc'       => __( 'The price, tax included, to pay for this booking', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_tax_incl',
+      'type'       => 'text',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      'attributes' => array(
+        'type' => 'number',
+        'min'  => '0',
+        'data-validation' => 'required',
+      ),        
+      // 'repeatable'      => true,
+  ) );
+  
+  $cmb->add_field( array(
+      'name'       => __( 'Booking start date', 'wpvacancy' ),
+      'desc'       => __( 'The date this booking starts at', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_start_date',
+      'type'       => 'text_date',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      'date_format' => 'Y-m-d',
+      'attributes' => array(
+          'data-validation' => 'required',
+      ),        
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Booking start time', 'wpvacancy' ),
+      'desc'       => __( 'The time this booking starts at', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_start_time',
+      'type'       => 'text_date',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Booking end date', 'wpvacancy' ),
+      'desc'       => __( 'The date this booking starts at', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_end_date',
+      'type'       => 'text_date',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'date_format' => 'Y-m-d',
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Booking end time', 'wpvacancy' ),
+      'desc'       => __( 'The time this booking starts at', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_end_time',
+      'type'       => 'text_date',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+}
+
+add_action( 'cmb2_admin_init', 'vb_wpv_booking_custom_fields' );
 	
 
 ?>

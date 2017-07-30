@@ -126,36 +126,38 @@ class Wpvacancy {
 	 */
 	private function load_dependencies() {
 
+    global $vb_wpv_basedir;
 		/**
 		 * The class responsible for orchestrating the actions and filters of the
 		 * core plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpvacancy-loader.php';
+		require_once $vb_wpv_basedir.'includes/class-wpvacancy-loader.php';
 
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wpvacancy-i18n.php';
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/WPVacancyShortcodes.php';
+		require_once $vb_wpv_basedir.'includes/class-wpvacancy-i18n.php';
+		require_once $vb_wpv_basedir.'includes/WPVacancyShortcodes.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the admin area.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wpvacancy-admin.php';
+		require_once $vb_wpv_basedir.'admin/class-wpvacancy-admin.php';
 
 		/**
 		 * The class responsible for defining all actions that occur in the public-facing
 		 * side of the site.
 		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wpvacancy-public.php';
+		require_once $vb_wpv_basedir.'public/class-wpvacancy-public.php';
 
-    require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/accommodationmap-post-type.php';
-    require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/accommodation-post-type.php';
-    require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/season-post-type.php';
-    require_once plugin_dir_path( dirname( __FILE__ ) ) . 'models/booking-post-type.php';
+    require_once $vb_wpv_basedir.'models/accommodationmap-post-type.php';
+    require_once $vb_wpv_basedir.'models/accommodation-post-type.php';
+    require_once $vb_wpv_basedir.'models/season-post-type.php';
+    require_once $vb_wpv_basedir.'models/booking-post-type.php';
+    require_once $vb_wpv_basedir.'models/price-post-type.php';
 
-    require_once plugin_dir_path(dirname(__FILE__)) . 'includes/WPV_BookingForm.php';
+    require_once $vb_wpv_basedir.'includes/WPV_BookingForm.php';
 
     $this->loader = new Wpvacancy_Loader();
     $this->bookingform = new WPV_BookingForm();
@@ -302,6 +304,11 @@ class Wpvacancy {
     if (is_callable($callable_arg))
       array_push($this->script_params_callbacks, array('call' => $callable_arg, 'params' => $params));
     return is_callable($callable_arg);
+  }
+
+  public static function is_admin()
+  {
+    return current_user_can('manage_options');
   }
  
 }

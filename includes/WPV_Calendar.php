@@ -18,14 +18,17 @@ class WPV_Calendar
   private static $previousMonthButton = 'wpv-calendar-previous-month-button';
   private static $nextMonthButton = 'wpv-calendar-next-month-button';
   private static $defaultoffset = 0;
-  private static $defaultspan = 3;
-  
-  
+  private static $defaultspan = 2;
+  private static $nonworkingday = 1;
+  private static $ratio_low_availability = 0.3;
+  private static $ratio_norm_availability = 0.7;
+  private static $always_show_availability_for_admin_users = false;
   
   function __construct()
   {
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
+    $this->controlpanel();
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
   }
 
@@ -49,7 +52,10 @@ class WPV_Calendar
   
   public function getCalendar()
   {
-    $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">'.__('When does your holiday start?', 'wpvacancy').'</div>';
+    $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">';
+    $html .= __('When does your holiday start?', 'wpvacancy');
+    $html .= $this->controlpanel();
+    $html .= '</div>';
     $html .= '<div class="'.self::$wrapperclass.'">';
     $html .= '</div>';
     return $html;
@@ -71,7 +77,6 @@ class WPV_Calendar
     $mesefinale = $m + ($span - 1);
     for ($meseincostruzione = $meseiniziale; $meseincostruzione <= $mesefinale; $meseincostruzione++)
     {
-      $adj = "";
       $d = date("d");
       $y = date("Y");
       $nd = date('t', mktime(0, 0, 0, $meseincostruzione, 1, $y));
@@ -94,10 +99,6 @@ class WPV_Calendar
                             __('Oct', 'wpvacancy'),
                             __('Nov', 'wpvacancy'),
                             __('Dec', 'wpvacancy'));
-      for ($k = 1; $k <= $j; $k++)
-      {
-        $adj .= '<td class="wpv-calendar-day wpv-calendar-day-disabled"> </td>';
-      }
 
       $html .= '<div class="wpv-calendar-month">';
       $html .= '<table cellspacing="0" cellpadding="5" align="center" width="100" border="1">';
@@ -120,34 +121,50 @@ class WPV_Calendar
       $html .= '</th>';
       $html .= '</tr>';
       $html .= '<tr>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Saturday', 'wpvacancy')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Sunday', 'wpvacancy')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Monday', 'wpvacancy')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Tuesday', 'wpvacancy')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Wednesday', 'wpvacancy')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Thursday', 'wpvacancy')).'</th>';
-      $html .= '<th class="wpv-calendar-day">'.$this->fc(__('Friday', 'wpvacancy')).'</th>';
+      $days = [$this->fc(__('Saturday', 'wpvacancy')), 
+               $this->fc(__('Sunday', 'wpvacancy')),
+               $this->fc(__('Monday', 'wpvacancy')),
+               $this->fc(__('Tuesday', 'wpvacancy')),
+               $this->fc(__('Wednesday', 'wpvacancy')),
+               $this->fc(__('Thursday', 'wpvacancy')),
+               $this->fc(__('Friday', 'wpvacancy'))
+          ];
+      for ($dayoffset = 0; $dayoffset < 7; $dayoffset++)
+      {
+        $wday = ($j + $dayoffset) % 7;
+        $html .= '<th class="wpv-calendar-day">'.$this->allTheTagsForADay(null, $wday).$days[$wday].'</th>';
+      }
       $html .= '</tr>';
       $html .= '</thead>';
       $html .= '<tbody>';
       $html .= '<tr>';
+      $column = 0;
       for ($giornodelmese = 1; $giornodelmese <= $nd; $giornodelmese++)
       {
+        $weekday = ($column + $j) % 7;
+
+        $showavailability = true;
+        
         $ut_dayofmonth = (int)(mktime(0, 0, 0, $meseincostruzione, $giornodelmese, $y) / 86400);
         $timeline_class = "wpv-calendar-day-today";
         if ($ut_dayofmonth < $utnow_day)
+        {
           $timeline_class = "wpv-calendar-day-inthepast";
+          $showavailability = self::$always_show_availability_for_admin_users && Wpvacancy::is_admin();
+        }
         else
         if ($ut_dayofmonth > $utnow_day)
           $timeline_class = "wpv-calendar-day-inthefuture";
           
-        $html .= $adj . '<td valign="top" data-wpvdayid="'.$ut_dayofmonth.'" class="wpv-calendar-day '.$timeline_class.'">' . $giornodelmese . '</td>';
-        $adj = '';
-        $j++;
-        if ($j == 7)
+        $html .= '<td valign="top" data-wpvdayid="'.$ut_dayofmonth.'" class="wpv-calendar-day '.$timeline_class.'">';
+        $html .= $this->allTheTagsForADay($ut_dayofmonth, $weekday, $showavailability);
+        $html .= $giornodelmese;
+        $html .= '</td>';
+        $column++;
+        if ($column == 7)
         {
           $html .= '</tr><tr>';
-          $j = 0;
+          $column = 0;
         }
       }
       $html .= '</tr>';
@@ -156,7 +173,117 @@ class WPV_Calendar
       $html .= '</div>';
     }
 
-    return $html; //ob_get_flush();
+    return $html; 
+  }
+  
+  private function allTheTagsForADay($dayid, $weekday, $showavailability = true)
+  {
+    $res = $this->nonWorkingDayTag($dayid, $weekday);
+    $res .= $this->nonWorkingDayEveTag($dayid, $weekday);
+    if (!empty($dayid) && $showavailability === true)
+      $res .= $this->accommodationAvailability($dayid);
+    return $res;
+  }
+  
+  /**
+   * Returns a <div></div> or empty string. If the $weekday
+   * is holiday, it returns a <div> with appropriate CSS classes. Otherwise 
+   * it returns a empty string.
+   * It SHOULD also consider holidays other than Sundays (or other configured weekday)
+   * but, as of this writing, that's not implemented yet. That means the $dayid argument
+   * is not being used ATM.
+   * @param type $dayid
+   * @param type $weekday
+   */
+  private function nonWorkingDayTag($dayid, $weekday)
+  {
+    if ($weekday == self::$nonworkingday)
+      return '<div class="wpv-calendar-daytag wpv-calendar-daytag-daytype wpv-calendar-daytag-nonworking"></div>';
+    return '';
+  }
+
+  private function nonWorkingDayEveTag($dayid, $weekday)
+  {
+    if (!empty($this->nonWorkingDayTag($dayid + 1, ($weekday + 1) % 7)))
+      return '<div class="wpv-calendar-daytag wpv-calendar-daytag-daytype wpv-calendar-daytag-nonworkingeve"></div>';
+    return '';
+  }
+  
+  private function accommodationAvailability($dayid)
+  {
+    $all = WPV_BookingForm::getAllAccommodations();
+    $bookable = WPV_BookingForm::getBookableAccommodations($dayid);
+    $ratio = count($bookable) / count($all);
+    $availImage = 'empty';
+    if ($ratio > 0 && $ratio <= self::$ratio_low_availability)
+      $availImage = 'low';
+    else
+      if ($ratio > self::$ratio_low_availability && $ratio <= self::$ratio_norm_availability)
+        $availImage = 'normal';
+      else
+        if ($ratio > self::$ratio_norm_availability)
+          $availImage = 'full';
+    return '<div class="wpv-calendar-daytag wpv-calendar-daytag-availability wpv-calendar-daytag-availability-'.$availImage.'"></div>';
+  }
+  
+  private function fc($string) // First Character
+  {
+    return strtoupper(substr($string, 0, 1));
+  }
+  
+  private function controlpanel()
+  {
+    $res = '<i class="fa fa-cog icon-cog wpv-calendar-options-gear" aria-hidden="true">';
+    $res .= '</i>';
+    $res .= '<div class="wpv-calendar-options">';
+    $res .= '<div class="wpv-calendar-controlpanel">';
+    
+      $res .= '<div class="wpv-calendar-show-festivities">';
+      $res .= '<input type="checkbox" class="wpv-calendar-show-festivities-check">'.__('Show festivities', 'wpvacancy').'</input>';
+
+      $res .= '<div class="wpv-calendar-legend">';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-eve">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-nonworkingeve"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Holiday Eves', 'wpvacancy').'</div>';
+        $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-holiday">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-nonworking"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Holidays', 'wpvacancy').'</div>';
+        $res .= '</div>';
+      $res .= '</div>';
+
+      $res .= '</div>';
+    
+      $res .= '<div class="wpv-calendar-show-availability">';
+      $res .= '<input type="checkbox" class="wpv-calendar-show-availability-check">'.__('Show availability', 'wpvacancy').'</input>';
+
+      $res .= '<div class="wpv-calendar-legend">';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-empty">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-empty"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Sold out', 'wpvacancy').'</div>';
+        $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-low">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-low"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Nearly sold out', 'wpvacancy').'</div>';
+        $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-normal">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-normal"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('A few', 'wpvacancy').'</div>';
+        $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-full">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-full"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Wide choice', 'wpvacancy').'</div>';
+        $res .= '</div>';
+      $res .= '</div>';
+
+      $res .= '</div>';
+    
+    $res .= '</div>';
+    $res .= '</div>';
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleFestivities"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleAvailability"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
+    return $res;
   }
   
   public function bookingData()
@@ -178,13 +305,38 @@ class WPV_Calendar
                         self::$defaultoffset, // offset 0 = current month
                         self::$defaultspan,  // span N months (2 -> current and next one)
                         self::$previousMonthButton,
-                        self::$nextMonthButton
+                        self::$nextMonthButton,
+                        'wpv-calendar-daytag-daytype',
+                        'wpv-calendar-daytag-availability'
                       ));    
   }
   
-  private function fc($string) // First Character
+  public function toggleFestivities()
   {
-    return strtoupper(substr($string, 0, 1));
+    return array('click', 
+                  'toggleFestivities', 
+                  array('wpv-calendar-show-festivities-check',
+                        'wpv-calendar-daytag-daytype',
+                        'wpv-calendar-options-gear'));
+    
+  }
+
+  public function toggleAvailability()
+  {
+    return array('click', 
+                  'toggleAvailability', 
+                  array('wpv-calendar-show-availability-check',
+                        'wpv-calendar-daytag-availability'));
+    
+  }
+
+  public function toggleOptions()
+  {
+    return array('click', 
+                  'toggleOptions', 
+                  array('wpv-calendar-options-gear',
+                        'wpv-calendar-options'));
+    
   }
 
 }

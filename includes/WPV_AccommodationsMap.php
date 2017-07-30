@@ -29,9 +29,10 @@ class WPV_AccommodationsMap
   
   public function lightboxTags()
   {
+    global $vb_wpv_baseurl;
     $res = '<div class="wpv-booking-accomodations-maps-lightbox" style="z-index:999999;">';
       $res .= '<iframe id="wpv-booking-accomodations-maps-lightbox-frame" src="#"></iframe>';
-      $res .= '<div class="wpv-booking-accomodations-maps-lightbox-close" style="background-image:url('.plugin_dir_url( __FILE__ ).'res/button-close.png)"></div>';
+      $res .= '<div class="wpv-booking-accomodations-maps-lightbox-close" style="background-image:url('.$vb_wpv_baseurl. 'images/button-close.png)"></div>';
     $res .= '</div>';
     echo $res;
   }
@@ -98,22 +99,19 @@ class WPV_AccommodationsMap
     
   private function accommodationUnits($map)
   {
-    global $vb_wpv_custom_fields_prefix;
+    global $vb_wpv_custom_fields_prefix, $vb_wpv_baseurl;
     
     $args = array('post_type'   => 'accommodation_type',
                   'post_status' => 'publish',
-                  'numberposts' => 500,
-        'meta_query' => array(
-                          array(
-                              'key' => $vb_wpv_custom_fields_prefix.'acc_map_id',
-                              'value' => $map
-                                )
-                              )
+                  'numberposts' => 5000
     );
     $units = get_posts($args);
     $result = '';
     foreach ($units as $u)
     {
+      $maps = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix.'acc_map_id', true);
+      if (!in_array($map, $maps))
+        continue;
       $left = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_x", true);
       $top = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_y", true);
       $width = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_w", true);
@@ -128,7 +126,7 @@ class WPV_AccommodationsMap
                     '" style="left:'.$left.
                     '%; top:'.$top.
                     '%; width:'.$width.
-                    '%; height:'.$height.'%; position: absolute; background-image: url('.plugin_dir_url( __FILE__ ) . 'res/accm-unit.png);">';
+                    '%; height:'.$height.'%; position: absolute; background-image: url('.$vb_wpv_baseurl.'images/accm-unit.png);">';
       $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
       $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 4);
       $result .= '<div class="wpv-accommodation-hint-image-buttons"><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'"><span>'.__("View more", 'wpvacancy').'</span></div><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-choosethis"><span>'.__('Choose this', 'wpvacancy').'</span></div></div>';
@@ -172,6 +170,7 @@ class WPV_AccommodationsMap
     
   public function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8)
   {
+    global $vb_wpv_baseurl;
     $thumb = get_post_thumbnail_id($post->ID);
     $bgimage_file = get_attached_file($thumb);
 
@@ -185,7 +184,7 @@ class WPV_AccommodationsMap
     {      
       if (empty($default_img_url))
       {
-        $default_img_url = plugin_dir_url( __FILE__ ) . 'res/no-image.png';        
+        $default_img_url = $vb_wpv_baseurl.'images/no-image.png';        
       }
       $bgimage_url = $default_img_url;  
       $size = getimagesize($default_img_url);

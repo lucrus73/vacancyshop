@@ -16,7 +16,7 @@
  * Plugin Name:       Vacancy Shop
  * Plugin URI:        https://www.virtualbit.it/wpvacancy
  * Description:       Sets the standard for accommodations bookings e-commerce with WP
- * Version:           prealpha-0.1.2
+ * Version:           prealpha-0.1.3
  * Author:            Lucio Crusca
  * Author URI:        https://www.virtualbit.it/
  * License:           GPL-2.0+
@@ -30,8 +30,9 @@ if ( ! defined( 'WPINC' ) ) {
 	die;
 }
 
-// Start with an underscore to hide fields from custom fields list
 $vb_wpv_custom_fields_prefix = 'vb_wpvac_cf_';
+$vb_wpv_basedir = plugin_dir_path( __FILE__ );
+$vb_wpv_baseurl = plugin_dir_url(__FILE__);
 
 define('VB_WPV_SUNDAY', 1);
 define('VB_WPV_MONDAY', 2);
@@ -55,7 +56,8 @@ $vb_wpv_weekdays = array(VB_WPV_SUNDAY => __('Sunday', 'wpvacancy'),
  * This action is documented in includes/class-wpvacancy-activator.php
  */
 function activate_wpvacancy() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpvacancy-activator.php';
+  global $vb_wpv_basedir;
+	require_once $vb_wpv_basedir.'includes/class-wpvacancy-activator.php';
 	Wpvacancy_Activator::activate();
 }
 
@@ -64,7 +66,8 @@ function activate_wpvacancy() {
  * This action is documented in includes/class-wpvacancy-deactivator.php
  */
 function deactivate_wpvacancy() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-wpvacancy-deactivator.php';
+  global $vb_wpv_basedir;
+	require_once $vb_wpv_basedir.'includes/class-wpvacancy-deactivator.php';
 	Wpvacancy_Deactivator::deactivate();
 }
 
@@ -75,7 +78,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wpvacancy' );
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-wpvacancy.php';
+require $vb_wpv_basedir.'includes/class-wpvacancy.php';
 
 /**
  * Begins execution of the plugin.
@@ -87,7 +90,8 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wpvacancy.php';
  * @since    1.0.0
  */
 
-require_once plugin_dir_path( __FILE__ ) . '/cmb2/init.php';
+require_once $vb_wpv_basedir.'/cmb2/init.php';
+require_once $vb_wpv_basedir.'/cmb2-attached-posts/cmb2-attached-posts-field.php';
 
 $wpvacancy_plugin;
 $wpvacancy_prefix = '_wpvac_';

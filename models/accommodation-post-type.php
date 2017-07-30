@@ -2,6 +2,7 @@
 
 // let's create the function for the custom type
 function accommodation_post_type() { 
+  global $vb_wpv_basedir;
 	// creating (registering) the custom type 
 	register_post_type( 'accommodation_type', /* (http://codex.wordpress.org/Function_Reference/register_post_type) */
 		// let's now add all the options for this post type
@@ -27,7 +28,7 @@ function accommodation_post_type() {
 			'show_ui' => true,
 			'query_var' => true,
 			'menu_position' => 9, /* this is what order you want it to appear in on the left hand side menu */ 
-			'menu_icon' => plugin_dir_path( __FILE__ ) . 'images/accommodation_type-icon.png', /* the icon for the custom post type menu */
+			'menu_icon' => $vb_wpv_basedir.'images/accommodation_type-icon.png', /* the icon for the custom post type menu */
 			'rewrite'	=> array( 'slug' => 'accommodation_type', 'with_front' => true ), /* you can specify its url slug */
 			'has_archive' => false, /* you can rename the slug here */
 			'capability_type' => 'post',
@@ -108,7 +109,7 @@ function vb_wpv_accommodation_custom_fields() {
    */
   $cmb = new_cmb2_box( array(
       'id'            => 'accommodation_meta',
-      'title'         => __( 'Accomodation data', 'wpvancance' ),
+      'title'         => __( 'Accomodation data', 'wpvacancy' ),
       'object_types'  => array( 'accommodation_type', ), // Post type
       'context'       => 'normal',
       'priority'      => 'high',
@@ -117,22 +118,28 @@ function vb_wpv_accommodation_custom_fields() {
       'closed'     => false, // Keep the metabox closed by default
   ) );
 
+  $cmb->add_field( array(
+		'name'    => __( 'Map', 'wpvacancy' ),
+		'desc'    => __( 'The map where this accommodation unit is placed', 'wpvacancy' ),
+		'id'      => $prefix . 'acc_map_id',
+		'type'    => 'custom_attached_posts',
+		'options' => array(
+			'show_thumbnails' => true, // Show thumbnails on the left
+			'filter_boxes'    => true, // Show a text box for filtering the results
+			'query_args'      => array(
+				'posts_per_page' => 10,
+				'post_type'      => 'accm_map_type',
+			), // override the get_posts args
+		),
+      'attributes' => array(
+          'data-validation' => 'required',
+      ),
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+	));
    
   $cmb->add_field( array(
-      'name'       => __( 'Map ID', 'wpvancance' ),
-      'desc'       => __( 'The ID of the map where this accommodation unit is placed', 'wpvancance' ),
-      'id'         => $prefix . 'acc_map_id',
-      'type'       => 'text',
-      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
-      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
-      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
-      'on_front'        => false, // Optionally designate a field to wp-admin only
-      // 'repeatable'      => true,
-  ) );
-
-  $cmb->add_field( array(
-      'name'       => __( 'Unit left position', 'wpvancance' ),
-      'desc'       => __( 'The X coordinate of the upper-left corner of the unit box (in percentage of the map width)', 'wpvancance' ),
+      'name'       => __( 'Unit left position', 'wpvacancy' ),
+      'desc'       => __( 'The X coordinate of the upper-left corner of the unit box (in percentage of the map width)', 'wpvacancy' ),
       'id'         => $prefix . 'acc_unit_box_x',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -143,8 +150,8 @@ function vb_wpv_accommodation_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-      'name'       => __( 'Unit top position', 'wpvancance' ),
-      'desc'       => __( 'The Y coordinate of the upper-left corner of the unit box (in percentage of the map height)', 'wpvancance' ),
+      'name'       => __( 'Unit top position', 'wpvacancy' ),
+      'desc'       => __( 'The Y coordinate of the upper-left corner of the unit box (in percentage of the map height)', 'wpvacancy' ),
       'id'         => $prefix . 'acc_unit_box_y',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -155,8 +162,8 @@ function vb_wpv_accommodation_custom_fields() {
   ) );
   
   $cmb->add_field( array(
-      'name'       => __( 'Unit width', 'wpvancance' ),
-      'desc'       => __( 'The width of the unit box (in percentage of the map width)', 'wpvancance' ),
+      'name'       => __( 'Unit width', 'wpvacancy' ),
+      'desc'       => __( 'The width of the unit box (in percentage of the map width)', 'wpvacancy' ),
       'id'         => $prefix . 'acc_unit_box_w',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -167,8 +174,8 @@ function vb_wpv_accommodation_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-      'name'       => __( 'Unit height', 'wpvancance' ),
-      'desc'       => __( 'The height of the unit box (in percentage of the map height)', 'wpvancance' ),
+      'name'       => __( 'Unit height', 'wpvacancy' ),
+      'desc'       => __( 'The height of the unit box (in percentage of the map height)', 'wpvacancy' ),
       'id'         => $prefix . 'acc_unit_box_h',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -179,8 +186,8 @@ function vb_wpv_accommodation_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-      'name'       => __( 'Name', 'wpvancance' ),
-      'desc'       => __( 'The name of this accommodation unit', 'wpvancance' ),
+      'name'       => __( 'Name', 'wpvacancy' ),
+      'desc'       => __( 'The name of this accommodation unit', 'wpvacancy' ),
       'id'         => $prefix . 'name',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -191,8 +198,8 @@ function vb_wpv_accommodation_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-      'name'       => __( 'Extra CSS class', 'wpvancance' ),
-      'desc'       => __( 'Optional extra CSS class to apply', 'wpvancance' ),
+      'name'       => __( 'Extra CSS class', 'wpvacancy' ),
+      'desc'       => __( 'Optional extra CSS class to apply', 'wpvacancy' ),
       'id'         => $prefix . 'css_class',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -203,8 +210,8 @@ function vb_wpv_accommodation_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-      'name'       => __( 'Pax', 'wpvancance' ),
-      'desc'       => __( 'How many people can fit into this unit', 'wpvancance' ),
+      'name'       => __( 'Pax', 'wpvacancy' ),
+      'desc'       => __( 'How many people can fit into this unit', 'wpvacancy' ),
       'id'         => $prefix . 'pax',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value

@@ -6,6 +6,8 @@ var currentDuration = 1;
 var currentStartDateTime = 0;
 var currentAccommodation = 0;
 var postids_to_urls_map = [];
+var festivities_shown = false;
+var availability_shown = false;
 var wpv_wp_api;
 
 function getAccomodationsAvailability(startdate, enddate)
@@ -145,6 +147,38 @@ function viewMoreOfAccommodationItem(jqThis, event, argsarray)
   });
 }
 
+function update_calendar_ui(target, value)
+{
+  if (value === true)
+  {
+    $("." + target).css("display", "block");
+  }
+  else
+  {
+    $("." + target).css("display", "none");
+  }
+}
+
+function toggleFestivities(jqThis, event, argsarray)
+{
+  var target = argsarray[1];
+  festivities_shown = !festivities_shown;
+  update_calendar_ui(target, festivities_shown);
+}
+
+function toggleAvailability(jqThis, event, argsarray)
+{
+  var target = argsarray[1];
+  availability_shown = !availability_shown;
+  update_calendar_ui(target, availability_shown);
+}
+
+function toggleOptions(jqThis, event, argsarray)
+{
+  var panel = argsarray[1];
+  $("." + panel).slideToggle(500);
+}
+
 function loadCalendar(jqThis, event, argsarray)
 {
   var restRoute = argsarray[1];
@@ -154,6 +188,10 @@ function loadCalendar(jqThis, event, argsarray)
   var span = argsarray[5];
   var previousMonth = argsarray[6];
   var nextMonth = argsarray[7];
+  var festivitiesTarget = argsarray[8];
+  var availabilityTarget = argsarray[9];
+  var optionsPanelTarget = argsarray[10];
+  $("." + optionsPanelTarget).slideUp(1);
   initWPAPI(restRoute);
   wpv_wp_api.then(function (site) 
   {
@@ -166,6 +204,8 @@ function loadCalendar(jqThis, event, argsarray)
       $("." + wrapperclass).html(markup);
       $("." + previousMonth).off("click");
       $("." + nextMonth).off("click");
+      update_calendar_ui(festivitiesTarget, festivities_shown);
+      update_calendar_ui(availabilityTarget, availability_shown);
       $("." + previousMonth).on("click", function (event)
       {
         var newargs = argsarray;
