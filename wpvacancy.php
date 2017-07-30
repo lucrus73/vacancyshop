@@ -16,7 +16,7 @@
  * Plugin Name:       Vacancy Shop
  * Plugin URI:        https://www.virtualbit.it/wpvacancy
  * Description:       Sets the standard for accommodations bookings e-commerce with WP
- * Version:           prealpha-0.1.4
+ * Version:           prealpha-0.1.5
  * Author:            Lucio Crusca
  * Author URI:        https://www.virtualbit.it/
  * License:           GPL-2.0+
@@ -100,6 +100,6 @@ function run_wpvacancy()
   global $wpvacancy_plugin, $vb_wpv_basedir;
 	$wpvacancy_plugin = new Wpvacancy($vb_wpv_basedir);
 	$wpvacancy_plugin->run();
-
 }
+
 run_wpvacancy();
