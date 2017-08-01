@@ -5,6 +5,8 @@ class WPV_AccommodationsMap
   private $lightbox_template_postid = "lightbox-show-accommodation";
   private $postid;
   private static $endpoint = 'getLightboxPermalink';
+  
+  public static $defaultScaleFactor = 5;
 
   function __construct()
   {
@@ -107,35 +109,83 @@ class WPV_AccommodationsMap
     );
     $units = get_posts($args);
     $result = '';
+    $scalefactor = get_post_meta($map, $vb_wpv_custom_fields_prefix.'accm_map_previewscalefactor', true);
+    if (empty($scalefactor))
+      $scalefactor = self::$defaultScaleFactor;
     foreach ($units as $u)
     {
+      // each unit can belong to different maps
+      // this meta lists all the maps this unit belogs to in an array
       $maps = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix.'acc_map_id', true);
-      if (!in_array($map, $maps))
+      if (!in_array($map, $maps)) // it this unit does not belong to the requested map
         continue;
+      
       $left = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_x", true);
       $top = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_y", true);
       $width = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_w", true);
       $height = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_h", true);
       $elementclass = 'wpv-accommodation-box-id-'.$u->ID;
       $viewmorebuttonclass = 'wpv-accommodation-hint-image-button-viewmore-'.$u->ID;
+      $choosethisbuttonclass = 'wpv-accommodation-hint-image-button-choosethis-'.$u->ID;
       $extra_class = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix.'css_class', true);
       if (empty($extra_class))
         $extra_class = '';
-      $result .= '<div class="'.$elementclass.' wpv-booking-accommodation-unit wpv-booking-accommodation-unit-'.$u->post_name.
+      
+      $result .= '<div class="'.$elementclass.
+                    ' wpv-booking-accommodation-unit';
+      $ucatnames = "";
+      if (taxonomy_exists('accommodation_cat')) // it happens it does not when called from the constructor, since the taxonomy is not registered yet
+      {
+        $ucats = wp_get_object_terms($u->ID, 'accommodation_cat', array('fields' => 'id=>slug'));
+        foreach ($ucats as $unitcategoryslug)
+        {
+          $result .= ' wpv-booking-accommodation-unit-cat-'.$unitcategoryslug;
+          $fullcat = get_term_by('slug', $unitcategoryslug, 'accommodation_cat');
+          if (!empty($ucatnames))
+            $ucatnames .= ', ';
+          $ucatnames .= $fullcat->name;
+        }
+      }
+      $result .= ' wpv-booking-accommodation-unit-name-'.$u->post_name.
                     ' '.$extra_class.
                     '" style="left:'.$left.
                     '%; top:'.$top.
                     '%; width:'.$width.
-                    '%; height:'.$height.'%; position: absolute; background-image: url('.$vb_wpv_baseurl.'images/accm-unit.png);">';
-      $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
-      $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 4);
-      $result .= '<div class="wpv-accommodation-hint-image-buttons"><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'"><span>'.__("View more", 'wpvacancy').'</span></div><div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-choosethis"><span>'.__('Choose this', 'wpvacancy').'</span></div></div>';
-      $result .= '</div>';      
-      
-      $result .= '</div>';
+                    '%; height:'.$height.
+                    '%;" data-accunitid="'.$u->ID.'" ';
+      $result.= ' data-accunitname="'.$u->post_title.'" ';
+      $result.= ' data-accunitcat="'.$ucatnames.'"';
+      $result.= ' data-bookable="'.implode(",", WPV_BookingForm::getBookableDays($u->ID)).'" ';
+      $result.= '>';
+        $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
+          $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 12);
+            $result .= '<div class="wpv-accommodation-hint-image-buttons">';
+              $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'">';
+                $result .= '<span>';
+                $result .= __("View more", 'wpvacancy');
+                $result .= '</span>';
+              $result .= '</div>';
+              $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-choosethis '.$choosethisbuttonclass.'" data-accunitid="'.$u->ID.'">';
+                $result .= '<span>';
+                $result .= __('Choose this', 'wpvacancy');
+                $result .= '</span>';
+              $result .= '</div>';
+            $result .= '</div>';
+
+            // I add 4 transparent divs around the hint and above all the rest to grab any clicks around.
+            // This way the hint is like a modal or a lightbox but with static positioning (e.g. relative to the clicked icon)
+            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-right"></div>';
+            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-left"></div>';
+            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-top"></div>';
+            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-bottom"></div>';
+                        
+          $result .= '</div>';      
+
+        $result .= '</div>';
       $result .= '</div>';
       Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
       Wpvacancy::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
+      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "chooseThisAccommodationItem"), array($u->ID, $choosethisbuttonclass, $elementclass)); 
     }
     return $result;
   }
@@ -165,6 +215,21 @@ class WPV_AccommodationsMap
                         'wpv-booking-accomodations-maps-lightbox-frame',
                         $postlink,
                         'wpv-booking-accomodations-maps-lightbox-close'
+                        ));    
+  }
+
+  public function chooseThisAccommodationItem(array $params)
+  {  
+    $postid = $params[0];
+    $target = $params[1];
+    $highlight = $params[2];
+    return array('click', 
+                 'chooseThisAccommodationItem', 
+                  array($target,
+                        $postid,
+                        'wpv-booking-accommodation-unit',
+                        'wpv-booking-accommodation-selected-unit',
+                        $highlight
                         ));    
   }
     

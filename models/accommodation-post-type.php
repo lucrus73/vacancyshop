@@ -95,9 +95,6 @@ function accommodation_post_type() {
 	add_action( 'init', 'accommodation_post_type');
 	
 	
-/**
- * Define the metabox and field configurations.
- */
 function vb_wpv_accommodation_custom_fields() {
 
   global $vb_wpv_custom_fields_prefix ;
@@ -188,7 +185,7 @@ function vb_wpv_accommodation_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Name', 'wpvacancy' ),
       'desc'       => __( 'The name of this accommodation unit', 'wpvacancy' ),
-      'id'         => $prefix . 'name',
+      'id'         => $prefix . 'acc_unit_name',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -200,7 +197,7 @@ function vb_wpv_accommodation_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Extra CSS class', 'wpvacancy' ),
       'desc'       => __( 'Optional extra CSS class to apply', 'wpvacancy' ),
-      'id'         => $prefix . 'css_class',
+      'id'         => $prefix . 'acc_unit_css_class',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -212,7 +209,18 @@ function vb_wpv_accommodation_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Pax', 'wpvacancy' ),
       'desc'       => __( 'How many people can fit into this unit', 'wpvacancy' ),
-      'id'         => $prefix . 'pax',
+      'id'         => $prefix . 'acc_unit_pax',
+      'type'       => 'text',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Notes', 'wpvacancy' ),
+      'desc'       => __( 'Additional notes to be shown in the booking recap', 'wpvacancy' ),
+      'id'         => $prefix . 'acc_unit_notes',
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter

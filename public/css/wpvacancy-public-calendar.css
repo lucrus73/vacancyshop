@@ -9,6 +9,8 @@
   justify-content: center;
   text-align: center;
   font-family: 'serif';
+  min-height: 5em;
+  position: relative;
 }
 
 .wpv-calendar-wrapper td, .wpv-calendar-wrapper td:first-child, .wpv-calendar-wrapper td:last-child, .wpv-calendar-wrapper th, .wpv-calendar-wrapper th:first-child, .wpv-calendar-wrapper th:last-child  {
@@ -149,6 +151,7 @@
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 0 0.7rem 0.07rem;
+    box-sizing: border-box;
     margin: 1rem 0;
 }
 
@@ -178,10 +181,42 @@
   font-size: 80%;
   margin-left: 1em;
 }
+
+.wpv-calendar-selected-day, .wpv-calendar-first-selected-day, .wpv-calendar-last-selected-day {
+  background-size: 100% 100%;
+  background-repeat: no-repeat;
+  background-position: center;
+}
 .wpv-calendar-selected-day {
-  background-color: lightpink;
+  background-image: url('../../images/selected-day.png');
+}
+
+.wpv-calendar-first-selected-day {
+  background-image: url('../../images/selected-day-first.png');
+}
+
+.wpv-calendar-last-selected-day {
+  background-image: url('../../images/selected-day-last.png');
 }
 
 .wpv-calendar-legend-text {
     font-size: 60%;
+}
+
+.wpv-calendar-daytag-single-accommodation-ok {
+  display: none;
+  background-image: url('../../images/ok.png');
+}
+
+.wpv-calendar-daytag-single-accommodation-ko {
+  display: none;
+  background-image: url('../../images/ko.png');
+}
+
+.wpv-calendar-daytag-single-accommodation-legendicon-ok {
+  background-image: url('../../images/legendicon-ok.png');
+}
+
+.wpv-calendar-daytag-single-accommodation-legendicon-ko {
+  background-image: url('../../images/legendicon-ko.png');
 }

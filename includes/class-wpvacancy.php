@@ -153,6 +153,7 @@ class Wpvacancy
 
     require_once $vb_wpv_basedir . 'models/accommodationmap-post-type.php';
     require_once $vb_wpv_basedir . 'models/accommodation-post-type.php';
+    require_once $vb_wpv_basedir . 'models/period-post-type.php';
     require_once $vb_wpv_basedir . 'models/season-post-type.php';
     require_once $vb_wpv_basedir . 'models/booking-post-type.php';
     require_once $vb_wpv_basedir . 'models/price-post-type.php';

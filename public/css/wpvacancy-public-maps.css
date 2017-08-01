@@ -21,6 +21,14 @@
   display: block;
   background-size: 100% 100%;
   background-repeat: no-repeat;
+  background-image: url('../../images/accm-unit.png');
+  cursor: pointer;
+}
+
+.wpv-booking-accommodation-selected-unit {
+  border: 2px solid #00b9eb;
+  border-radius: 4px;
+  box-shadow: cyan 3px 3px 2px;
 }
 
 .wpv-accommodation-hint-image {
@@ -55,7 +63,7 @@
   display: flex;
   position: absolute;
   width: 100%;
-  bottom: -30%;
+  bottom: -2em;
   justify-content: space-around;
 }
 
@@ -91,4 +99,42 @@
   background-repeat: no-repeat;
   background-size: contain;
   cursor: pointer;
+}
+
+.wpv-accommodation-hint-inputgrab {
+  position:absolute; 
+  z-index:9999;
+  background-color: transparent;
+  border: 0;
+  box-shadow: none;
+  border-color: transparent;
+  opacity: 0;
+}
+
+.wpv-accommodation-hint-inputgrab-right {
+  left: 100%; 
+  top: -10000rem; 
+  width: 100000rem; 
+  height: 200000rem; 
+}
+
+.wpv-accommodation-hint-inputgrab-left {
+  left: -100000rem; 
+  top: -100000rem; 
+  width: 100000rem; 
+  height: 200000rem; 
+}
+
+.wpv-accommodation-hint-inputgrab-top {
+  left: -100000rem; 
+  top: -100000rem; 
+  width: 200000rem; 
+  height:100000rem; 
+}
+
+.wpv-accommodation-hint-inputgrab-bottom {
+  left: -100000rem; 
+  top: calc(100% + 2em); /* buttons are 2em lower than the image */ 
+  width: 200000rem; 
+  height: 100000rem;
 }

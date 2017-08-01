@@ -11,3 +11,40 @@
   padding: 2rem 1rem 1rem 1rem;
 
 }
+
+.wpv-booking-details-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.2rem 0;
+}
+
+.wpv-booking-details-label {
+    flex: 5;
+    text-align: right;
+    margin-right: 0.5rem;
+}
+
+.wpv-booking-details-value {
+    flex: 5;
+    text-align: left;
+    margin-left: 0.5rem;
+    font-weight: bolder;
+}
+
+.wpv-loading {
+  min-width: 5em;
+  min-height: 5em;
+  width: 80%;
+  height: 80%;
+  top: 10%;
+  left: 10%;
+  position: absolute;
+  background-image: url('../../images/loading.gif');
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: rgba(0,0,0,0.05);
+  border-radius: 2rem;
+  display: none;
+}

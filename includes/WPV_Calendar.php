@@ -58,10 +58,16 @@ class WPV_Calendar
     $html .= $this->controlpanel();
     $html .= '</div>';
     $html .= '<div class="'.self::$wrapperclass.'">';
+    $html .= WPV_BookingForm::loading();
     $html .= '</div>';
     return $html;
   }
-
+  
+  public static function dayid($unixtime)
+  {
+    return (int)($unixtime / 86400);
+  }
+  
   public function months($offset = null, $span = null)
   {
     if (empty($offset) || empty($span) || intval($span) >= 4 || intval($span) < 1)
@@ -72,7 +78,7 @@ class WPV_Calendar
 
     $ut_now = time(null);
     $m = date("m", $ut_now) + $offset;
-    $utnow_day = (int)($ut_now / 86400);
+    $utnow_day = self::dayid($ut_now);
     $html = '';
     $meseiniziale = $m;
     $mesefinale = $m + ($span - 1);
@@ -143,10 +149,10 @@ class WPV_Calendar
       for ($giornodelmese = 1; $giornodelmese <= $nd; $giornodelmese++)
       {
         $weekday = ($column + $j) % 7;
+        $ut_dayofmonth = self::dayid(mktime(0, 0, 0, $meseincostruzione, $giornodelmese, $y));
 
-        $showavailability = true;
+        $showavailability = WPV_BookingForm::isBookableDay($ut_dayofmonth);
         
-        $ut_dayofmonth = (int)(mktime(0, 0, 0, $meseincostruzione, $giornodelmese, $y) / 86400);
         $timeline_class = "wpv-calendar-day-today";
         if ($ut_dayofmonth < $utnow_day)
         {
@@ -178,6 +184,7 @@ class WPV_Calendar
       $html .= '</div>';
     }
 
+    $html .= WPV_BookingForm::loading();
     return $html; 
   }
   
@@ -187,6 +194,8 @@ class WPV_Calendar
     $res .= $this->nonWorkingDayEveTag($dayid, $weekday);
     if (!empty($dayid) && $showavailability === true)
       $res .= $this->accommodationAvailability($dayid);
+    $res .= '<div class="wpv-calendar-daytag '.WPV_BookingForm::$singleAccmAvailable.'"></div>';
+    $res .= '<div class="wpv-calendar-daytag '.WPV_BookingForm::$singleAccmUnavailable.'"></div>';
     return $res;
   }
   
@@ -279,6 +288,14 @@ class WPV_Calendar
           $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-empty"></div>';
           $res .= '<div class="wpv-calendar-legend-text">'.__('Sold out', 'wpvacancy').'</div>';
         $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-choice-available">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-daytag-single-accommodation-legendicon-ok"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Your choice is available', 'wpvacancy').'</div>';
+        $res .= '</div>';
+        $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-choice-unavailable">';
+          $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-daytag-single-accommodation-legendicon-ko"></div>';
+          $res .= '<div class="wpv-calendar-legend-text">'.__('Your choice is NOT available', 'wpvacancy').'</div>';
+        $res .= '</div>';
       $res .= '</div>';
 
       $res .= '</div>';
@@ -303,9 +320,7 @@ class WPV_Calendar
   {
     return array('load', 
                   'loadCalendar', 
-                  array('', // dummy value, used only when loading on button click, while here is onLoad
-                        get_rest_url(),
-                        WPV_BookingForm::$namespace, 
+                  array('', // dummy value, used only when loading on button click, while here is onLoad 
                         self::$wrapperclass,
                         self::$defaultoffset, // offset 0 = current month
                         self::$defaultspan,  // span N months (2 -> current and next one)
@@ -313,8 +328,10 @@ class WPV_Calendar
                         self::$nextMonthButton,
                         'wpv-calendar-daytag-daytype',
                         'wpv-calendar-daytag-availability',
-                        'wpv-calendar-options',
-                        array('wpv-calendar-clickable-day', 'wpv-calendar-selected-day')
+                        array('wpv-calendar-clickable-day', 
+                              'wpv-calendar-first-selected-day',
+                              'wpv-calendar-selected-day',
+                              'wpv-calendar-last-selected-day')
                       ));    
   }
   
@@ -351,7 +368,9 @@ class WPV_Calendar
     return array('click', 
                   'daySelection', 
                   array('wpv-calendar-clickable-day',
-                        'wpv-calendar-selected-day'));
+                        'wpv-calendar-first-selected-day',
+                        'wpv-calendar-selected-day',
+                        'wpv-calendar-last-selected-day'));
     
   }
 

@@ -107,4 +107,46 @@ function wpv_accommodationmap_editor_content( $content, $post )
 
   return $content;
 }  
+
+
+function vb_wpv_accmap_custom_fields() {
+
+  global $vb_wpv_custom_fields_prefix ;
+  // Start with an underscore to hide fields from custom fields list
+  $prefix = $vb_wpv_custom_fields_prefix;
+
+  /**
+   * Initiate the metabox
+   */
+  $cmb = new_cmb2_box( array(
+      'id'            => 'accm_map_type_meta',
+      'title'         => __( 'Accomodation Map options', 'wpvacancy' ),
+      'object_types'  => array( 'accm_map_type', ), // Post type
+      'context'       => 'normal',
+      'priority'      => 'high',
+      'show_names'    => true, // Show field names on the left
+      // 'cmb_styles' => false, // false to disable the CMB stylesheet
+      'closed'     => false, // Keep the metabox closed by default
+  ) );
+
+  $cmb->add_field( array(
+		'name'    => __( 'Accommodation preview scale factor', 'wpvacancy' ),
+		'desc'    => __( 'The scale factor relative to the accommodation icon size for the preview of the accommodation', 'wpvacancy' ),
+		'id'      => $prefix . 'accm_map_previewscalefactor',
+		'type'    => 'text',
+    'default' => 10,
+    'attributes' => array(
+        'data-validation' => 'required',
+        'type' => 'number',
+        'min'  => '1',
+    ),
+    'on_front'        => false, // Optionally designate a field to wp-admin only
+	));
+   
+}
+
+add_action( 'cmb2_admin_init', 'vb_wpv_accmap_custom_fields' );
+
+  
+
 ?>

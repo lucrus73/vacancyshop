@@ -37,58 +37,7 @@ function season_post_type() {
 			'supports' => array( 'title', 'editor', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'sticky', 'page-attributes')
 		) /* end of options */
 	); /* end of register post type */
-	
-	// now let's add custom categories (these act like categories)
-	
-  register_taxonomy( 'season_cat', 
-    array('season_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
-    array('hierarchical' => true,     /* if this is true, it acts like categories */
-      'labels' => array(
-        'name' => __( 'Season categories', 'wpvacancy' ), /* name of the custom taxonomy */
-        'singular_name' => __( 'Season category', 'wpvacancy' ), /* single taxonomy name */
-        'search_items' =>  __( 'Search season categories', 'wpvacancy' ), /* search title for taxomony */
-        'all_items' => __( 'All season categories', 'wpvacancy' ), /* all title for taxonomies */
-        'parent_item' => __( 'Parent category', 'wpvacancy' ), /* parent title for taxonomy */
-        'parent_item_colon' => __( 'Parent category:', 'wpvacancy' ), /* parent taxonomy title */
-        'edit_item' => __( 'Edit season category', 'wpvacancy' ), /* edit custom taxonomy title */
-        'update_item' => __( 'Update season category', 'wpvacancy' ), /* update title for taxonomy */
-        'add_new_item' => __( 'Add season category', 'wpvacancy' ), /* add new title for taxonomy */
-        'new_item_name' => __( 'New season category', 'wpvacancy' ) /* name title for taxonomy */
-      ),
-      'show_admin_column' => true, 
-      'show_ui' => true,
-      'query_var' => true,
-      'rewrite' => array( 'slug' => 'season-category' ),
-    )
-  );
-
-  // now let's add custom tags (these act like categories)
-  register_taxonomy( 'season_tag', 
-    array('season_type'), /* if you change the name of register_post_type( 'custom_type', then you have to change this */
-    array('hierarchical' => false,    /* if this is false, it acts like tags */
-      'labels' => array(
-        'name' => __( 'Season Tags', 'wpvacancy' ), /* name of the custom taxonomy */
-        'singular_name' => __( 'Season Tag', 'wpvacancy' ), /* single taxonomy name */
-        'search_items' =>  __( 'Search season tags', 'wpvacancy' ), /* search title for taxomony */
-        'all_items' => __( 'All season tags', 'wpvacancy' ), /* all title for taxonomies */
-        'parent_item' => __( 'Parent tag', 'wpvacancy' ), /* parent title for taxonomy */
-        'parent_item_colon' => __( 'Parent tag:', 'wpvacancy' ), /* parent taxonomy title */
-        'edit_item' => __( 'Edit tag', 'wpvacancy' ), /* edit custom taxonomy title */
-        'update_item' => __( 'Update tag', 'wpvacancy' ), /* update title for taxonomy */
-        'add_new_item' => __( 'Add season tag', 'wpvacancy' ), /* add new title for taxonomy */
-        'new_item_name' => __( 'New season tag name', 'wpvacancy' ) /* name title for taxonomy */
-      ),
-      'show_admin_column' => true,
-      'show_ui' => true,
-      'query_var' => true,
-    )
-  );
-
-	/* this adds your post categories to your custom post type */
-	register_taxonomy_for_object_type( 'season_cat', 'season_type' );
-	/* this adds your post tags to your custom post type */
-	register_taxonomy_for_object_type( 'season_tag', 'season_type' );
-	
+		
 }
 
 	// adding the function to the Wordpress init
@@ -101,7 +50,6 @@ function season_post_type() {
 function season_custom_fields() {
 
   global $vb_wpv_custom_fields_prefix ;
-  global $vb_wpv_weekdays;
     // Start with an underscore to hide fields from custom fields list
     $prefix = $vb_wpv_custom_fields_prefix;
 
@@ -120,53 +68,28 @@ function season_custom_fields() {
     ) );
 
    
-    $cmb->add_field( array(
-        'name'       => __( 'Bookings start on', 'wpvacancy' ),
-        'desc'       => __( 'Choose days bookings periods must start on. Check all or none if any day will do.', 'wpvacancy' ),
-        'id'         => $prefix . 'start_on_weekday',
-        'type'       => 'multicheck',
-        'options'    => $vb_wpv_weekdays,
-        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
-        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
-        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
-        'on_front'        => false, // Optionally designate a field to wp-admin only
-        // 'repeatable'      => true,
-    ) );
-
-    $cmb->add_field( array(
-        'name'       => __( 'Min hours for booking', 'wpvacancy' ),
-        'desc'       => __( 'Defaults to zero, which means there\'s no minimum set in hours. If set, bookings must last a multiple of this number of hours. It accepts fractional numnbers.', 'wpvacancy' ),
-        'id'         => $prefix . 'min_hours_for_bookings',
-        'type'       => 'text',
-        'default'    => 0,
-        'attributes' => array(
-          'type' => 'number',
-          'min'  => '0',
-        ),        
-        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
-        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
-        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
-        'on_front'        => false, // Optionally designate a field to wp-admin only
-        // 'repeatable'      => true,
-    ) );
-
-    $cmb->add_field( array(
-        'name'       => __( 'Min days for booking', 'wpvacancy' ),
-        'desc'       => __( 'Defaults to one day/night. If set, bookings must last a multiple of this number of days/nights.', 'wpvacancy' ),
-        'id'         => $prefix . 'min_nights_for_bookings',
-        'type'       => 'text',
-        'default'    => 1,
-        'attributes' => array(
-          'type' => 'number',
-          'min'  => '0',
-        ),        
-        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
-        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
-        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
-        'on_front'        => false, // Optionally designate a field to wp-admin only
-        // 'repeatable'      => true,
-    ) );
-
+  $cmb->add_field( array(
+      'name'       => __( 'Periods', 'wpvancancy' ),
+      'desc'       => __( 'The periods that belong to this season', 'wpvacancy' ),
+      'id'         => $prefix . 'season_periods',
+  		'type'       => 'custom_attached_posts',
+      'options' => array(
+        'show_thumbnails' => true, // Show thumbnails on the left
+        'filter_boxes'    => true, // Show a text box for filtering the results
+        'query_args'      => array(
+          'posts_per_page' => 20,
+          'post_type'      => 'period_type',
+        ), // override the get_posts args
+      ),
+      'attributes' => array(
+          'data-validation' => 'required',
+      ),
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ));
 }
 
 add_action( 'cmb2_admin_init', 'season_custom_fields' );
