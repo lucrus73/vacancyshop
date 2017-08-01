@@ -85,7 +85,7 @@ class Wpvacancy_Public {
     wp_enqueue_style(
       'jquery-ui-theme-smoothness',
       sprintf(
-        'http://ajax.googleapis.com/ajax/libs/jqueryui/%s/themes/smoothness/jquery-ui.css',
+        'https://ajax.googleapis.com/ajax/libs/jqueryui/%s/themes/smoothness/jquery-ui.css',
         $wp_scripts->registered['jquery-ui-core']->ver
       )
     );
