@@ -143,3 +143,19 @@
   width: 200000rem; 
   height: 100000rem;
 }
+
+.wpv-accommodation-tag {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.wpv-accommodation-tag-ok {
+  display: none;
+  background-image: url('../../images/ok.png');
+}
+
+.wpv-accommodation-tag-ko {
+  display: none;
+  background-image: url('../../images/ko.png');
+}

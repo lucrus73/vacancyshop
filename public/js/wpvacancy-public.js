@@ -18,6 +18,7 @@ if (wpvacancy_was_here_global_flag !== true)
     var selectedFirstDayCssClass = '';
     var selectedLastDayCssClass = '';
     var sliderClass = '';
+    var durationSlider = '';
     var rangeMax = 0;
     var loading = '';
     var accunitDetailClass = '';
@@ -47,7 +48,7 @@ if (wpvacancy_was_here_global_flag !== true)
       var min = argsarray[6];
       rangeMax = argsarray[7];
       var step = argsarray[8];
-      $("." + sliderClass).slider({
+      durationSlider = $("." + sliderClass).slider({
         value: init,
         min: min,
         max: rangeMax,
@@ -55,7 +56,10 @@ if (wpvacancy_was_here_global_flag !== true)
         slide: function (s_event, ui) {
           currentDurationDays = ui.value;
           updateDurationOnCalendar();    
-          sliderBaloon(limitedCurrentDurationDays, handleclass, baloonclass, singularlabel, plurallabel);
+          sliderBaloon(limitedCurrentDurationDays > 0 ? limitedCurrentDurationDays : currentDurationDays, handleclass, baloonclass, singularlabel, plurallabel);
+        },
+        change: function (s_event, ui) {
+          sliderBaloon(limitedCurrentDurationDays > 0 ? limitedCurrentDurationDays : currentDurationDays, handleclass, baloonclass, singularlabel, plurallabel);
         }
       });
       currentDurationDays = init;
@@ -191,7 +195,13 @@ if (wpvacancy_was_here_global_flag !== true)
       selectedDayCssClass = argsarray[2];
       selectedLastDayCssClass = argsarray[3];
       currentStartDate = $(jqThis).data("wpvdayid");
+      var saveLimitedDuration = limitedCurrentDurationDays;
       updateDurationOnCalendar();
+      if (saveLimitedDuration != limitedCurrentDurationDays)
+      {
+        // Let's force UI refresh
+        durationSlider.slider("value", limitedCurrentDurationDays);
+      }
     }
 
     function loadCalendar(jqThis, event, argsarray)
