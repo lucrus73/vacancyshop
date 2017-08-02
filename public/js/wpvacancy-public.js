@@ -32,8 +32,10 @@ if (wpvacancy_was_here_global_flag !== true)
     var restNamespace;
     var accommodationAvailableTag = '';
     var accommodationUnavailableTag = '';
-
-
+    var accommodationOkTag;
+    var accommodationKoTag;
+    var allAccommodationsClass;
+    var recapTimer;
 
     var wpv_wp_api;
 
@@ -83,15 +85,21 @@ if (wpvacancy_was_here_global_flag !== true)
       var buttonclass = argsarray[0];
       var dialogclass = argsarray[1];
       $("." + dialogclass).fadeIn("fast", "linear", function (e) {
-        $("." + buttonclass).off("click");
-        $("." + buttonclass).on("click", function (e) {
-          $("." + buttonclass).off("click");
-          $("." + dialogclass).fadeOut("fast", "linear", function (e) {
-            $("." + buttonclass).off("click");
-            $("." + buttonclass).on("click", function (e) {
-              showSelectionDialog(jqThis, e, argsarray);
-            });
-          });
+        $("." + dialogclass).scrollintoview({
+            duration: 250,
+            direction: "both",
+            complete: function() {
+              $("." + buttonclass).off("click");
+              $("." + buttonclass).on("click", function (e) {
+                $("." + buttonclass).off("click");
+                $("." + dialogclass).fadeOut("fast", "linear", function (e) {
+                  $("." + buttonclass).off("click");
+                  $("." + buttonclass).on("click", function (e) {
+                    showSelectionDialog(jqThis, e, argsarray);
+                  });
+                });
+              });
+            }
         });
       });
     }
@@ -120,11 +128,10 @@ if (wpvacancy_was_here_global_flag !== true)
     function chooseThisAccommodationItem(jqThis, event, argsarray)
     {
       currentAccommodation = argsarray[1];
-      var allunits = argsarray[2];
-      var selectionclass = argsarray[3];
-      var selectedunitclass = argsarray[4];
+      var selectionclass = argsarray[2];
+      var selectedunitclass = argsarray[3];
 
-      $("." + allunits).removeClass(selectionclass);
+      $("." + allAccommodationsClass).removeClass(selectionclass);
       $("." + selectedunitclass).addClass(selectionclass);
       
       updateDurationOnCalendar();
@@ -152,6 +159,12 @@ if (wpvacancy_was_here_global_flag !== true)
       $("." + accommodationAvailableTag).hide();
       $("." + accommodationUnavailableTag).hide();
     }
+    
+    function clearPeriodAvailabilityOnMap()
+    {
+      $("." + accommodationOkTag).hide();
+      $("." + accommodationKoTag).hide();
+    }
 
     function update_calendar_ui(target, value)
     {
@@ -176,6 +189,7 @@ if (wpvacancy_was_here_global_flag !== true)
       var target = argsarray[1];
       availability_shown = !availability_shown;
       update_calendar_ui(target, availability_shown);
+      updateDurationOnCalendar();
     }
 
     function toggleOptions(jqThis, event, argsarray)
@@ -218,39 +232,39 @@ if (wpvacancy_was_here_global_flag !== true)
       wpv_wp_api.then(function (site)
       {
         site.namespace(restNamespace).getCalendarMarkup().
-                param('offset', offset).
-                param('span', span).
-                then(function (results)
-                {
-                  var markup = results.markup;
-                  $("." + wrapperclass).html(markup);
-                  $("." + previousMonth).off("click");
-                  $("." + nextMonth).off("click");
-                  update_calendar_ui(festivitiesTarget, festivities_shown);
-                  update_calendar_ui(availabilityTarget, availability_shown);
-                  var dayclass = daySelectionParams[0];
-                  $("." + dayclass).off("click");
-                  $("." + dayclass).on("click", function (ev) 
-                  {
-                    daySelection($(this), ev, daySelectionParams);
-                  });
+        param('offset', offset).
+        param('span', span).
+        then(function (results)
+        {
+          var markup = results.markup;
+          $("." + wrapperclass).html(markup);
+          $("." + previousMonth).off("click");
+          $("." + nextMonth).off("click");
+          update_calendar_ui(festivitiesTarget, festivities_shown);
+          update_calendar_ui(availabilityTarget, availability_shown);
+          var dayclass = daySelectionParams[0];
+          $("." + dayclass).off("click");
+          $("." + dayclass).on("click", function (ev) 
+          {
+            daySelection($(this), ev, daySelectionParams);
+          });
 
-                  $("." + previousMonth).on("click", function (event)
-                  {
-                    var newargs = argsarray;
-                    newargs[4]--; // previous month;
-                    loadCalendar($(this), event, newargs);
-                  });
-                  $("." + nextMonth).off("click");
-                  $("." + nextMonth).on("click", function (event)
-                  {
-                    var newargs = argsarray;
-                    newargs[4]++; // next month;
-                    loadCalendar($(this), event, newargs);
-                  });
-                  updateDurationOnCalendar();
-                  $("." + loading).hide();
-                });
+          $("." + previousMonth).on("click", function (event)
+          {
+            var newargs = argsarray;
+            newargs[2]--; // offset for previous month;
+            loadCalendar($(this), event, newargs);
+          });
+          $("." + nextMonth).off("click");
+          $("." + nextMonth).on("click", function (event)
+          {
+            var newargs = argsarray;
+            newargs[2]++; // offset for next month;
+            loadCalendar($(this), event, newargs);
+          });
+          updateDurationOnCalendar();
+          $("." + loading).hide();
+        });
       });
 
     }
@@ -267,15 +281,19 @@ if (wpvacancy_was_here_global_flag !== true)
       limitedCurrentDurationDays = currentDurationDays;
 
       clearSingleAccommodationAvailabilityOnCalendar();
+      clearPeriodAvailabilityOnMap();
 
       $("." + selectableDayCssClass).removeClass(selectedFirstDayCssClass);
       $("." + selectableDayCssClass).removeClass(selectedDayCssClass);
       $("." + selectableDayCssClass).removeClass(selectedLastDayCssClass);
       $(document).find("[data-wpvdayid='" + (currentStartDate + currentDurationDays + 1) + "']").removeClass(selectedLastDayCssClass);
+      var requiredDays = '';
       for (id = currentStartDate; id <= (currentStartDate + currentDurationDays); id++)
       {
         if (id < (currentStartDate + currentDurationDays)) // avoid last day
+        {
           showSingleAccommodationAvailabilityOnCalendar(id, currentAccommodation);
+        }
         var selectionTarget = $(document).find("[data-wpvdayid='" + id + "']");
         var classToAdd = selectedDayCssClass;
         if (id === currentStartDate)
@@ -284,7 +302,12 @@ if (wpvacancy_was_here_global_flag !== true)
           if (id === (currentStartDate + currentDurationDays))
             classToAdd = selectedLastDayCssClass;
         if (selectionTarget.hasClass(selectableDayCssClass))
+        {
           selectionTarget.addClass(classToAdd);
+          if (0 < requiredDays.length)
+            requiredDays += ',';
+          requiredDays += id;
+        }
         else
         {
           selectionTarget.addClass(selectedLastDayCssClass);
@@ -292,9 +315,26 @@ if (wpvacancy_was_here_global_flag !== true)
           break;
         }
       }
+      if (availability_shown)
+      {
+        $("." + allAccommodationsClass).each(function(index) 
+        {
+          var thisid = $(this).attr('id');
+          var av = $(this).data("bookable");
+          if (av.includes(requiredDays))
+          {
+            $("#" + thisid + " ." + accommodationOkTag).show();
+          }
+          else
+          {
+            $("#" + thisid + " ." + accommodationKoTag).show();
+          }
+        });
+      }
+      
       updateRecap();
     }
-
+    
     function recapDate(dayIdToShow, targetClass)
     {
       if (dayIdToShow > 0)
@@ -302,13 +342,13 @@ if (wpvacancy_was_here_global_flag !== true)
         wpv_wp_api.then(function (site)
         {
           site.namespace(restNamespace).getRecapInfo().
-                  param('key', 'dateFromDayId').
-                  param('dayid', dayIdToShow).
-                  then(function (results)
-                  {
-                    $("." + targetClass + " ." + recapTarget).html(results.value);
-                  }
-                      )
+            param('key', 'dateFromDayId').
+            param('dayid', dayIdToShow).
+            then(function (results)
+            {
+              $("." + targetClass + " ." + recapTarget).html(results.value);
+            }
+          )
         });
       }
     }
@@ -327,6 +367,24 @@ if (wpvacancy_was_here_global_flag !== true)
                     )
       });
     }
+    
+    function recapPrice()
+    {
+      initWPAPI();
+      wpv_wp_api.then(function (site)
+      {
+        site.namespace(restNamespace).getRecapInfo().
+                param('key', 'getPriceForBooking').
+                param('accid', currentAccommodation).
+                param('startdayid', currentStartDate).
+                param('enddayid', currentStartDate + limitedCurrentDurationDays).
+                then(function (results)
+                {
+                  $("." + totalPriceClass + " ." + recapTarget).html(results.value);      
+                }
+                    );
+      });
+    }
 
     function updateRecap()
     {
@@ -335,11 +393,16 @@ if (wpvacancy_was_here_global_flag !== true)
         $("." + accunitDetailClass + " ." + recapTarget).html($(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitname"));
         $("." + accunitTypeClass + " ." + recapTarget).html($(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitcat"));
         recapNotes();
+        if (currentStartDate > 0 && currentDurationDays > 0)
+        {
+          recapPrice();
+        }
+          
       }
       recapDate(currentStartDate, startDateClass);
       recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
     }
-
+    
     function setupDefaults(jqThis, event, argsarray)
     {
       loading = argsarray[0];
@@ -354,7 +417,10 @@ if (wpvacancy_was_here_global_flag !== true)
       restNamespace = argsarray[9];
       accommodationAvailableTag = argsarray[10];
       accommodationUnavailableTag = argsarray[11];
-
+      accommodationOkTag = argsarray[12];
+      accommodationKoTag = argsarray[13];
+      allAccommodationsClass = argsarray[14];
+      
       initWPAPI();
     }
 

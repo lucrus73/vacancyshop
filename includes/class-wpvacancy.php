@@ -280,6 +280,11 @@ class Wpvacancy
     wp_register_script($wpapihandle, $wpapifileurl);
     wp_enqueue_script($wpapihandle);
 
+    $siwfileurl = plugin_dir_url(__FILE__) . '../public/js/jquery.scrollintoview.min.js';
+    $siwhandle = "wpv-jquery-scrollintoview";
+    wp_register_script($siwhandle, $siwfileurl);
+    wp_enqueue_script($siwhandle);
+
     wp_enqueue_script('jquery-ui-slider');
 
     $jsfileurl = plugin_dir_url(__FILE__) . '../public/js/wpvacancy-public.js';

@@ -5,6 +5,9 @@ class WPV_AccommodationsMap
   private $lightbox_template_postid = "lightbox-show-accommodation";
   private $postid;
   private static $endpoint = 'getLightboxPermalink';
+  public static $accommodation_ok_class = 'wpv-accommodation-tag-ok';
+  public static $accommodation_ko_class = 'wpv-accommodation-tag-ko';
+  public static $accommodation_class = 'wpv-booking-accommodation-unit';
   
   public static $defaultScaleFactor = 5;
 
@@ -131,22 +134,22 @@ class WPV_AccommodationsMap
       if (empty($extra_class))
         $extra_class = '';
       
-      $result .= '<div class="'.$elementclass.
-                    ' wpv-booking-accommodation-unit';
+      $result .= '<div id="'.$elementclass.'" class="'.$elementclass.
+                    ' '.self::$accommodation_class;
       $ucatnames = "";
       if (taxonomy_exists('accommodation_cat')) // it happens it does not when called from the constructor, since the taxonomy is not registered yet
       {
         $ucats = wp_get_object_terms($u->ID, 'accommodation_cat', array('fields' => 'id=>slug'));
         foreach ($ucats as $unitcategoryslug)
         {
-          $result .= ' wpv-booking-accommodation-unit-cat-'.$unitcategoryslug;
+          $result .= ' '.self::$accommodation_class.'-cat-'.$unitcategoryslug;
           $fullcat = get_term_by('slug', $unitcategoryslug, 'accommodation_cat');
           if (!empty($ucatnames))
             $ucatnames .= ', ';
           $ucatnames .= $fullcat->name;
         }
       }
-      $result .= ' wpv-booking-accommodation-unit-name-'.$u->post_name.
+      $result .= ' '.self::$accommodation_class.'-name-'.$u->post_name.
                     ' '.$extra_class.
                     '" style="left:'.$left.
                     '%; top:'.$top.
@@ -157,6 +160,8 @@ class WPV_AccommodationsMap
       $result.= ' data-accunitcat="'.$ucatnames.'"';
       $result.= ' data-bookable="'.implode(",", WPV_BookingForm::getBookableDays($u->ID)).'" ';
       $result.= '>';
+      $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ok_class.'"></div>';
+      $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ko_class.'"></div>';
         $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
           $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 12, false);
             $result .= '<div class="wpv-accommodation-hint-image-buttons">';
@@ -227,7 +232,6 @@ class WPV_AccommodationsMap
                  'chooseThisAccommodationItem', 
                   array($target,
                         $postid,
-                        'wpv-booking-accommodation-unit',
                         'wpv-booking-accommodation-selected-unit',
                         $highlight
                         ));    
@@ -237,6 +241,7 @@ class WPV_AccommodationsMap
    * This function returns a string containing a HTML fragment. It opens one or two <div> tags
    * and it DOES NOT close them, by design.
    * The caller is supposed to add whatever inside the <div> tag(s) and then close it (both).
+   * The $wrapper param controls if it opens only one <div> (false) or two (true, default, suitable for flex items)
    * 
    * @global type $vb_wpv_baseurl
    * @param type $post

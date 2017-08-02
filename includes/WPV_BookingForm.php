@@ -19,6 +19,8 @@ class WPV_BookingForm
   public static $singleAccmAvailable = 'wpv-calendar-daytag-single-accommodation-ok';
   public static $singleAccmUnavailable = 'wpv-calendar-daytag-single-accommodation-ko';
   private static $periodsCache;
+  private static $periodsCacheStartsFrom;
+  private static $periodsCacheSpansTo;
 
   function __construct()
   {
@@ -146,6 +148,93 @@ class WPV_BookingForm
                 ));
     return $periods;
   }
+
+  public static function getAllPeriodsInRange($startdayid, $enddayid)
+  {
+    global $vb_wpv_custom_fields_prefix;
+    
+    // Since end_date is optional, and, if missing, we have to consider it == start_date, and since
+    // I don't know how to check for empty(end_date), here are the conditions to retrieve a period:
+    // start_date == startdayid || 
+    //    (start_date > startdayid && start_date <= enddayid) ||
+    //    (start_date < startdayid && end_date > startdayid)
+    //
+    // In ascii art, where sd = start_date and ed = end_date:
+    //
+    // 1st condition, sd == startdayid and who cares about ed:
+    // 
+    //                       startdayid ------------------ enddayid
+    //                       sd
+    //                       sd __________ ed
+    //                       sd __________________________ ed
+    //                       sd ______________________________________ ed
+    //                       
+    // 2nd condition, sd > startdayid && sd <= enddayid, and who cares about ed
+    //                       startdayid ------------------ enddayid
+    //                                   sd
+    //                                      sd __________ ed
+    //                                                     sd _____________ ed
+    //                       
+    // 3rd condition, sd < startdayid && ed > startdayid
+    //                       startdayid ------------------ enddayid
+    //                sd ________________ ed
+    //              sd ___________________________________ ed
+    //                   sd ________________________________________ ed
+    //                       
+    
+    $s_seconds = $startdayid * 86400;
+    $s_thedate = date("Y-m-d", $s_seconds);
+    
+    $e_seconds = $enddayid * 86400;
+    $e_thedate = date("Y-m-d", $e_seconds);
+    
+    $periods = get_posts( 
+            array('post_type' => 'period_type',
+                'numberposts' => '1', 
+                'post_status' => 'publish', 
+                'order' => 'DESC', 
+                'orderby' => 'date',
+                'meta_query' => array(
+                                  'relation' => 'OR',
+                                  array(
+                                      'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
+                                      'value'   => $s_thedate,
+                                      'compare' => '=',
+                                      'type' => 'DATE' ),
+                                  array(
+                                     'relation' => 'AND',
+                                      array(
+                                         'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
+                                         'value'   => $s_thedate,
+                                         'compare' => '>',
+                                         'type' => 'DATE' 
+                                          ),                                      
+                                      array(
+                                         'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
+                                         'value'   => $e_thedate,
+                                         'compare' => '<=',
+                                         'type' => 'DATE' 
+                                          ),                                      
+                                     ),                    
+                                  array(
+                                      'relation' => 'AND',
+                                      array(
+                                           'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
+                                           'value'   => $s_thedate,
+                                           'compare' => '<',
+                                           'type' => 'DATE' 
+                                        ),
+                                      array(
+                                           'key'     => $vb_wpv_custom_fields_prefix.'period_end_date',
+                                           'value'   => $s_thedate,
+                                           'compare' => '>',
+                                           'type' => 'DATE' 
+                                        )
+                                      )
+                                    )));
+    return $periods;
+  }
+  
   
   public static function getAllAccommodations()
   {
@@ -194,15 +283,24 @@ class WPV_BookingForm
     return $bookable;
   }
 
-  public static function getBookableDays($accm_id, $fromdayid = null, $interval_lenght = 459)
+  public static function getBookableDays($accm_id, $fromdayid = null, $interval_lenght = 230)
   {
     global $vb_wpv_custom_fields_prefix;
+      
     if (empty($fromdayid))
       $fromdayid = WPV_Calendar::dayid(time()); // today
     $bookableDays = array();
+    
+    $availableForBooking = get_post_meta($accm_id, $vb_wpv_custom_fields_prefix."acc_available_for_booking", true);
+    if (empty($availableForBooking))
+    {
+      return $bookableDays;
+    }
+
+    self::initPeriodsCache($fromdayid - $interval_lenght, $fromdayid + $interval_lenght);
     for ($dayid = $fromdayid; $dayid < $fromdayid + $interval_lenght; $dayid++)
     {
-      $bookable = self::isBookableDay($dayid);
+      $bookable = self::isBookableDayFromCache($dayid);
       if ($bookable === true)
       {
         $bookings = self::getAllBookings($dayid);
@@ -226,11 +324,7 @@ class WPV_BookingForm
   
   public static function isBookableDay($dayid)
   {
-    if (empty(self::$periodsCache))
-    {
-      $periods = self::getAllPeriods($dayid);
-      self::buildPeriodsCache($periods);
-    }
+    self::initPeriodsCache($dayid);
     return self::isBookableDayFromCache($dayid);
     // return count($periods) > 0 ? true : false;
   }
@@ -242,26 +336,70 @@ class WPV_BookingForm
     return $timestamp;
   }
   
-  private static function buildPeriodsCache($periods)
+  private static function initPeriodsCache($startdayid, $enddayid = null)
   {
     global $vb_wpv_custom_fields_prefix;
-    if (!is_array(self::$periodsCache))
-      self::$periodsCache = array();
-    foreach ($periods as $p)
+        
+    
+    if (empty(self::$periodsCache) || 
+            empty(self::$periodsCacheStartsFrom) || $startdayid < self::$periodsCacheStartsFrom ||
+            empty(self::$periodsCacheSpansTo) ||(!empty($enddayid) && $enddayid > self::$periodsCacheSpansTo))
     {
-      $pstart = WPV_Calendar::dayid(self::dateparse(get_post_meta($p->ID, $vb_wpv_custom_fields_prefix.'period_start_date', true)));
-      $pend = WPV_Calendar::dayid(self::dateparse(get_post_meta($p->ID, $vb_wpv_custom_fields_prefix.'period_end_date', true)));
-      array_push(self::$periodsCache, array($pstart, $pend));
+      if (!empty($enddayid))
+      {
+        $periods = self::getAllPeriodsInRange($startdayid, $enddayid);
+      }
+      else
+      {
+        $periods = self::getAllPeriods($startdayid);
+      }
+      foreach ($periods as $p)
+      {
+        $pstart = WPV_Calendar::dayid(self::dateparse(get_post_meta($p->ID, $vb_wpv_custom_fields_prefix.'period_start_date', true)));
+        $pend = WPV_Calendar::dayid(self::dateparse(get_post_meta($p->ID, $vb_wpv_custom_fields_prefix.'period_end_date', true)));
+        if (!is_array(self::$periodsCache))
+        {
+          self::$periodsCache = array();
+        }
+        array_push(self::$periodsCache, array($pstart, $pend, $p));
+        if (empty($enddayid) || $pend > $enddayid)
+        {
+          $enddayid = $pend;
+        }
+      }
+    }
+    
+    if (empty(self::$periodsCacheStartsFrom || $startdayid < self::$periodsCacheStartsFrom))
+    {
+      self::$periodsCacheStartsFrom = $startdayid;
+    }
+    
+    if (empty($enddayid))
+    {
+      $enddayid = $startdayid;
+    }
+
+    if (empty(self::$periodsCacheSpansTo) || $enddayid > self::$periodsCacheSpansTo)
+    {
+      self::$periodsCacheSpansTo = $enddayid;
     }
   }
   
-  private static function isBookableDayFromCache($dayid)
+  private static function isBookableDayFromCache($dayid, $returntype = 'boolean')
   {
+    self::initPeriodsCache($dayid);
     foreach (self::$periodsCache as $period)
     {
       if ($dayid >= $period[0] && $dayid <= $period[1])
       {
-        return true;
+        if ($returntype == 'boolean')
+        {
+          return true;
+        }
+        else
+        {
+          return $period[2];
+        }
       }
     }
 
@@ -349,7 +487,10 @@ class WPV_BookingForm
                         get_rest_url(),
                         self::$namespace,
                         self::$singleAccmAvailable,
-                        self::$singleAccmUnavailable
+                        self::$singleAccmUnavailable,
+                        WPV_AccommodationsMap::$accommodation_ok_class,
+                        WPV_AccommodationsMap::$accommodation_ko_class,
+                        WPV_AccommodationsMap::$accommodation_class,
                         ));    
   }
   
@@ -361,6 +502,23 @@ class WPV_BookingForm
       ) );
   }
   
+  public static function getTotalPrice($accid, $startdayid, $enddayid)
+  {
+    $total = 0;
+    $price_per_day_for_debug = 150;
+    self::initPeriodsCache($startdayid, $enddayid);
+    for ($day = $startdayid; $day < $enddayid; $day++)
+    {
+      if (!self::isBookableDayFromCache($day))
+        return -1;
+      $available = self::getBookableAccommodations($day);
+    }
+    
+    // DEBUG ONLY
+    return $price_per_day_for_debug * ($enddayid - $startdayid);
+  }
+
+
   public function getRecapInfo(WP_REST_Request $request)
   {
     global $vb_wpv_custom_fields_prefix;
@@ -408,7 +566,12 @@ class WPV_BookingForm
         $accid = $request->get_param("accid");
         $startdayid = $request->get_param("startdayid");
         $enddayid = $request->get_param("enddayid");
-        $result["value"] = self::getTotalPrice($accid, $startdayid, $enddayid);
+        $total = self::getTotalPrice($accid, $startdayid, $enddayid);
+        if ($total > 0)
+          $result["value"] = "€ ".$total.' '.__("tax included", 'wpvacancy');
+        else
+          $result["value"] =  __("Your choice is not available, try choosing different dates and/or accommodation", "wpvacancy");
+        
         break;
     }
     return $result;
