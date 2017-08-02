@@ -229,6 +229,17 @@ function vb_wpv_accommodation_custom_fields() {
       // 'repeatable'      => true,
   ) );
 
+  $cmb->add_field( array(
+      'name'       => __( 'Available for booking', 'wpvacancy' ),
+      'desc'       => __( 'REMEMBER to check this one if you want your accommodation to effectively be available for booking!', 'wpvacancy' ),
+      'id'         => $prefix . 'acc_available_for_booking',
+      'type'       => 'checkbox',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
 }
 
 add_action( 'cmb2_admin_init', 'vb_wpv_accommodation_custom_fields' );

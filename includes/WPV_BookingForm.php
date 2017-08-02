@@ -169,6 +169,10 @@ class WPV_BookingForm
     // let's remove the alreay booked accommodations
     foreach ($accommodations as $acc)
     {
+      $availableForBooking = get_post_meta($acc->ID, $vb_wpv_custom_fields_prefix."acc_available_for_booking", true);
+      if (empty($availableForBooking))
+        continue;
+      
       $booked = false;
       foreach ($bookings as $b)
       {

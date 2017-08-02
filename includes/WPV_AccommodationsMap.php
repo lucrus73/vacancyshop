@@ -271,7 +271,7 @@ class WPV_AccommodationsMap
     $mapname = $post->post_name;
 
     $res = '<div class="'.$class_prefix.' '.$class_prefix.'-'.$mapname.
-              '" style="background-image: url('.$bgimage_url.'); width: '.$w.'%; padding-bottom: '.$h.'%;">';
+              '" style="background-image: url('.$bgimage_url.'); width: '.$w.'%; padding-bottom: '.$h.'% !important;">';
     return $res;
   }
   

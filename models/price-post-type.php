@@ -160,11 +160,10 @@ function vb_wpv_price_custom_fields() {
   ));
 
   $cmb->add_field( array(
-      'name'       => __( 'Apply to whole accommodation category', 'wpvancancy' ),
-      'desc'       => __( 'Should this price apply to other accommodations of the same category too?', 'wpvacancy' ),
+      'name'       => __( 'Apply only to this accommodation', 'wpvancancy' ),
+      'desc'       => __( 'Should this price apply only to this accommodation only or should it apply to others of the same category as well? Default unchecked, which means it applies to others as well.', 'wpvacancy' ),
       'id'         => $prefix . 'price_acc_cat_slug',
   		'type'       => 'checkbox',
-      'default'    => 'checked',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
       // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
