@@ -93,7 +93,7 @@ class WPV_AccommodationsMap
       
       $res .= $mapOpenDiv;
       $res .= $this->accommodationUnits($m->ID);
-      $res .= '</div>';  
+      $result .= '</div></div>'; // see comment in featuredImageInADiv
     }
     $res .= '</div>';
     return $res;
@@ -158,7 +158,7 @@ class WPV_AccommodationsMap
       $result.= ' data-bookable="'.implode(",", WPV_BookingForm::getBookableDays($u->ID)).'" ';
       $result.= '>';
         $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
-          $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 12);
+          $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 12, false);
             $result .= '<div class="wpv-accommodation-hint-image-buttons">';
               $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'">';
                 $result .= '<span>';
@@ -170,7 +170,7 @@ class WPV_AccommodationsMap
                 $result .= __('Choose this', 'wpvacancy');
                 $result .= '</span>';
               $result .= '</div>';
-            $result .= '</div>';
+            $result .= '</div>'; // see comment in featuredImageInADiv
 
             // I add 4 transparent divs around the hint and above all the rest to grab any clicks around.
             // This way the hint is like a modal or a lightbox but with static positioning (e.g. relative to the clicked icon)
@@ -232,8 +232,22 @@ class WPV_AccommodationsMap
                         $highlight
                         ));    
   }
-    
-  public function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8)
+  
+  /**
+   * This function returns a string containing a HTML fragment. It opens one or two <div> tags
+   * and it DOES NOT close them, by design.
+   * The caller is supposed to add whatever inside the <div> tag(s) and then close it (both).
+   * 
+   * @global type $vb_wpv_baseurl
+   * @param type $post
+   * @param type $tsize
+   * @param string $default_img_url
+   * @param type $class_prefix
+   * @param type $scale
+   * @param $wrapper if true (default) it adds a wrapper <div>
+   * @return string
+   */  
+  public function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8, $wrapper = true)
   {
     global $vb_wpv_baseurl;
     $thumb = get_post_thumbnail_id($post->ID);
@@ -268,10 +282,11 @@ class WPV_AccommodationsMap
     $w = $widthpercent * 100;
     $h = $heightpercent * 100;
 
-    $mapname = $post->post_name;
-
-    $res = '<div class="'.$class_prefix.' '.$class_prefix.'-'.$mapname.
-              '" style="background-image: url('.$bgimage_url.'); width: '.$w.'%; padding-bottom: '.$h.'% !important;">';
+    $res = '';
+    if ($wrapper === true)
+      $res = '<div class="'.$class_prefix.'-wrapper">';
+    $res .= '<div class="'.$class_prefix.' '.$class_prefix.'-'.$post->post_name.
+              '" style="background-image: url('.$bgimage_url.'); width: '.$w.'%; padding-bottom: '.$h.'%; margin-left: auto; margin-right: auto;">';
     return $res;
   }
   
