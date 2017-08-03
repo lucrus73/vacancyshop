@@ -118,30 +118,30 @@
 
 .wpv-accommodation-hint-inputgrab-right {
   left: 100%; 
-  top: -10000rem; 
-  width: 100000rem; 
-  height: 200000rem; 
+  top: -200rem; 
+  width: 100rem; 
+  height: 240rem; 
 }
 
 .wpv-accommodation-hint-inputgrab-left {
-  left: -100000rem; 
-  top: -100000rem; 
-  width: 100000rem; 
-  height: 200000rem; 
+  left: -100rem; 
+  top: -200rem; 
+  width: 100rem; 
+  height: 240rem; 
 }
 
 .wpv-accommodation-hint-inputgrab-top {
-  left: -100000rem; 
-  top: -100000rem; 
-  width: 200000rem; 
-  height:100000rem; 
+  left: -100rem; 
+  top: -200rem; 
+  width: 200rem; 
+  height: 120rem; 
 }
 
 .wpv-accommodation-hint-inputgrab-bottom {
-  left: -100000rem; 
+  left: -100rem; 
   top: calc(100% + 2em); /* buttons are 2em lower than the image */ 
-  width: 200000rem; 
-  height: 100000rem;
+  width: 200rem; 
+  height: 10rem;
 }
 
 .wpv-accommodation-tag {
