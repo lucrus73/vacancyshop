@@ -85,3 +85,24 @@
 
 .wpv-booking-duration-title {
 }
+
+.wpv-booking-duration-slider-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.wpv-booking-duration-button {
+  flex: 1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+}
+
+.wpv-booking-duration-button i.fa {
+  height: 2rem;
+  width: 2rem;
+  text-align: center;
+  font-size: 200%;
+  cursor: pointer;
+}

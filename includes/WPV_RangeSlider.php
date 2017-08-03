@@ -16,6 +16,8 @@ class WPV_RangeSlider
   function __construct()
   {
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "rangeClickPlus"));    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "rangeClickMinus"));    
   }
 
   public function range($ticks = false, $labels = false, $balloon = false, $snaptoticks = false)
@@ -24,6 +26,12 @@ class WPV_RangeSlider
     $res .= '<div class="wpv-booking-duration-slider">';
     $res .= '<div class="wpv-booking-duration-slider-custom-handle ui-slider-handle" style="z-index:0;"></div>';
     $res .= '</div>';
+    
+    $res .= '<div class="wpv-booking-duration-slider-buttons">';
+    $res .= '<div class="wpv-booking-duration-button wpv-booking-duration-minus"><i class="fa fa-minus-circle"></i></i></div>';
+    $res .= '<div class="wpv-booking-duration-button wpv-booking-duration-plus"><i class="fa fa-plus-circle"></i></div>';
+    $res .= '</div>';
+    
     
     return $res;
   }
@@ -40,6 +48,22 @@ class WPV_RangeSlider
                       14, 1, 60, 1
                       ));
     
+  }
+  
+  public function rangeClickPlus()
+  {
+    return array('click', 
+                  'rangeClickPlus', 
+                  array('wpv-booking-duration-plus'
+                      ));
+  }
+
+  public function rangeClickMinus()
+  {
+    return array('click', 
+                  'rangeClickMinus', 
+                  array('wpv-booking-duration-minus'
+                      ));
   }
 
 }

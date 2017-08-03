@@ -56,8 +56,7 @@ if (wpvacancy_was_here_global_flag !== true)
         max: rangeMax,
         step: step,
         slide: function (s_event, ui) {
-          currentDurationDays = ui.value;
-          updateDurationOnCalendar();    
+          updateSliderFromUserAction(ui.value);
           sliderBaloon(limitedCurrentDurationDays > 0 ? limitedCurrentDurationDays : currentDurationDays, handleclass, baloonclass, singularlabel, plurallabel);
         },
         change: function (s_event, ui) {
@@ -67,6 +66,12 @@ if (wpvacancy_was_here_global_flag !== true)
       currentDurationDays = init;
       sliderBaloon(init, handleclass, baloonclass, singularlabel, plurallabel);
       updateDurationOnCalendar();
+    }
+    
+    function updateSliderFromUserAction(value)
+    {
+      currentDurationDays = value;
+      updateDurationOnCalendar();    
     }
 
     function sliderBaloon(value, handleclass, baloonclass, singularlabel, plurallabel)
@@ -103,7 +108,28 @@ if (wpvacancy_was_here_global_flag !== true)
         });
       });
     }
+    
+    function rangeClickMinus(jqThis, event, argsarray)
+    {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (currentDurationDays > 1)
+      {
+        updateSliderFromUserAction(currentDurationDays - 1);
+        durationSlider.slider("value", currentDurationDays - 1);
+      }
+    }
 
+    function rangeClickPlus(jqThis, event, argsarray)
+    {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      if (currentDurationDays < durationSlider.slider("option", "max"))
+      {
+        updateSliderFromUserAction(currentDurationDays + 1);
+        durationSlider.slider("value", currentDurationDays + 1);
+      }
+    }
 
     function viewMoreOfAccommodationItem(jqThis, event, argsarray)
     {
