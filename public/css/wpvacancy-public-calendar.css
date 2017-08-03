@@ -15,8 +15,8 @@
 
 .wpv-calendar-wrapper td, .wpv-calendar-wrapper td:first-child, .wpv-calendar-wrapper td:last-child, .wpv-calendar-wrapper th, .wpv-calendar-wrapper th:first-child, .wpv-calendar-wrapper th:last-child {
     text-align: center;
-    padding: 0.65rem;
-    font-size: 80%;
+    padding: 1.3rem;
+    /* font-size: 80%; */
     border: 1px solid lightgray;
 }
 

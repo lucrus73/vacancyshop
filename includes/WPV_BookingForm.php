@@ -539,7 +539,7 @@ class WPV_BookingForm
         $pax = get_post_meta($accid, $vb_wpv_custom_fields_prefix."acc_unit_pax", true);
         if (!empty($pax))
           $pax .= ' '.__('Pax', 'wpvacancy');
-        $notes = get_post_meta($accunit, $vb_wpv_custom_fields_prefix."acc_unit_notes", true);
+        $notes = apply_filters('the_content', get_post_meta($accunit, $vb_wpv_custom_fields_prefix."acc_unit_notes", true));
         if (!empty($pax))
         {
           if (empty($notes))
@@ -555,9 +555,9 @@ class WPV_BookingForm
           if (!empty($fullcat->description))
           {
             if (!empty($notes))
-              $notes .= ' - '.$fullcat->description;
+              $notes .= ' - '.apply_filters('the_content', $fullcat->description);
             else
-              $notes = $fullcat->description;
+              $notes = apply_filters('the_content', $fullcat->description);
           }
         }
         $result["value"] = $notes;

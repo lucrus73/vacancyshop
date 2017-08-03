@@ -156,7 +156,7 @@ class WPV_AccommodationsMap
                     '%; width:'.$width.
                     '%; height:'.$height.
                     '%;" data-accunitid="'.$u->ID.'" ';
-      $result.= ' data-accunitname="'.$u->post_title.'" ';
+      $result.= ' data-accunitname="'.apply_filters('the_content', $u->post_title).'" ';
       $result.= ' data-accunitcat="'.$ucatnames.'"';
       $result.= ' data-bookable="'.implode(",", WPV_BookingForm::getBookableDays($u->ID)).'" ';
       $result.= '>';
