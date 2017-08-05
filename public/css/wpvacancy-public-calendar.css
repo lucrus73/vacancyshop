@@ -141,18 +141,17 @@
     position: relative;
 }
 
-.wpv-booking-startdate-title i {
+.wpv-booking-startdate-title i.fa.fa-cog {
     display: block;
     position: absolute;
     right: 0;
-    top: 1.5em;
+    top: 1.5rem;
+    font-size: 250%;
+    width: 2rem;
+    height: 2rem;
 }
 
 .wpv-calendar-controlpanel {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    align-items: center;
     border-radius: 1rem;
     padding: 1rem;
     box-shadow: 0 0 0.7rem 0.07rem;
@@ -160,18 +159,52 @@
     margin: 1rem 0;
 }
 
-.wpv-calendar-show-festivities,  .wpv-calendar-show-availability {
+.wpv-calendar-option-checkbox {
+  padding: 1rem;
+  border: 1px solid lightgray;
+  box-shadow: 0 0 2px 2px;
+  border-radius: 1rem;
+  cursor: pointer;  
+}
+
+.wpv-calendar-option-checkbox-icon-checked {
+  display: none;
+}
+
+.wpv-calendar-option i.fa {
+  font-size: 200%;
+}
+
+.wpv-calendar-option-checkbox {
     display: flex;
-    justify-content: center;
+    justify-content: space-around;
     align-items: center;
+    flex: 3;
+}
+
+.wpv-calendar-option-checkboxicon-wrapper {
+  height: 3rem;
+  width: 3rem;
+  position: relative;
+}
+
+.wpv-calendar-option-checkbox-icon, .wpv-calendar-option-checkbox-icon-checked {
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.fa.wpv-calendar-option-checkbox-icon-checked {
+  display: none;
 }
 
 .wpv-calendar-legend {
     margin: 0.5rem 0 0.5rem 2rem;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: flex-start;
     align-items: flex-start;
+    flex: 5;
 }
 
 .wpv-calendar-options-gear, .wpv-calendar-clickable-day {
@@ -183,8 +216,12 @@
 }
 
 .wpv-calendar-option {
-  font-size: 80%;
-  margin-left: 1em;
+  font-size: 90%;
+  width: 100%;
+  margin: 0 auto;
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
 }
 
 .wpv-calendar-selected-day, .wpv-calendar-first-selected-day, .wpv-calendar-last-selected-day {
@@ -205,7 +242,7 @@
 }
 
 .wpv-calendar-legend-text {
-  font-size: 60%;
+  font-size: 80%;
 }
 
 .wpv-calendar-daytag-single-accommodation-ok {

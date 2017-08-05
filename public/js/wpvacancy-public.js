@@ -90,21 +90,15 @@ if (wpvacancy_was_here_global_flag !== true)
       var buttonclass = argsarray[0];
       var dialogclass = argsarray[1];
       $("." + dialogclass).fadeIn("fast", "linear", function (e) {
-        $("." + dialogclass).scrollintoview({
-            duration: 250,
-            direction: "both",
-            complete: function() {
-              $("." + buttonclass).off("click");
-              $("." + buttonclass).on("click", function (e) {
-                $("." + buttonclass).off("click");
-                $("." + dialogclass).fadeOut("fast", "linear", function (e) {
-                  $("." + buttonclass).off("click");
-                  $("." + buttonclass).on("click", function (e) {
-                    showSelectionDialog(jqThis, e, argsarray);
-                  });
-                });
-              });
-            }
+        $("." + buttonclass).off("click");
+        $("." + buttonclass).on("click", function (e) {
+          $("." + buttonclass).off("click");
+          $("." + dialogclass).fadeOut("fast", "linear", function (e) {
+            $("." + buttonclass).off("click");
+            $("." + buttonclass).on("click", function (e) {
+              showSelectionDialog(jqThis, e, argsarray);
+            });
+          });
         });
       });
     }
@@ -205,15 +199,29 @@ if (wpvacancy_was_here_global_flag !== true)
 
     function toggleFestivities(jqThis, event, argsarray)
     {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       var target = argsarray[1];
+      var checksymbol = argsarray[2];
       festivities_shown = !festivities_shown;
+      if (festivities_shown === true)
+        $("." + checksymbol).show();
+      else
+        $("." + checksymbol).hide();
       update_calendar_ui(target, festivities_shown);
     }
 
     function toggleAvailability(jqThis, event, argsarray)
     {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       var target = argsarray[1];
+      var checksymbol = argsarray[2];
       availability_shown = !availability_shown;
+      if (availability_shown === true)
+        $("." + checksymbol).show();
+      else
+        $("." + checksymbol).hide();
       update_calendar_ui(target, availability_shown);
       updateDurationOnCalendar();
     }
