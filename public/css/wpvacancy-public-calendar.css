@@ -262,3 +262,7 @@
 .wpv-calendar-daytag-single-accommodation-legendicon-ko {
   background-image: url('../../images/legendicon-ko.png');
 }
+
+.wpv-calendar-option-checkbox-icon-checked {
+    top: -1rem;
+}
