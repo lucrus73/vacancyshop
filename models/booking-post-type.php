@@ -27,14 +27,14 @@ function booking_post_type() {
 			'exclude_from_search' => false,
 			'show_ui' => true,
 			'query_var' => true,
-			'menu_position' => 9, /* this is what order you want it to appear in on the left hand side menu */ 
-			'menu_icon' => $vb_wpv_basedir.'images/booking_type-icon.png', /* the icon for the custom post type menu */
+			'menu_position' => 90, /* this is what order you want it to appear in on the left hand side menu */ 
+			'menu_icon' => 'dashicons-tickets-alt', /* the icon for the custom post type menu */
 			'rewrite'	=> array( 'slug' => 'booking_type', 'with_front' => true ), /* you can specify its url slug */
 			'has_archive' => false, /* you can rename the slug here */
 			'capability_type' => 'post',
 			'hierarchical' => false,
 			/* the next one is important, it tells what's enabled in the post editor */
-			'supports' => array( 'title', 'editor', 'thumbnail', 'excerpt', 'trackbacks', 'custom-fields', 'comments', 'sticky', 'page-attributes')
+			'supports' => array( 'title', 'editor', 'custom-fields')
 		) /* end of options */
 	); /* end of register post type */
 	

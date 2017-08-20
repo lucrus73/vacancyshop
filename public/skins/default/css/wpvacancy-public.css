@@ -40,7 +40,7 @@
   top: 10%;
   left: 10%;
   position: absolute;
-  background-image: url('../../images/loading.gif');
+  background-image: url('../images/loading.gif');
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;

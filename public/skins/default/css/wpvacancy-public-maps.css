@@ -26,7 +26,7 @@
   display: block;
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  background-image: url('../../images/accm-unit.png');
+  background-image: url('../images/accm-unit.png');
   cursor: pointer;
 }
 
@@ -155,10 +155,10 @@
 
 .wpv-accommodation-tag-ok {
   display: none;
-  background-image: url('../../images/legendicon-ok.png');
+  background-image: url('../images/legendicon-ok.png');
 }
 
 .wpv-accommodation-tag-ko {
   display: none;
-  background-image: url('../../images/legendicon-ko.png');
+  background-image: url('../images/legendicon-ko.png');
 }

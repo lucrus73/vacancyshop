@@ -195,6 +195,8 @@ class Wpvacancy
 
     $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
     $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
+    $this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
+    $this->loader->add_action('admin_menu', $plugin_admin, 'menu');
 
     add_action('admin_enqueue_scripts', array(&$this, 'enqueue_scripts'));
   }
@@ -272,7 +274,24 @@ class Wpvacancy
   {
     return $this->version;
   }
-
+  
+  public static function skinfileUrl($file, $skin = null)
+  {
+    global $vb_wpv_basedir;
+    if ($skin === null)
+    {
+      $skin = get_option(Wpvacancy_Admin::$activeSkin, 'default');
+      $autodefault = true;
+    }
+    $skinfilepath = $vb_wpv_basedir . 'public/skins/'.$skin.'/'.$file;
+    if (!file_exists($skinfilepath))
+      if ($autodefault === true)
+        return self::skinfileUrl($file, 'default');
+      else
+        return false;
+    return plugin_dir_url(__FILE__) . '../public/skins/'.$skin.'/'.$file;      
+  }
+  
   public function enqueue_scripts()
   {
     $wpapifileurl = plugin_dir_url(__FILE__) . '../public/js/wpapi.min.js';
@@ -299,6 +318,13 @@ class Wpvacancy
 
     wp_localize_script($this->script_handle, 'jshooks_params', $hooks_data);
     wp_enqueue_script($this->script_handle);
+
+    $skinjsfileurl = self::skinfileUrl('js/skin.js');
+    if ($skinjsfileurl !== false)
+    {
+      wp_register_script($this->script_handle.'-skin', $skinjsfileurl);
+      wp_enqueue_script($this->script_handle.'-skin');
+    }
   }
 
   public function registerScriptParamsCallback($callable_arg, array $params = array())

@@ -56,6 +56,11 @@ class Wpvacancy_Public {
 		$this->version = $version;
     $this->extrastyles = array();
 	}
+  
+  public function enqueue_skin($tag, $file)
+  {
+    wp_enqueue_style( $this->plugin_name . $tag, Wpvacancy::skinfileUrl($file), array(), $this->version, 'all' );
+  }
 
 	/**
 	 * Register the stylesheets for the public-facing side of the site.
@@ -76,10 +81,10 @@ class Wpvacancy_Public {
 		 * class.
 		 */
 
-		wp_enqueue_style( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'css/wpvacancy-public.css', array(), $this->version, 'all' );
-		wp_enqueue_style( $this->plugin_name.'rangeslider', plugin_dir_url( __FILE__ ) . 'css/wpvacancy-public-rangeslider.css', array(), $this->version, 'all' );
-		wp_enqueue_style( $this->plugin_name.'calendar', plugin_dir_url( __FILE__ ) . 'css/wpvacancy-public-calendar.css', array(), $this->version, 'all' );
-		wp_enqueue_style( $this->plugin_name.'maps', plugin_dir_url( __FILE__ ) . 'css/wpvacancy-public-maps.css', array(), $this->version, 'all' );
+		$this->enqueue_skin('', 'css/wpvacancy-public.css');
+		$this->enqueue_skin('rangeslider', 'css/wpvacancy-public-rangeslider.css');
+		$this->enqueue_skin('calendar', 'css/wpvacancy-public-calendar.css');
+		$this->enqueue_skin('maps', 'css/wpvacancy-public-maps.css');
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     $wp_scripts = wp_scripts();
     wp_enqueue_style(
@@ -97,7 +102,7 @@ class Wpvacancy_Public {
     foreach ($this->extrastyles as $st)
     {
       $index++;
-      wp_enqueue_style( $this->plugin_name.'extrast-'.$index, plugin_dir_url( __FILE__ ).'css/'.$st);
+      $this->enqueue_skin( $this->plugin_name.'extrast-'.$index, 'css/'.$st);
     }
 	}
 

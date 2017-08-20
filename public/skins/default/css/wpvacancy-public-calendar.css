@@ -65,19 +65,19 @@
 }
 
 .wpv-calendar-daytag-nonworking {
-  background-image: url('../../images/nonworking.png');
+  background-image: url('../images/nonworking.png');
 }
 
 .wpv-calendar-daytag-nonworkingeve {
-  background-image: url('../../images/nonworkingeve.png');
+  background-image: url('../images/nonworkingeve.png');
 }
 
 .wpv-calendar-legendicon-nonworking {
-  background-image: url('../../images/legendicon-nonworking.png');
+  background-image: url('../images/legendicon-nonworking.png');
 }
 
 .wpv-calendar-legendicon-nonworkingeve {
-  background-image: url('../../images/legendicon-nonworkingeve.png');
+  background-image: url('../images/legendicon-nonworkingeve.png');
 }
 
 .wpv-calendar-daytag-availability {
@@ -85,35 +85,35 @@
 }
 
 .wpv-calendar-daytag-availability-empty {
-  background-image: url('../../images/availability-empty.png');
+  background-image: url('../images/availability-empty.png');
 }
 
 .wpv-calendar-daytag-availability-low {
-  background-image: url('../../images/availability-low.png');
+  background-image: url('../images/availability-low.png');
 }
 
 .wpv-calendar-daytag-availability-normal {
-  background-image: url('../../images/availability-normal.png');
+  background-image: url('../images/availability-normal.png');
 }
 
 .wpv-calendar-daytag-availability-full {
-  background-image: url('../../images/availability-full.png');
+  background-image: url('../images/availability-full.png');
 }
 
 .wpv-calendar-legendicon-availability-empty {
-  background-image: url('../../images/legendicon-availability-empty.png');
+  background-image: url('../images/legendicon-availability-empty.png');
 }
 
 .wpv-calendar-legendicon-availability-low {
-  background-image: url('../../images/legendicon-availability-low.png');
+  background-image: url('../images/legendicon-availability-low.png');
 }
 
 .wpv-calendar-legendicon-availability-normal {
-  background-image: url('../../images/legendicon-availability-normal.png');
+  background-image: url('../images/legendicon-availability-normal.png');
 }
 
 .wpv-calendar-legendicon-availability-full {
-  background-image: url('../../images/legendicon-availability-full.png');
+  background-image: url('../images/legendicon-availability-full.png');
 }
 
 .wpv-calendar-legend-entry {
@@ -230,15 +230,15 @@
   background-position: center;
 }
 .wpv-calendar-selected-day {
-  background-image: url('../../images/selected-day.png');
+  background-image: url('../images/selected-day.png');
 }
 
 .wpv-calendar-first-selected-day {
-  background-image: url('../../images/selected-day-first.png');
+  background-image: url('../images/selected-day-first.png');
 }
 
 .wpv-calendar-last-selected-day {
-  background-image: url('../../images/selected-day-last.png');
+  background-image: url('../images/selected-day-last.png');
 }
 
 .wpv-calendar-legend-text {
@@ -247,20 +247,20 @@
 
 .wpv-calendar-daytag-single-accommodation-ok {
   display: none;
-  background-image: url('../../images/ok.png');
+  background-image: url('../images/ok.png');
 }
 
 .wpv-calendar-daytag-single-accommodation-ko {
   display: none;
-  background-image: url('../../images/ko.png');
+  background-image: url('../images/ko.png');
 }
 
 .wpv-calendar-daytag-single-accommodation-legendicon-ok {
-  background-image: url('../../images/legendicon-ok.png');
+  background-image: url('../images/legendicon-ok.png');
 }
 
 .wpv-calendar-daytag-single-accommodation-legendicon-ko {
-  background-image: url('../../images/legendicon-ko.png');
+  background-image: url('../images/legendicon-ko.png');
 }
 
 .wpv-calendar-option-checkbox-icon-checked {

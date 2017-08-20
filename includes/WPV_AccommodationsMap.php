@@ -37,7 +37,7 @@ class WPV_AccommodationsMap
     global $vb_wpv_baseurl;
     $res = '<div class="wpv-booking-accomodations-maps-lightbox" style="z-index:999999;">';
       $res .= '<iframe id="wpv-booking-accomodations-maps-lightbox-frame" src="#"></iframe>';
-      $res .= '<div class="wpv-booking-accomodations-maps-lightbox-close" style="background-image:url('.$vb_wpv_baseurl. 'images/button-close.png)"></div>';
+      $res .= '<div class="wpv-booking-accomodations-maps-lightbox-close" style="background-image:url('. Wpvacancy::skinfileUrl('images/button-close.png').')"></div>';
     $res .= '</div>';
     echo $res;
   }
@@ -268,7 +268,7 @@ class WPV_AccommodationsMap
     {      
       if (empty($default_img_url))
       {
-        $default_img_url = $vb_wpv_baseurl.'images/no-image.png';        
+        $default_img_url = Wpvacancy::skinfileUrl('images/no-image.png');        
       }
       $bgimage_url = $default_img_url;  
       $size = getimagesize($default_img_url);
