@@ -18,7 +18,7 @@ class WPV_AccommodationsMap
     add_filter( 'single_template', array($this, 'lightbox_template'));
     remove_action( 'wp_footer', array($this, 'lightboxTags'), PHP_INT_MAX); // avoid adding more than once
     add_action( 'wp_footer', array($this, 'lightboxTags'), PHP_INT_MAX);
-    $this->map(); // ensures the registerScriptParamsCallback calls are executed early
+    $this->registerCallbacks(); // ensures the registerScriptParamsCallback calls are executed early
   }
   
   public function lightbox_template($single_template)
@@ -101,6 +101,25 @@ class WPV_AccommodationsMap
     $res .= '</div>';
     return $res;
   }
+  
+  private function registerCallbacks()
+  {
+    global $vb_wpv_custom_fields_prefix, $vb_wpv_baseurl;
+    $args = array('post_type'   => 'accommodation_type',
+                  'post_status' => 'publish',
+                  'numberposts' => 5000);
+    $units = get_posts($args);
+    foreach ($units as $u)
+    {
+      $elementclass = 'wpv-accommodation-box-id-'.$u->ID;
+      $viewmorebuttonclass = 'wpv-accommodation-hint-image-button-viewmore-'.$u->ID;
+      $choosethisbuttonclass = 'wpv-accommodation-hint-image-button-choosethis-'.$u->ID;
+
+      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
+      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
+      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "chooseThisAccommodationItem"), array($u->ID, $choosethisbuttonclass, $elementclass)); 
+    }
+  }
     
   private function accommodationUnits($map)
   {
@@ -120,7 +139,7 @@ class WPV_AccommodationsMap
       // each unit can belong to different maps
       // this meta lists all the maps this unit belogs to in an array
       $maps = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix.'acc_map_id', true);
-      if (!in_array($map, $maps)) // it this unit does not belong to the requested map
+      if (!in_array($map, $maps)) // if this unit does not belong to the requested map
         continue;
       
       $left = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_x", true);
@@ -202,9 +221,6 @@ class WPV_AccommodationsMap
 
         $result .= '</div>';
       $result .= '</div>';
-      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
-      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
-      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "chooseThisAccommodationItem"), array($u->ID, $choosethisbuttonclass, $elementclass)); 
     }
     return $result;
   }
