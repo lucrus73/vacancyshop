@@ -133,11 +133,11 @@ function period_custom_fields() {
     ) );
 
     $cmb->add_field( array(
-        'name'       => __( 'Min hours for booking', 'wpvacancy' ),
-        'desc'       => __( 'Defaults to zero, which means there\'s no minimum set in hours. If set, bookings must last a multiple of this number of hours. It accepts fractional numbers.', 'wpvacancy' ),
-        'id'         => $prefix . 'period_min_hours_for_bookings',
+        'name'       => __( 'Minimum minutes for booking', 'wpvacancy' ),
+        'desc'       => __( 'Defaults to zero, which means there\'s no minimum set. If set, bookings must last a multiple of this number of minutes.', 'wpvacancy' ),
+        'id'         => $prefix . 'period_min_minutes_for_bookings',
         'type'       => 'text',
-        'default'    => 0,
+        'default'    => 30,
         'attributes' => array(
           'type' => 'number',
           'min'  => '0',

@@ -181,6 +181,7 @@ class Wpvacancy_Admin {
         array_push($list, $f);
       }
     }
+    $list = apply_filters("vb_wpv_list_available_skins", $list);
     return $list;
   }
 }

@@ -6,6 +6,7 @@ class WPV_BookingForm
   private $html;
   private $cal;
   private $range;
+  private $time;
   private $maps;
   public static $namespace = 'wpvacancy/v1';
   private static $accommodations = null;
@@ -29,20 +30,29 @@ class WPV_BookingForm
     require_once $vb_wpv_basedir.'includes/WPV_Calendar.php';
     require_once $vb_wpv_basedir.'includes/WPV_RangeSlider.php';
     require_once $vb_wpv_basedir.'includes/WPV_AccommodationsMap.php';
+    require_once $vb_wpv_basedir.'includes/WPV_Timepicker.php';
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
     $this->cal = new WPV_Calendar();
     $this->range = new WPV_RangeSlider();
     $this->maps = new WPV_AccommodationsMap();
+    $this->time = new WPV_Timepicker();
   }
   
   private function toHtml($atts = null, $content = '')
   {
+    $show_timepicker = false;
+    
     if (is_array($atts))
       extract($atts, EXTR_OVERWRITE);    
     
     $res = $this->cal->getCalendar();
     
     $res .= $this->range->range(31, 'startfrom1');
+    
+    if (!empty($show_timepicker))
+    {
+      $res .= $this->time->clock();
+    }
     
     $res .= $this->maps->map();
     
@@ -292,7 +302,7 @@ class WPV_BookingForm
     $bookableDays = array();
     
     $availableForBooking = get_post_meta($accm_id, $vb_wpv_custom_fields_prefix."acc_available_for_booking", true);
-    if (empty($availableForBooking))
+    if (empty($availableForBooking) && !Wpvacancy::is_admin() && !Wpvacancy::is_vacancy_admin())
     {
       return $bookableDays;
     }
@@ -326,7 +336,6 @@ class WPV_BookingForm
   {
     self::initPeriodsCache($dayid);
     return self::isBookableDayFromCache($dayid);
-    // return count($periods) > 0 ? true : false;
   }
   
   private static function dateparse($strdate)

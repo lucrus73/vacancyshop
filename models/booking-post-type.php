@@ -192,7 +192,7 @@ function vb_wpv_booking_custom_fields() {
       'name'       => __( 'Booking start time', 'wpvacancy' ),
       'desc'       => __( 'The time this booking starts at', 'wpvacancy' ),
       'id'         => $prefix . 'booking_start_time',
-      'type'       => 'text_date',
+      'type'       => 'text_time',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
       // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
@@ -215,7 +215,29 @@ function vb_wpv_booking_custom_fields() {
       'name'       => __( 'Booking end time', 'wpvacancy' ),
       'desc'       => __( 'The time this booking starts at', 'wpvacancy' ),
       'id'         => $prefix . 'booking_end_time',
-      'type'       => 'text_date',
+      'type'       => 'text_time',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Booking order time', 'wpvacancy' ),
+      'desc'       => __( 'The date/time this booking was placed', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_order_time',
+      'type'       => 'text_datetime_timestamp',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Booking order expiration time', 'wpvacancy' ),
+      'desc'       => __( 'The date/time this booking expires', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_expiration_time',
+      'type'       => 'text_datetime_timestamp',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
       // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter

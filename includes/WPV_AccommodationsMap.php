@@ -149,17 +149,31 @@ class WPV_AccommodationsMap
           $ucatnames .= $fullcat->name;
         }
       }
+      /**
+       * Skin creators can use the generated class name to set whatever CSS property
+       * they want for the specific accommodation icon:
+       */
       $result .= ' '.self::$accommodation_class.'-name-'.$u->post_name.
                     ' '.$extra_class.
                     '" style="left:'.$left.
                     '%; top:'.$top.
                     '%; width:'.$width.
                     '%; height:'.$height.
-                    '%;" data-accunitid="'.$u->ID.'" ';
-      $result.= ' data-accunitname="'.apply_filters('the_content', $u->post_title).'" ';
-      $result.= ' data-accunitcat="'.$ucatnames.'"';
-      $result.= ' data-bookable="'.implode(",", WPV_BookingForm::getBookableDays($u->ID)).'" ';
-      $result.= '>';
+                    '%;';
+      /**
+       * ...but, easier, they can also place a images/accm-unit-{slug}.png file 
+       * into their skin images/ folder and it will be used as icon for the 
+       * specific accommodation.
+       */
+      $unit_icon = Wpvacancy::skinfileUrl("images/accm-unit-".$u->post_name.".png");
+      if ($unit_icon !== false)
+        $result .= " background-image: url(".$unit_icon.");";
+      
+      $result .= '" data-accunitid="'.$u->ID.'" ';
+      $result .= ' data-accunitname="'.apply_filters('the_content', $u->post_title).'" ';
+      $result .= ' data-accunitcat="'.$ucatnames.'"';
+      $result .= ' data-bookable="'.implode(",", WPV_BookingForm::getBookableDays($u->ID)).'" ';
+      $result .= '>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ok_class.'"></div>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ko_class.'"></div>';
         $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';

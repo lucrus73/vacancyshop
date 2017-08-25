@@ -283,6 +283,12 @@ class Wpvacancy
       $skin = get_option(Wpvacancy_Admin::$activeSkin, 'default');
       $autodefault = true;
     }
+    
+    $thirdPartySkinSlug = str_replace(' ', '', apply_filters("vb_wpv_get_skin_slug", $skin));
+    $thirdPartySkinFileUrl = apply_filters("vb_wpv_get_skinfile_url_".$thirdPartySkinSlug, $file);
+    if (!empty($thirdPartySkinFileUrl) && $file != $thirdPartySkinFileUrl)
+      return $thirdPartySkinFileUrl;
+    
     $skinfilepath = $vb_wpv_basedir . 'public/skins/'.$skin.'/'.$file;
     if (!file_exists($skinfilepath))
       if ($autodefault === true)
@@ -337,6 +343,11 @@ class Wpvacancy
   public static function is_admin()
   {
     return current_user_can('manage_options');
+  }
+
+  public static function is_vacancy_admin()
+  {
+    return current_user_can('manage_wpvacancy_options');
   }
 
 }
