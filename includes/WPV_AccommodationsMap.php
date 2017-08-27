@@ -96,7 +96,7 @@ class WPV_AccommodationsMap
       
       $res .= $mapOpenDiv;
       $res .= $this->accommodationUnits($m->ID);
-      $result .= '</div></div>'; // see comment in featuredImageInADiv
+      $res .= '</div></div>'; // see comment in featuredImageInADiv
     }
     $res .= '</div>';
     return $res;
