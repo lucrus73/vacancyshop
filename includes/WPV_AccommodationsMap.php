@@ -319,9 +319,9 @@ class WPV_AccommodationsMap
 
     $res = '';
     if ($wrapper === true)
-      $res = '<div class="'.$class_prefix.'-wrapper" style="max-width: '.$wpx.'px;" >';
+      $res = '<div class="'.$class_prefix.'-wrapper" style="max-width: '.$wpx.'px; min-width: 0;" >';
     $res .= '<div class="'.$class_prefix.' '.$class_prefix.'-'.$post->post_name.
-              '" style="background-image: url('.$bgimage_url.'); max-width: '.$wpx.'px; width: '.$w.'%; padding-bottom: '.$h.'%; margin-left: auto; margin-right: auto;">';
+              '" style="background-image: url('.$bgimage_url.'); max-width: '.$wpx.'px; min-width: 0; width: '.$w.'%; padding-bottom: '.$h.'%; margin-left: auto; margin-right: auto;">';
     return $res;
   }
   
