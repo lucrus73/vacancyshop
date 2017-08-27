@@ -307,10 +307,10 @@ class WPV_AccommodationsMap
     if (empty($size))
       $size = array(100, 100);
     
-    $w = $size[0];
-    $h = $size[1];
+    $wpx = $size[0];
+    $hpx = $size[1];
 
-    $ratio = $h / $w;
+    $ratio = $hpx / $wpx;
     $widthpercent = $scale;
     $heightpercent = $widthpercent * $ratio;
 
@@ -321,7 +321,7 @@ class WPV_AccommodationsMap
     if ($wrapper === true)
       $res = '<div class="'.$class_prefix.'-wrapper">';
     $res .= '<div class="'.$class_prefix.' '.$class_prefix.'-'.$post->post_name.
-              '" style="background-image: url('.$bgimage_url.'); width: '.$w.'%; padding-bottom: '.$h.'%; margin-left: auto; margin-right: auto;">';
+              '" style="background-image: url('.$bgimage_url.'); width: '.$w.'%; padding-bottom: '.$h.'%; max-width: '.$wpx.'px; margin-left: auto; margin-right: auto;">';
     return $res;
   }
   
