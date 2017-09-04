@@ -196,7 +196,7 @@ class WPV_AccommodationsMap
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ok_class.'"></div>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ko_class.'"></div>';
         $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
-          $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", 12, false);
+          $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", $scalefactor, false);
             $result .= '<div class="wpv-accommodation-hint-image-buttons">';
               $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'">';
                 $result .= '<span>';

@@ -164,26 +164,24 @@ class WPV_BookingForm
     global $vb_wpv_custom_fields_prefix;
     
     // Since end_date is optional, and, if missing, we have to consider it == start_date, and since
-    // I don't know how to check for empty(end_date), here are the conditions to retrieve a period:
+    // I don't know how to check for empty(end_date) using the meta query, here are the conditions 
+    // to retrieve a period:
     // start_date == startdayid || 
     //    (start_date > startdayid && start_date <= enddayid) ||
     //    (start_date < startdayid && end_date > startdayid)
     //
-    // In ascii art, where sd = start_date and ed = end_date:
+    // In ascii art, where sd = start_date and ed = end_date, using a timeline:
     //
-    // 1st condition, sd == startdayid and who cares about ed:
+    // < ------------------------------ timeline ------------------------------>
+    //
+    // 1st condition, sd == startdayid and we don't know/care about ed:
     // 
     //                       startdayid ------------------ enddayid
-    //                       sd
-    //                       sd __________ ed
-    //                       sd __________________________ ed
-    //                       sd ______________________________________ ed
+    //                       sd ___ ... ?ed
     //                       
-    // 2nd condition, sd > startdayid && sd <= enddayid, and who cares about ed
+    // 2nd condition, sd > startdayid && sd <= enddayid, careless about ed
     //                       startdayid ------------------ enddayid
-    //                                   sd
-    //                                      sd __________ ed
-    //                                                     sd _____________ ed
+    //                                   sd _____ ... ?ed
     //                       
     // 3rd condition, sd < startdayid && ed > startdayid
     //                       startdayid ------------------ enddayid
@@ -206,35 +204,35 @@ class WPV_BookingForm
                 'orderby' => 'date',
                 'meta_query' => array(
                                   'relation' => 'OR',
-                                  array(
+                                  array( /* start_date == startdayid */
                                       'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
                                       'value'   => $s_thedate,
                                       'compare' => '=',
                                       'type' => 'DATE' ),
-                                  array(
+                                  array( /* start_date > startdayid && start_date <= enddayid */
                                      'relation' => 'AND',
-                                      array(
+                                      array( /* start_date > startdayid */
                                          'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
                                          'value'   => $s_thedate,
                                          'compare' => '>',
                                          'type' => 'DATE' 
                                           ),                                      
-                                      array(
+                                      array( /* start_date <= enddayid */
                                          'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
                                          'value'   => $e_thedate,
                                          'compare' => '<=',
                                          'type' => 'DATE' 
                                           ),                                      
                                      ),                    
-                                  array(
+                                  array( /* start_date < startdayid && end_date > startdayid */
                                       'relation' => 'AND',
-                                      array(
+                                      array( /* start_date < startdayid */
                                            'key'     => $vb_wpv_custom_fields_prefix.'period_start_date',
                                            'value'   => $s_thedate,
                                            'compare' => '<',
                                            'type' => 'DATE' 
                                         ),
-                                      array(
+                                      array( /* end_date > startdayid */
                                            'key'     => $vb_wpv_custom_fields_prefix.'period_end_date',
                                            'value'   => $s_thedate,
                                            'compare' => '>',
