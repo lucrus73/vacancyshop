@@ -38,6 +38,8 @@ class WPV_RangeSlider
     
   public function load()
   {
+    $minDurationDays = get_option(Wpvacancy_Admin::$allowSingleDaySelection) ? 0 : 1;
+    $defaultDurationDays = intval(get_option(Wpvacancy_Admin::$defaultBookingDurationDays));
     return array('load', 
                   'showDurationSlider', 
                   array('wpv-booking-duration-slider', 
@@ -45,7 +47,7 @@ class WPV_RangeSlider
                       'wpv-booking-duration-slider-custom-handle-baloon',
                       __('night', 'wpvacancy'),
                       __('nights', 'wpvacancy'),
-                      14, 1, 60, 1
+                      $defaultDurationDays, $minDurationDays, 60, 1
                       ));
     
   }

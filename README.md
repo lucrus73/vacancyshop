@@ -1,2 +1,2 @@
 # wpvacancy
-Wordpress plugin to manage accomodations bookings
+Wordpress plugin to manage accommodations bookings

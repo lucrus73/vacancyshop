@@ -1,4 +1,4 @@
-<?php
+u<?php
 
 
 class WPV_BookingForm
@@ -19,9 +19,11 @@ class WPV_BookingForm
   private static $notesClass = 'wpv-booking-details-row-notes';
   public static $singleAccmAvailable = 'wpv-calendar-daytag-single-accommodation-ok';
   public static $singleAccmUnavailable = 'wpv-calendar-daytag-single-accommodation-ko';
+  public static $addToCartButtonClass = 'wpv-booking-addtocart-button';
   private static $periodsCache;
   private static $periodsCacheStartsFrom;
   private static $periodsCacheSpansTo;
+  private static $userid;
 
   function __construct()
   {
@@ -36,6 +38,7 @@ class WPV_BookingForm
     $this->range = new WPV_RangeSlider();
     $this->maps = new WPV_AccommodationsMap();
     $this->time = new WPV_Timepicker();
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "registerAddToCart"));
   }
   
   private function toHtml($atts = null, $content = '')
@@ -46,7 +49,6 @@ class WPV_BookingForm
       extract($atts, EXTR_OVERWRITE);    
     
     $res = $this->cal->getCalendar();
-    
     $res .= $this->range->range(31, 'startfrom1');
     
     if (!empty($show_timepicker))
@@ -55,8 +57,8 @@ class WPV_BookingForm
     }
     
     $res .= $this->maps->map();
-    
     $res .= $this->recap();
+    $res .= $this->addToCartButton();
     
     return $res;
   }
@@ -314,6 +316,10 @@ class WPV_BookingForm
         $bookings = self::getAllBookings($dayid);
         foreach ($bookings as $b)
         {
+          // Deleted bookings do not keep the accommodation booked, so others can book it
+          $deleted = get_post_meta($b->ID, WPV_BookingMetaKeys::$deleted, true);
+          if (!empty($deleted))
+            continue;
           $booked_acc_id = get_post_meta($b->ID, $vb_wpv_custom_fields_prefix.'booking_acc_unit_id', true);
           if (!empty($booked_acc_id) && is_array($booked_acc_id) && in_array($accm_id, $booked_acc_id))
           {
@@ -476,11 +482,29 @@ class WPV_BookingForm
     return $res;
   }
   
+  public function addToCartButton()
+  {
+    $res = '<div class="wpv-booking-addtocart">';
+      $res .= '<div class="'.self::$addToCartButtonClass.'">';
+        $res .= '<div class="wpv-booking-addtocart-text">';
+          $res .= __('Add to cart', 'wpvacancy');
+        $res .= '</div>';
+        $res .= '<div class="wpv-booking-addtocart-icon">';
+          $res .= '<i class="fa fa-cart-arrow-down" aria-hidden="true"></i>';
+        $res .= '</div>';
+      $res .= '</div>';
+    $res .= '</div>';
+    
+    return $res;
+  }
+  
   public function setupDefaults(array $params)
   {  
     $postid = $params[0];
     $target = $params[1];
     $highlight = $params[2];
+    $allowSingleDaySelection = boolval(get_option(Wpvacancy_Admin::$allowSingleDaySelection));
+    $currentDurationDays = intval(get_option(Wpvacancy_Admin::$defaultBookingDurationDays));
     return array('load', 
                  'setupDefaults', 
                   array(self::$loadingClass,
@@ -492,24 +516,40 @@ class WPV_BookingForm
                         self::$notesClass,
                         'wpv-booking-details-value',
                         get_rest_url(),
-                        self::$namespace,
+                        Wpvacancy::$namespace,
                         self::$singleAccmAvailable,
                         self::$singleAccmUnavailable,
                         WPV_AccommodationsMap::$accommodation_ok_class,
                         WPV_AccommodationsMap::$accommodation_ko_class,
                         WPV_AccommodationsMap::$accommodation_class,
+                        $allowSingleDaySelection,
+                        $currentDurationDays,
                         ));    
   }
   
   public function registerRoutes()
-  {    
-    register_rest_route(WPV_BookingForm::$namespace, '/getRecapInfo', array(
+  {
+    self::$userid = get_current_user_id();
+    register_rest_route(Wpvacancy::$namespace, '/getRecapInfo', array(
     'methods'  => WP_REST_Server::READABLE,
     'callback' => array($this, 'getRecapInfo'),
       ) );
+    register_rest_route(Wpvacancy::$namespace, '/addToCart', array(
+    'methods'  => WP_REST_Server::READABLE,
+    'callback' => array($this, 'addToCart'),
+      ) );
   }
   
-  public static function getTotalPrice($accid, $startdayid, $enddayid)
+  public static function getBookingPrice($booking)
+  {
+    $bk = vb_wpv_get_booking_accommodation_id($booking);
+    $sd = vb_wpv_get_booking_start_as_uxts($booking);
+    $ed = vb_wpv_get_booking_end_as_uxts($booking);
+    
+    
+  }
+
+  public static function getTotalPrice($accid, $startdayid, $enddayid, $starttime, $endtime)
   {
     $total = 0;
     $price_per_day_for_debug = 150;
@@ -583,6 +623,130 @@ class WPV_BookingForm
     }
     return $result;
   }
+  
+  public function addToCart(WP_REST_Request $request)
+  {
+    $booking = null;
+    $accommodation = $request->get_param("accid");
+    
+    $startDate = $request->get_param("startDate");
+    $endDate = $request->get_param("endDate");
+    $startTime = $request->get_param("startTime");
+    $endTime = $request->get_param("endTime");
+    
+    // step 1: try to edit this booking if it is already in the cart
+    // step 2: check real availability at this exact time
+    // step 3: add to cart
+    
+    // step 1
+    $editedBooking = self::editExistingBooking(self::$userid, $accommodation, $startDate, $endDate, $startTime, $endTime);
+    if (!empty($editedBooking))
+    {
+      $booking = $editedBooking;
+      $bmessage = __('Booking modified as requested', 'wpvacancy');
+    }
+    else
+    { // step 2 (TODO: add startTime/endTime support)
+      $bookable = self::getBookableDays($accommodation, $startDate, $endDate - $startDate);
+      if (count($bookable) == $endDate - $startDate)
+      {
+        $alreadyBooked = $this->findInCart(self::$userid, $accommodation, $startDate, $endDate, $startTime, $endTime);
+        if (!empty($alreadyBooked))
+          $result = ["value" => 'error', "message" => __('You can\'t change this booking you already added to your cart', 'wpvacancy')];
+        else
+        {
+          $booking = vb_wpv_create_booking(self::$userid, $accommodation, $startDate, $endDate, $startTime, $endTime);
+          $bmessage = __('Booking added to your cart', 'wpvacancy');
+        }
+        if (!empty($booking))
+        {
+          $result = ["value" => 'booked', 
+                      "itemwrapperclass" => 'wpv-booking-details', 
+                      "cartwrapperclass" => WPV_Cart::$cartbuttonwrapperclass, 
+                      "nitemsclass" => WPV_Cart::$numberofitemsclass,
+                      "nitems" => count(vb_wpv_get_cart_items()),
+                      "message" => $bmessage];
+        }
+      }
+    }
+    if (empty($booking) && empty($result))
+      $result = ["value" => 'error', "message" => __('Booking not available (anymore)', 'wpvacancy'), "action" => 'reload'];
 
+    return $result;
+  }
+  
+  public function registerAddToCart()
+  {
+    return array('click', 
+                  'addToCart', 
+                  array(self::$addToCartButtonClass));
+    
+  }
+
+  public function findInCart($userid, $accommodation, $startDate, $endDate, $startTime, $endTime)
+  {
+    // first of all, I need to check other bookings in the cart.
+    $cart = vb_wpv_get_cart($userid);
+    if (!empty($cart))
+    {
+      $existingbookings = vb_wpv_get_cart_items($cart->ID);
+    }
+    if (!empty($existingbookings))
+    {
+      $b = $this->findBookingInArray($existingbookings, $accommodation, $startDate, $endDate, $startTime, $endTime);
+      if (!empty($b))
+        return $b;
+    }
+    return false;
+  }
+  
+  private function findBookingInArray($bookingsArray, $accommodation, $startDate, $endDate, $startTime, $endTime, $exact = true)
+  {
+    foreach ($bookingsArray as $b)
+    {
+      $b_acc = get_post_meta($b->ID, WPV_BookingMetaKeys::$accommodation);
+      if ($b_acc != $accommodation)
+        continue;
+      $b_startd = get_post_meta($b->ID, WPV_BookingMetaKeys::$startDate);
+      $b_endd = get_post_meta($b->ID, WPV_BookingMetaKeys::$endDate);
+      $b_startt = get_post_meta($b->ID, WPV_BookingMetaKeys::$startTime);
+      $b_endt = get_post_meta($b->ID, WPV_BookingMetaKeys::$endTime);
+      $b_start = intval($b_startd) * 86400 + $b_startt;
+      $b_end = intval($b_endd) * 86400 + $b_endt;
+      $paramStart = intval($startDate) * 86400 + $startTime;
+      $paramEnd = intval($endDate) * 86400 + $endTime;
+      if ($exact)
+      {
+        // find only a booking that matches exactly the parameters
+        if ($b_start === $paramStart && $b_end === $paramEnd)
+          return $b;
+      }
+      else
+      {
+        // find first booking that overlaps the parameters
+        if (($b_start <= $paramStart && $b_end >= $paramStart) ||
+             ($b_start <= $paramEnd && $b_end >= $paramEnd))
+          return $b;
+      }
+    }
+    return false;
+  }
+  
+  private function editExistingBooking($userid, $accommodation, $startDate, $endDate, $startTime, $endTime)
+  {
+    $cart = vb_wpv_get_cart($userid);
+    if (!empty($cart))
+    {
+      $existingbookings = vb_wpv_get_cart_items($cart->ID);
+    }
+    if (!empty($existingbookings))
+    {
+      $b = $this->findBookingInArray($existingbookings, $accommodation, $startDate, $endDate, $startTime, $endTime, false);
+      if (!empty($b))
+      {
+        // TODO: I need to check if the new date/time limits are bookable
+      }
+    }
+  }
 
 }

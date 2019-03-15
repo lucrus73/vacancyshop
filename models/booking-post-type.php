@@ -1,5 +1,39 @@
 <?php
 
+class WPV_BookingMetaKeys {
+  public static $cart;
+  public static $accommodation;
+  public static $amount;
+  public static $startDate;
+  public static $startTime;
+  public static $endDate;
+  public static $endTime;
+  public static $orderTime;
+  public static $expirationTime;
+  public static $DoSPreventionTime;
+  public static $deleted;
+  
+  function __construct()
+  {
+    global $vb_wpv_custom_fields_prefix;
+    $prefix = $vb_wpv_custom_fields_prefix;
+    self::$cart = $prefix.'booking_cart_id';
+    self::$accommodation = $prefix.'booking_acc_unit_id';
+    self::$amount = $prefix.'booking_amount_tax_incl';
+    self::$startDate = $prefix.'booking_start_date';
+    self::$startTime = $prefix.'booking_start_time';
+    self::$endDate = $prefix.'booking_end_date';
+    self::$endTime = $prefix.'booking_end_time';
+    self::$orderTime = $prefix.'booking_order_time';
+    self::$expirationTime = $prefix.'booking_expiration_time';
+    self::$DoSPreventionTime = $prefix.'booking_dosprevention_time';
+    self::$deleted = $prefix.'booking_deleted';
+  }
+}
+
+global $wpv_booking_meta_keys_ensure_at_least_one_instance;
+$wpv_booking_meta_keys_ensure_at_least_one_instance = new WPV_BookingMetaKeys();
+
 // let's create the function for the custom type
 function booking_post_type() { 
   global $vb_wpv_basedir;
@@ -98,11 +132,6 @@ function booking_post_type() {
  * Define the metabox and field configurations.
  */
 function vb_wpv_booking_custom_fields() {
-
-  global $vb_wpv_custom_fields_prefix ;
-  // Start with an underscore to hide fields from custom fields list
-  $prefix = $vb_wpv_custom_fields_prefix;
-
   /**
    * Initiate the metabox
    */
@@ -119,14 +148,17 @@ function vb_wpv_booking_custom_fields() {
 
   $cmb->add_field( array(
 		'name'    => __( 'User', 'wpvacancy' ),
-		'desc'    => __( 'The user this booking belongs to', 'wpvacancy' ),
-		'id'      => $prefix . 'booking_user_id',
+		'desc'    => __( 'The cart this booking belongs to', 'wpvacancy' ),
+		'id'      => WPV_BookingMetaKeys::$cart,
 		'type'    => 'custom_attached_posts',
-		'options' => array(
-			'show_thumbnails' => true, // Show thumbnails on the left
-			'filter_boxes'    => true, // Show a text box for filtering the results
-      'query_users'     => true
-		                  ),
+      'options' => array(
+        'show_thumbnails' => true, // Show thumbnails on the left
+        'filter_boxes'    => true, // Show a text box for filtering the results
+        'query_args'      => array(
+          'posts_per_page' => 10,
+          'post_type'      => 'cart_type',
+        ), // override the get_posts args
+      ),
       'attributes' => array(
           'data-validation' => 'required',
       ),
@@ -136,7 +168,7 @@ function vb_wpv_booking_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Accommodation', 'wpvancancy' ),
       'desc'       => __( 'The accommodation unit this booking refers to', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_acc_unit_id',
+      'id'         => WPV_BookingMetaKeys::$accommodation,
   		'type'       => 'custom_attached_posts',
       'options' => array(
         'show_thumbnails' => true, // Show thumbnails on the left
@@ -159,7 +191,7 @@ function vb_wpv_booking_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Booking price', 'wpvacancy' ),
       'desc'       => __( 'The price, tax included, to pay for this booking', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_tax_incl',
+      'id'         => WPV_BookingMetaKeys::$amount,
       'type'       => 'text',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -176,7 +208,7 @@ function vb_wpv_booking_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Booking start date', 'wpvacancy' ),
       'desc'       => __( 'The date this booking starts at', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_start_date',
+      'id'         => WPV_BookingMetaKeys::$startDate,
       'type'       => 'text_date',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -191,7 +223,7 @@ function vb_wpv_booking_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Booking start time', 'wpvacancy' ),
       'desc'       => __( 'The time this booking starts at', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_start_time',
+      'id'         => WPV_BookingMetaKeys::$startTime,
       'type'       => 'text_time',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -201,8 +233,8 @@ function vb_wpv_booking_custom_fields() {
   ) );
   $cmb->add_field( array(
       'name'       => __( 'Booking end date', 'wpvacancy' ),
-      'desc'       => __( 'The date this booking starts at', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_end_date',
+      'desc'       => __( 'The date this booking ends at', 'wpvacancy' ),
+      'id'         => WPV_BookingMetaKeys::$endDate,
       'type'       => 'text_date',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -213,8 +245,8 @@ function vb_wpv_booking_custom_fields() {
   ) );
   $cmb->add_field( array(
       'name'       => __( 'Booking end time', 'wpvacancy' ),
-      'desc'       => __( 'The time this booking starts at', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_end_time',
+      'desc'       => __( 'The time this booking ends at', 'wpvacancy' ),
+      'id'         => WPV_BookingMetaKeys::$endTime,
       'type'       => 'text_time',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -225,7 +257,7 @@ function vb_wpv_booking_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Booking order time', 'wpvacancy' ),
       'desc'       => __( 'The date/time this booking was placed', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_order_time',
+      'id'         => WPV_BookingMetaKeys::$orderTime,
       'type'       => 'text_datetime_timestamp',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -236,8 +268,30 @@ function vb_wpv_booking_custom_fields() {
   $cmb->add_field( array(
       'name'       => __( 'Booking order expiration time', 'wpvacancy' ),
       'desc'       => __( 'The date/time this booking expires', 'wpvacancy' ),
-      'id'         => $prefix . 'booking_expiration_time',
+      'id'         => WPV_BookingMetaKeys::$expirationTime,
       'type'       => 'text_datetime_timestamp',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'DoS prevention time', 'wpvacancy' ),
+      'desc'       => __( 'The date/time the user can place a new booking for this accommodation', 'wpvacancy' ),
+      'id'         => WPV_BookingMetaKeys::$DoSPreventionTime,
+      'type'       => 'text_datetime_timestamp',
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
+  $cmb->add_field( array(
+      'name'       => __( 'Deleted', 'wpvacancy' ),
+      'desc'       => __( 'Indicates if the user has removed the booking from the cart', 'wpvacancy' ),
+      'id'         => WPV_BookingMetaKeys::$deleted,
+      'type'       => 'checkbox',
       // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
       // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
       // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
@@ -247,6 +301,187 @@ function vb_wpv_booking_custom_fields() {
 }
 
 add_action( 'cmb2_admin_init', 'vb_wpv_booking_custom_fields' );
-	
+
+/**
+ * Rerturns the $expiration parameter if specified, or the configured booking 
+ * expiration time for the specified user, if any. Otherwise it returns a default 
+ * value (currently 7200 which is 2 hours).
+ * @param $userid the user to retrieve the meta key from
+ * @param $expiration if specified it overrides the meta key and the function returns exactly the specified value
+ * @return int
+ */
+function vb_wpv_get_configured_booking_expiration($userid = false, $expiration = false)
+{
+  $default_expiration = 7200;
+  if (empty($expiration))
+  {
+    if (!empty($userid))
+    {
+      $umk = $vb_wpv_custom_fields_prefix.'pending_booking_expiration';
+      $expiration = get_user_meta($userid, $umk, true);
+      if (empty($expiration))
+      {
+        $expiration = $default_expiration;
+        add_user_meta($userid, $umk, $expiration);
+      }
+    }
+    else
+      $expiration = $default_expiration;
+  }
+  return $expiration;
+}
+
+function vb_wpv_create_booking($userid, $accommodation_id, $startDayId, $endDayId, $startTime, $endTime, $expiration = false)
+{
+  global $vb_wpv_custom_fields_prefix;
+
+  $expiration = vb_wpv_get_configured_booking_expiration($userid, $expiration);
+  
+  $now = time();
+  $cart = vb_wpv_get_cart($userid, true);
+  $items = vb_wpv_get_cart_items($cart->ID);
+  
+  foreach ($items as $preexistingbooking)
+  {
+    $pe_dostime = get_post_meta($preexistingbooking->ID, WPV_BookingMetaKeys::$DoSPreventionTime, true);
+    $pe_expiration = get_post_meta($preexistingbooking->ID, WPV_BookingMetaKeys::$expirationTime, true);
+    $pe_accid = get_post_meta($preexistingbooking->ID, WPV_BookingMetaKeys::$accommodation, true);
+    
+    /* Anti DoS measure:
+     * -----------------
+     * 
+     * A registered user can book any accommodation, and that accommodation is reserved for $expiration seconds
+     * until we receive the payment. After $expiration seconds, if the user hasn't paid for the booking,
+     * the accommodation becomes available again to other users.
+     * However a user can script a bot that calls our rest API and books the accommodation again after $expiration seconds.
+     * This way the user keeps the accommodation to himself for a indefinite time, causing a DoS to other users.
+     * DosPreventionTime is there to avoid that situation. A user that adds a booking to his cart, must pay
+     * within $expiration seconds. If he doesn't pay, he can't add the same accommodation again to his cart before
+     * $DosPreventionTime. Other users then get a chance to book the accommodation.
+     * $DosPreventionTime is hardcoded as twice the $expiration time.
+     * Please note that the user CAN add the accommodation to his cart more than once, if he does so within
+     * the $expiration time of the first time he added it. This enables users to book the same accommodation for
+     * different periods of time within the same cart.
+     * 
+     */
+    if ($now >= $pe_expiration && $now < $pe_dostime && $pe_accid == $accommodation_id)
+      return false;
+  }
+  
+  $booking = array(
+        'post_status'           => 'publish', 
+        'post_type'             => 'booking_type',
+        'post_author'           => $user
+      );
+  
+  $startDate = date("Y-m-d", $startDayId * 86400);
+  $endDate = date("Y-m-d", $endDayId * 86400);
+  
+  $booking_id = wp_insert_post($booking);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$cart, $cart_id);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$accommodation, $accommodation_id);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$startDate, $startDate);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$endDate, $endDate);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$startTime, $startTime);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$endTime, $endTime);
+  vb_wpv_set_booking_expiration_time($booking_id, $now, $expiration);
+  return $booking_id;
+}
+
+function vb_wpv_set_booking_expiration_time($booking_id, $time = false, $expiration = false, $userid = false)
+{
+  if (empty($time))
+  {
+    $time = time();
+  }
+  if (empty($expiration))
+  {
+    $expiration = vb_wpv_get_configured_booking_expiration($userid);
+  }
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$orderTime, $time);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$expirationTime, $time + $expiration);
+  update_post_meta($booking_id, WPV_BookingMetaKeys::$DoSPreventionTime, $time + $expiration * 3); // twice the $expiration, 3 is correct, do your math if you don't believe it
+}
+
+function vb_wpv_get_booking_accommodation_id($booking)
+{
+  $id = $booking;
+  if (!is_integer($id))
+  {
+    $id = $booking->ID;
+  }
+  $result = get_post_meta($id, WPV_BookingMetaKeys::$accommodation, true);
+  if (is_array($result))
+  {
+    $result = $result[0];
+  }
+  if (empty($result))
+  {
+    $result = null;
+  }
+  return $result;
+}
+
+function vb_wpv_get_booking_datetime($booking, $datekey, $timekey)
+{
+  $id = $booking;
+  if (!is_integer($id))
+  {
+    $id = $booking->ID;
+  }
+  $resultDate = get_post_meta($id, $datekey, true);
+  $resultTime = get_post_meta($id, $timekey, true);
+  if (!empty($resultTime))
+  {
+    $resultDate .= ' ' . $resultTime;
+  }
+  return $resultDate;
+}
+
+function vb_wpv_get_booking_start($booking)
+{
+  return vb_wpv_get_booking_datetime($booking, WPV_BookingMetaKeys::$startDate, WPV_BookingMetaKeys::$startTime);
+}
+
+function vb_wpv_get_booking_end($booking)
+{
+  return vb_wpv_get_booking_datetime($booking, WPV_BookingMetaKeys::$endDate, WPV_BookingMetaKeys::$endTime);
+}
+
+function vb_wpv_get_booking_datetime_as_uxts($booking_datetime)
+{
+  $dtarr = explode(' ', $booking_datetime);
+  if (count($dtarr) > 1)
+  {
+    $dt_obj = DateTime::createFromFormat("Y-m-d H:i:s", $booking_datetime);
+  }
+  else
+  {
+    $dt_obj = DateTime::createFromFormat("Y-m-d", $booking_datetime);
+  }
+  return $dt_obj->getTimestamp();
+}
+
+function vb_wpv_get_booking_start_as_uxts($booking)
+{
+  return vb_wpv_get_booking_datetime_as_uxts(
+          vb_wpv_get_booking_datetime($booking, WPV_BookingMetaKeys::$startDate, WPV_BookingMetaKeys::$startTime));
+}
+
+function vb_wpv_get_booking_end_as_uxts($booking)
+{
+  return vb_wpv_get_booking_datetime_as_uxts(
+          vb_wpv_get_booking_datetime($booking, WPV_BookingMetaKeys::$endDate, WPV_BookingMetaKeys::$endTime));
+}
+
+function vb_wpv_get_booking_expiration($booking)
+{
+  return get_post_meta($booking_id, WPV_BookingMetaKeys::$expirationTime, true);
+}
+
+function vb_wpv_get_booking_dos_prevention($booking)
+{
+  return get_post_meta($booking_id, WPV_BookingMetaKeys::$DoSPreventionTime, true);
+}
 
 ?>

@@ -90,7 +90,7 @@ class WPV_AccommodationsMap
       $m = $this->mapPost($map);
       if (empty($m))
         continue;
-      $mapOpenDiv = $this->featuredImageInADiv($m);
+      $mapOpenDiv = self::featuredImageInADiv($m);
       if (empty($mapOpenDiv))
         continue;
       
@@ -108,7 +108,10 @@ class WPV_AccommodationsMap
     $args = array('post_type'   => 'accommodation_type',
                   'post_status' => 'publish',
                   'numberposts' => 5000);
-    $units = get_posts($args);
+    // $units = get_posts($args);
+    // TODO: can't call get_posts before init or so as of WP5. We need to make this 
+    // binding later.
+    $units = []; // for the time being
     foreach ($units as $u)
     {
       $elementclass = 'wpv-accommodation-box-id-'.$u->ID;
@@ -196,7 +199,7 @@ class WPV_AccommodationsMap
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ok_class.'"></div>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ko_class.'"></div>';
         $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
-          $result .= $this->featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", $scalefactor, false);
+          $result .= self::featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", $scalefactor, false);
             $result .= '<div class="wpv-accommodation-hint-image-buttons">';
               $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'">';
                 $result .= '<span>';
@@ -282,9 +285,11 @@ class WPV_AccommodationsMap
    * @param $wrapper if true (default) it adds a wrapper <div>
    * @return string
    */  
-  public function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8, $wrapper = true)
+  public static function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8, $wrapper = true)
   {
     global $vb_wpv_baseurl;
+    if (!is_object($post))
+      $post = get_post($post);
     $thumb = get_post_thumbnail_id($post->ID);
     $bgimage_file = get_attached_file($thumb);
 
@@ -327,7 +332,7 @@ class WPV_AccommodationsMap
   
   public function registerRoutes()
   {    
-    register_rest_route(WPV_BookingForm::$namespace, '/'.self::$endpoint, array(
+    register_rest_route(Wpvacancy::$namespace, '/'.self::$endpoint, array(
     'methods'  => WP_REST_Server::READABLE,
     'callback' => array($this, 'get_lightbox_permalink'),
       ) );

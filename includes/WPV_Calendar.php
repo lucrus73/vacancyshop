@@ -35,7 +35,7 @@ class WPV_Calendar
 
   public function registerRoutes()
   {    
-    register_rest_route(WPV_BookingForm::$namespace, '/'.self::$endpoint, array(
+    register_rest_route(Wpvacancy::$namespace, '/'.self::$endpoint, array(
     'methods'  => WP_REST_Server::READABLE,
     'callback' => array($this, 'get_calendar_markup'),
       ) );
@@ -247,7 +247,7 @@ class WPV_Calendar
   
   private function option_checkbox($optiontext)
   {
-    $res .= '<div class="wpv-calendar-option-checkbox">';
+    $res = '<div class="wpv-calendar-option-checkbox">';
       $res .= '<div class="wpv-calendar-option-checkboxicon-wrapper">';
         $res .= '<i class="fa fa-circle-thin wpv-calendar-option-checkbox-icon"></i>';
         $res .= '<i class="fa fa-check wpv-calendar-option-checkbox-icon-checked"></i>';

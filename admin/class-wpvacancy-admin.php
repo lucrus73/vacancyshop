@@ -44,6 +44,12 @@ class Wpvacancy_Admin {
   private static $plugin_options_slug;
 
   public static $activeSkin;
+  public static $paypalBusiness;
+  public static $cartMenu;
+  public static $anonymousCartsUser;
+  public static $defaultBookingExpirationTime;
+  public static $allowSingleDaySelection;
+  public static $defaultBookingDurationDays;
   
   
 	/**
@@ -59,7 +65,13 @@ class Wpvacancy_Admin {
 		$this->version = $version;
 
 	  self::$options_group = $this->plugin_name . '_wpvacancy_options';
-    self::$activeSkin = $this->options_group . '_active_skin';
+    self::$activeSkin = self::$options_group . '_active_skin';
+    self::$paypalBusiness = self::$options_group . '_paypal_business';
+    self::$cartMenu = self::$options_group . '_cart_menu';
+    self::$anonymousCartsUser = self::$options_group . '_anonymous_carts_user';
+    self::$defaultBookingExpirationTime = self::$options_group . '_default_booking_expiration_time';
+    self::$allowSingleDaySelection = self::$options_group . '_allow_single_day_selection';
+    self::$defaultBookingDurationDays = self::$options_group . '_default_booking_duration_days';
     
     self::$plugin_options_slug = $this->plugin_name . '-admin-options';
 	}
@@ -87,8 +99,20 @@ class Wpvacancy_Admin {
   public function register_settings() 
   {
     register_setting(self::$plugin_options_slug, self::$activeSkin);
+    register_setting(self::$plugin_options_slug, self::$paypalBusiness);
+    register_setting(self::$plugin_options_slug, self::$cartMenu);
+    register_setting(self::$plugin_options_slug, self::$anonymousCartsUser);
+    register_setting(self::$plugin_options_slug, self::$defaultBookingExpirationTime);
+    register_setting(self::$plugin_options_slug, self::$allowSingleDaySelection);
+    register_setting(self::$plugin_options_slug, self::$defaultBookingDurationDays);
     add_settings_section(self::$plugin_options_slug, "Settings", array($this, "settings_section_title"), self::$plugin_options_slug);
     add_settings_field(self::$activeSkin, "Active skin", array($this, 'show_available_skins_select'), self::$plugin_options_slug, self::$plugin_options_slug);
+    add_settings_field(self::$paypalBusiness, "Paypal account", array($this, 'show_paypal_input'), self::$plugin_options_slug, self::$plugin_options_slug);
+    add_settings_field(self::$paypalBusiness, "Cart menu", array($this, 'show_cartmenu_select'), self::$plugin_options_slug, self::$plugin_options_slug);
+    add_settings_field(self::$anonymousCartsUser, "Owner of anonymous carts", array($this, 'show_cartowner_select'), self::$plugin_options_slug, self::$plugin_options_slug);
+    add_settings_field(self::$defaultBookingExpirationTime, "Default bookings expiration time", array($this, 'show_expiration_input'), self::$plugin_options_slug, self::$plugin_options_slug);
+    add_settings_field(self::$allowSingleDaySelection, "Allow by the hour bookings?", array($this, 'show_by_the_hour_bookings_check'), self::$plugin_options_slug, self::$plugin_options_slug);
+    add_settings_field(self::$defaultBookingDurationDays, "Initial bookings duration in days", array($this, 'show_initial_booking_duration_days'), self::$plugin_options_slug, self::$plugin_options_slug);
   }
   
   public function menu() 
@@ -113,10 +137,10 @@ class Wpvacancy_Admin {
     echo "</form></div>";
   }
   
-  public function option($option_name, $default)
+  public function option($option_name, $default, $allowZero = false)
   {
-    $val = get_option($option_name);
-    if (empty($val))
+    $val = get_option($option_name, false);
+    if (empty($val) && (($allowZero === false && trim($val) === "0") || trim($val) === ""))
     {
       update_option($option_name, $default);
       return $default;
@@ -136,10 +160,10 @@ class Wpvacancy_Admin {
     <?php
   }
 
-  public function show_input_text($option_name, $default = "", $note = "")
+  public function show_input_text($option_name, $default = "", $note = "", $allowZero = false)
   {
     ?>
-    <input type="text" id="<?php echo $option_name; ?>" name="<?php echo $option_name; ?>" size="20" value="<?php echo $this->option($option_name, $default); ?>"/>
+    <input type="text" id="<?php echo $option_name; ?>" name="<?php echo $option_name; ?>" size="20" value="<?php echo $this->option($option_name, $default, $allowZero); ?>"/>
     <?php if (!empty($note)) echo '<span class="wpv-admin-options-note wpv-admin-options-note-'.$option_name.'">'.$note.'</span>';
   }
 
@@ -168,6 +192,60 @@ class Wpvacancy_Admin {
     <?php
   }
   
+  public function show_paypal_input()
+  {
+    $this->show_input_text(self::$paypalBusiness);    
+  }
+  
+  public function show_expiration_input()
+  {
+    $this->show_input_text(self::$defaultBookingExpirationTime, 7200);    
+  }
+  
+  public function show_cartmenu_select()
+  {
+    ?>
+    <select id="<?php echo self::$cartMenu; ?>" name="<?php echo self::$cartMenu; ?>">
+      <?php 
+        $menus = get_registered_nav_menus();
+        foreach ($menus as $location => $description ) 
+        {
+          $this->show_select_option(self::$cartMenu, $location, $description." (".$location.")");
+        }
+      ?>
+    </select>
+    <?php
+  }
+  
+  public function show_cartowner_select()
+  {
+    ?>
+    <select id="<?php echo self::$anonymousCartsUser; ?>" name="<?php echo self::$anonymousCartsUser; ?>">
+      <?php 
+        $args = array(
+          'who'          => 'authors',
+         ); 
+        $notsubscribers = get_users( $args );      
+        foreach ($notsubscribers as $u) 
+        {
+          $roles = implode($u->roles, ",");
+          $this->show_select_option(self::$anonymousCartsUser, $u->ID, $u->first_name." ".$u->last_name." (".$roles.")");
+        }
+      ?>
+    </select>
+    <?php
+  }
+  
+  public function show_by_the_hour_bookings_check()
+  {
+    $this->show_input_check(self::$allowSingleDaySelection);
+  }
+  
+  public function show_initial_booking_duration_days()
+  {
+    $this->show_input_text(self::$defaultBookingDurationDays, 1, "", true);
+  }
+
   private function skins()
   {
     global $vb_wpv_basedir;

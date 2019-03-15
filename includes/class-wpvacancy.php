@@ -1,4 +1,5 @@
 <?php
+require  plugin_dir_path( dirname( __FILE__ ) ) . "vendor/autoload.php";
 
 /**
  * The file that defines the core plugin class
@@ -81,6 +82,14 @@ class Wpvacancy
    * @var $bookingform WPV_BookingForm
    */
   public $bookingform;
+  
+  /**
+   *
+   * @var $cart WPV_Cart
+   */
+  public $cart;
+  
+  public static $namespace = "wpvacancy/v1";
 
   /**
    * Define the core functionality of the plugin.
@@ -139,6 +148,7 @@ class Wpvacancy
      */
     require_once $vb_wpv_basedir . 'includes/class-wpvacancy-i18n.php';
     require_once $vb_wpv_basedir . 'includes/WPVacancyShortcodes.php';
+    require_once $vb_wpv_basedir . 'includes/WPV_PaypalGateway.php';
 
     /**
      * The class responsible for defining all actions that occur in the admin area.
@@ -155,13 +165,16 @@ class Wpvacancy
     require_once $vb_wpv_basedir . 'models/accommodation-post-type.php';
     require_once $vb_wpv_basedir . 'models/period-post-type.php';
     require_once $vb_wpv_basedir . 'models/season-post-type.php';
+    require_once $vb_wpv_basedir . 'models/cart-post-type.php';
     require_once $vb_wpv_basedir . 'models/booking-post-type.php';
     require_once $vb_wpv_basedir . 'models/price-post-type.php';
 
     require_once $vb_wpv_basedir . 'includes/WPV_BookingForm.php';
+    require_once $vb_wpv_basedir . 'includes/WPV_Cart.php';
 
     $this->loader = new Wpvacancy_Loader();
     $this->bookingform = new WPV_BookingForm();
+    $this->cart = new WPV_Cart();
   }
 
   /**
@@ -199,6 +212,7 @@ class Wpvacancy
     $this->loader->add_action('admin_menu', $plugin_admin, 'menu');
 
     add_action('admin_enqueue_scripts', array(&$this, 'enqueue_scripts'));
+    add_action( 'pre_get_posts', array(&$this, 'paymentResult'));
   }
 
   /**
@@ -217,6 +231,7 @@ class Wpvacancy
     $this->loader->add_action('wp_enqueue_scripts', $this->plugin_public, 'enqueue_scripts');
     add_action('wp_enqueue_scripts', array($this, 'enqueue_scripts'));
     $this->loader->add_action('wp_enqueue_scripts', $this->plugin_public, 'enqueue_extra_styles', PHP_INT_MAX);
+    $this->loader->add_action('init', $this->plugin_public, 'add_cart_to_menu', PHP_INT_MAX);
   }
 
   /**
@@ -348,6 +363,20 @@ class Wpvacancy
   public static function is_vacancy_admin()
   {
     return current_user_can('manage_wpvacancy_options');
+  }
+
+  function paymentResult($query)
+  {
+    global $wp;
+
+    if (!is_admin() && $query->is_main_query()) 
+    {
+      if ($wp->request == WPV_PaypalGateway::$ipn_slug)
+      {
+        $pg = new WPV_PaypalGateway();
+        return $pg->ipn($query);
+      }
+    }
   }
 
 }

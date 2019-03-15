@@ -1,50 +1,79 @@
-/**
- * All of the CSS for your public-facing functionality should be
- * included in this file.
- */
-
-.wpv-booking-option-title {
-  font-family: serif;
-  font-size: 150%;
-  text-align: center;
-  width: 100%;
-  padding: 2rem 1rem 1rem 1rem;
-
-}
-
-.wpv-booking-details-row {
+.wpv-booking-addtocart {
+    margin-top: 4rem;
     display: flex;
-    justify-content: space-between;
+    justify-content: center;
+}
+
+.wpv-booking-addtocart-button {
+    cursor: pointer;
+    background-color: olive;
+    color: white;
+    border-radius: 1.5em;
+    padding: 0.7em;
+    display: flex;
+    justify-content: space-around;
     align-items: center;
-    padding: 0.2rem 0;
 }
 
-.wpv-booking-details-label {
-    flex: 5;
-    text-align: right;
-    margin-right: 0.5rem;
+.wpv-booking-addtocart-text {
+    border-top-left-radius: 0.7em;
+    border-bottom-left-radius: 0.7em;
+    color: white;
+    padding: 0.1em 0.7em;
 }
 
-.wpv-booking-details-value {
-    flex: 5;
-    text-align: left;
-    margin-left: 0.5rem;
-    font-weight: bolder;
+.wpv-booking-addtocart-icon {
+    padding: 0.1em 0.5em 0.1em 0.5em;
+    font-size: 120%;
 }
 
-.wpv-loading {
-  min-width: 5em;
-  min-height: 5em;
-  width: 80%;
-  height: 80%;
-  top: 10%;
-  left: 10%;
-  position: absolute;
-  background-image: url('../images/loading.gif');
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: rgba(0,0,0,0.05);
-  border-radius: 2rem;
+.wpv-cart-wrapper {
   display: none;
+  position: fixed;
+  top: 2rem;
+  bottom: 2rem;
+  left: 2rem;
+  right: 2rem;
+  z-index: 99999;
+  background-color: white;
+  padding: 1rem;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border: 0.3rem solid lightslategrey;
+  border-radius: 1rem;
 }
+
+.wpv-cart-button-wrapper {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  cursor: pointer;
+}
+
+.wpv-cart-nitems {
+  margin-left: 0.2rem;
+}
+
+.wpv-cart-item-wrapper {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-width: 80%;
+  margin: 0.2rem;
+  background-color: #f6f6f6;
+  padding: 0.6rem;
+}
+
+.wpv-cart-item-image {
+  min-width: 20%;
+}
+
+.wpv-cart-item-image-featured {
+  flex: 1;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+

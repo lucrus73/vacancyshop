@@ -182,6 +182,19 @@ function vb_wpv_price_custom_fields() {
       'on_front'        => false, // Optionally designate a field to wp-admin only
       // 'repeatable'      => true,
   ) );
+
+  $cmb->add_field( array(
+      'name'       => __( 'Allowed free reservation time', 'wpvacancy' ),
+      'desc'       => __( 'The time in seconds the accommodation is reserved to registered users waiting for payment', 'wpvacancy' ),
+      'id'         => $prefix . 'booking_expiration_time',
+      'type'       => 'text',
+      'default'   => get_option(Wpvacancy_Admin::$defaultBookingExpirationTime, 7200),
+      // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+      // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+      // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+      'on_front'        => false, // Optionally designate a field to wp-admin only
+      // 'repeatable'      => true,
+  ) );
   
 }
 

@@ -149,6 +149,14 @@ function period_custom_fields() {
         // 'repeatable'      => true,
     ) );
 
+    /* If this is set to a positive value >= 1, then prices are calculated on a per day basis. 
+     * If this is set to zero, then the prices are calculated on a per-(min-minutes) time slot basis.
+     * For example, setting this to 0 and setting minimum minutes to 30, then you must enter
+     * the price for a 30 minutes time slot.
+     * Setting this to 1 and minimum minutes to 0 (not enabled), then you must enter
+     * the price for 1 day or night.
+     * Setting this to 7 (one week), then you must enter the price for the whole week.
+     */
     $cmb->add_field( array(
         'name'       => __( 'Min days for booking', 'wpvacancy' ),
         'desc'       => __( 'Defaults to one day/night. If set, bookings must last a multiple of this number of days/nights.', 'wpvacancy' ),
@@ -165,7 +173,6 @@ function period_custom_fields() {
         'on_front'        => false, // Optionally designate a field to wp-admin only
         // 'repeatable'      => true,
     ) );
-
 
 }
 

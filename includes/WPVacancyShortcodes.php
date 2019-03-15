@@ -8,4 +8,9 @@ class WPVacancyShortcodes
     return Wpvacancy::$instance->bookingform->getHtml($atts, $content);
   }
   
+  public static function cart($atts, $content = '')
+  {
+    return Wpvacancy::$instance->bookingform->getHtml($atts, $content);
+  }
+  
 }

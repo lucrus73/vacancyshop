@@ -85,6 +85,7 @@ class Wpvacancy_Public {
 		$this->enqueue_skin('rangeslider', 'css/wpvacancy-public-rangeslider.css');
 		$this->enqueue_skin('calendar', 'css/wpvacancy-public-calendar.css');
 		$this->enqueue_skin('maps', 'css/wpvacancy-public-maps.css');
+		$this->enqueue_skin('cart', 'css/wpvacancy-public-cart.css');
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');
     $wp_scripts = wp_scripts();
     wp_enqueue_style(
@@ -133,5 +134,26 @@ class Wpvacancy_Public {
   {
     array_push($this->extrastyles, $style);
   }
+  
+  public function add_cart_to_menu()
+  {
+    add_filter( 'wp_nav_menu_items', array($this, 'inject_cart'), 10, 2 );
+
+  }
+
+  public function inject_cart($items, $args ) 
+  {
+    $cart_menu_active = get_option(Wpvacancy_Admin::$cartMenu);
+    if (!empty($cart_menu_active))
+    {
+      if ($args->theme_location == $cart_menu_active) 
+      {
+        $cartcode = Wpvacancy::$instance->cart->getHtml();
+        if (strpos($items, $cartcode) === FALSE)
+          $items .= '<li>'.$cartcode.'</li>';
+      }
+    }
+    return $items;
+  }  
 
 }

@@ -6,8 +6,11 @@ if (wpvacancy_was_here_global_flag !== true)
   (function ($) {
     'use strict';
 
+    var allowSingleDaySelection = false;
     var currentDurationDays = 1;
     var limitedCurrentDurationDays = 0;
+    var currentDurationMinutes = 0;
+    var limitedCurrentDurationMinutes = 0;
     var currentStartDate = 0;
     var currentStartTime = 0;
     var currentAccommodation = 0;
@@ -330,10 +333,10 @@ if (wpvacancy_was_here_global_flag !== true)
         }
         var selectionTarget = $(document).find("[data-wpvdayid='" + id + "']");
         var classToAdd = selectedDayCssClass;
-        if (id === currentStartDate)
+        if (id === currentStartDate && currentDurationDays > 0)
           classToAdd = selectedFirstDayCssClass;
         else
-          if (id === (currentStartDate + currentDurationDays))
+          if (id === (currentStartDate + currentDurationDays) && currentDurationDays > 0)
             classToAdd = selectedLastDayCssClass;
         if (selectionTarget.hasClass(selectableDayCssClass))
         {
@@ -437,6 +440,86 @@ if (wpvacancy_was_here_global_flag !== true)
       recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
     }
     
+    function addToCart(jqThis, event, argsarray)
+    {
+      wpv_wp_api.then(function (site)
+      {
+        site.namespace(restNamespace).addToCart().
+                param('accid', currentAccommodation).
+                param('startDate', currentStartDate).
+                param('endDate', currentStartDate + limitedCurrentDurationDays).
+                param('startTime', currentStartTime).
+                param('endTime', currentStartTime + limitedCurrentDurationMinutes).
+                then(function (results)
+                {
+                  //$("." + notesClass + " ." + recapTarget).html(results.value);
+                  if (results.value == "booked")
+                    updateCart(true);
+                  else
+                    message(results.message);
+                }
+                    );
+      });
+    }
+    
+    function updateCart(reload)
+    {
+      wpv_wp_api.then(function (site)
+      {
+        site.namespace(restNamespace).getCartMarkup().
+                param('update', reload).
+                then(function (results)
+                {
+                  if (results.status == "ok")
+                  {
+                    $("." + results.wrapperclass).html(results.markup);
+                    showCart(null, null, [null, results.wrapperclass, null]);
+                  }
+                  else
+                    message(results.message);
+                }
+                    );
+      });
+    }
+    
+    function showCart(jqThis, event, argsarray)
+    {
+      var cartbuttonwrapperclass = argsarray[0];
+      var cartwrapperclass = argsarray[1];
+      var numberofitemsclass = argsarray[2];
+      var currentLeft = $("." + cartwrapperclass).css("left");
+      var currentRight = $("." + cartwrapperclass).css("right");
+      var offset = $(window).width();
+      var newLeft = -offset * 1.2;
+      var newRight = offset * 1.2;
+      $("." + cartwrapperclass).css("left", newLeft + "px");
+      $("." + cartwrapperclass).css("right", newRight + "px");
+      $("." + cartwrapperclass).css("display", "flex");
+      $("." + cartwrapperclass).animate({
+                                          left: currentLeft,
+                                          right: currentRight,
+                                        }, 1000, function() {
+      // Animation complete.
+          });
+    }
+
+    function hideCart(jqThis, event, argsarray)
+    {
+      var cartwrapperclass = argsarray[0];
+      var currentLeft = $("." + cartwrapperclass).css("left");
+      var currentRight = $("." + cartwrapperclass).css("right");
+      var currentwidth = $("." + cartwrapperclass).width() * 1.2;
+      $("." + cartwrapperclass).animate({
+                                          left: -currentwidth,
+                                          right: currentwidth,
+                                        }, 1000, function() {      
+            $("." + cartwrapperclass).css("display", "none");
+            $("." + cartwrapperclass).css("left", currentLeft);
+            $("." + cartwrapperclass).css("right", currentRight);
+          });
+      
+    }
+
     function setupDefaults(jqThis, event, argsarray)
     {
       loading = argsarray[0];
@@ -454,10 +537,12 @@ if (wpvacancy_was_here_global_flag !== true)
       accommodationOkTag = argsarray[12];
       accommodationKoTag = argsarray[13];
       allAccommodationsClass = argsarray[14];
+      allowSingleDaySelection = argsarray[15];
+      currentDurationDays = argsarray[16];
       
       initWPAPI();
     }
-
+    
     function initWPAPI()
     {
       if (typeof wpv_wp_api === 'undefined' || wpv_wp_api == null)
