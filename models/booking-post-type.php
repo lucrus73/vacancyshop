@@ -474,12 +474,12 @@ function vb_wpv_get_booking_end_as_uxts($booking)
           vb_wpv_get_booking_datetime($booking, WPV_BookingMetaKeys::$endDate, WPV_BookingMetaKeys::$endTime));
 }
 
-function vb_wpv_get_booking_expiration($booking)
+function vb_wpv_get_booking_expiration($booking_id)
 {
   return get_post_meta($booking_id, WPV_BookingMetaKeys::$expirationTime, true);
 }
 
-function vb_wpv_get_booking_dos_prevention($booking)
+function vb_wpv_get_booking_dos_prevention($booking_id)
 {
   return get_post_meta($booking_id, WPV_BookingMetaKeys::$DoSPreventionTime, true);
 }

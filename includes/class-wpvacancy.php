@@ -293,6 +293,7 @@ class Wpvacancy
   public static function skinfileUrl($file, $skin = null)
   {
     global $vb_wpv_basedir;
+    $autodefault = false;
     if ($skin === null)
     {
       $skin = get_option(Wpvacancy_Admin::$activeSkin, 'default');

@@ -97,7 +97,7 @@ class WPV_Cart
   
   private function itemHtml($booking)
   {
-    $res .= '<div class="'.self::$cartbookingimage.'">';
+    $res = '<div class="'.self::$cartbookingimage.'">';
       $res .= $this->itemImage($booking);
     $res .= '</div>';
     $res .= '<div class="'.self::$cartbookingdata.'">';
@@ -126,7 +126,7 @@ class WPV_Cart
   
   private function itemData($booking)
   {
-    $res .= $this->itemName($booking);
+    $res = $this->itemName($booking);
     $res .= $this->itemPeriod($booking);
     return $res;
   }
@@ -169,7 +169,7 @@ class WPV_Cart
   
   private function itemActions($booking)
   {
-    $res .= '<div class="'.self::$cartbookingremove.'" data-remove="'.$booking->ID.'"><i class="fa fa-times" aria-hidden="true"></i>';
+    $res = '<div class="'.self::$cartbookingremove.'" data-remove="'.$booking->ID.'"><i class="fa fa-times" aria-hidden="true"></i>';
     $res .= '</div>';
     return $res;
   }
