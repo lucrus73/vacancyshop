@@ -104,7 +104,6 @@ class WPV_AccommodationsMap
   
   private function registerCallbacks()
   {
-    global $vb_wpv_custom_fields_prefix, $vb_wpv_baseurl;
     $args = array('post_type'   => 'accommodation_type',
                   'post_status' => 'publish',
                   'numberposts' => 5000);

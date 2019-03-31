@@ -326,6 +326,34 @@ class Wpvacancy
     $jsfileurl = plugin_dir_url(__FILE__) . '../public/js/wpvacancy-public.js';
     wp_register_script($this->script_handle, $jsfileurl);
 
+    $this->callRegisteredCallbacks();
+    
+    $skinjsfileurl = self::skinfileUrl('js/skin.js');
+    if ($skinjsfileurl !== false)
+    {
+      wp_register_script($this->script_handle.'-skin', $skinjsfileurl);
+      wp_enqueue_script($this->script_handle.'-skin');
+    }
+  }
+  
+  
+  /**
+   * This function calls the registered callbacks in the same order they were
+   * registered. See registerScriptParamsCallback in this class.
+   * This function is executed during the wp_enqueue_scripts hook.
+   * This function calls each callback, it provides it with the registered
+   * params and it expects a array as a result of calling it.
+   * The resulting array must contain a JS event name (such as 'load', 'click'
+   * and so on) and other parameters that the $(document).ready JS function will
+   * receive, parse and execute accordingly. 
+   * See wpvacancy-public.js for details.
+   * jshooks_params is the vector that makes the communication possible: it
+   * is the resulting array of arrays: actually it is just a pair whose key is
+   * always 'events' and whose value is always the array of the callbacks results.
+   * @param array $hooks_data_events
+   */
+  private function callRegisteredCallbacks()
+  {
     $hooks_data_events = array();
 
     foreach ($this->script_params_callbacks as $callback_pack)
@@ -340,15 +368,23 @@ class Wpvacancy
 
     wp_localize_script($this->script_handle, 'jshooks_params', $hooks_data);
     wp_enqueue_script($this->script_handle);
-
-    $skinjsfileurl = self::skinfileUrl('js/skin.js');
-    if ($skinjsfileurl !== false)
-    {
-      wp_register_script($this->script_handle.'-skin', $skinjsfileurl);
-      wp_enqueue_script($this->script_handle.'-skin');
-    }
   }
 
+  /**
+   * This function saves the callable so that the wp_enqueue_scripts event will
+   * call it afterwards (see callRegisteredCallbacks function in this class). 
+   * This registerScriptParamsCallback function is intened to be used in 
+   * constructors or other functions that are executed before said event takes
+   * place and that need to hook that event, but in a guaranteed call order.
+   * The callRegisteredCallbacks  function guaratees that the registered 
+   * callbacks will be called in the same order they were registered (FIFO order).
+   * Maybe WP code that handles hooks does just the same, but, since, even if it
+   * did, that's not documented behavior, we cannot rely upon what it 
+   * incidentally does as of today.
+   * @param Callable $callable_arg The callback
+   * @param array $params The params the callback will receive
+   * @return boolean is_callable($callable_arg)
+   */
   public function registerScriptParamsCallback($callable_arg, array $params = array())
   {
     if (is_callable($callable_arg))

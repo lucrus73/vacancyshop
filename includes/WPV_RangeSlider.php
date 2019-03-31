@@ -38,7 +38,7 @@ class WPV_RangeSlider
     
   public function load()
   {
-    $minDurationDays = get_option(Wpvacancy_Admin::$allowSingleDaySelection) ? 0 : 1;
+    $minDurationDays = get_option(Wpvacancy_Admin::$allowSingleDaySelection) ? 0 : 1; // TODO, that option doesn't exist anymore: we have to look at the accommodation map custom field or the shortcode attribute
     $defaultDurationDays = intval(get_option(Wpvacancy_Admin::$defaultBookingDurationDays));
     return array('load', 
                   'showDurationSlider', 

@@ -51,7 +51,7 @@ class WPV_Calendar
     return $result;
   }
   
-  public function getCalendar()
+  public function getCalendar($showTimePicker = false)
   {
     $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">';
     $html .= __('When does your holiday start?', 'wpvacancy');

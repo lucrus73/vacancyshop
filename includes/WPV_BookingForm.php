@@ -17,6 +17,8 @@ class WPV_BookingForm
   private static $endDateClass = 'wpv-booking-details-row-enddate';
   private static $totalPriceClass = 'wpv-booking-details-row-totalprice';
   private static $notesClass = 'wpv-booking-details-row-notes';
+  private static $bookingformcontainerclass = 'wpv-booking-form-container';
+  private static $bookingformmapiddatatag = 'mapid';
   public static $singleAccmAvailable = 'wpv-calendar-daytag-single-accommodation-ok';
   public static $singleAccmUnavailable = 'wpv-calendar-daytag-single-accommodation-ko';
   public static $addToCartButtonClass = 'wpv-booking-addtocart-button';
@@ -27,7 +29,14 @@ class WPV_BookingForm
 
   function __construct()
   {
+    /* WARNING: these two MUST be called BEFORE constructing the calendar, 
+     * range slider, map and so on, so that the JS code calls the corresponding
+     * API functions and initializes JS variables beforehand.
+     */
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "setupDefaults"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "loadMapParams"));
+    
+    
     global $vb_wpv_basedir;
     require_once $vb_wpv_basedir.'includes/WPV_Calendar.php';
     require_once $vb_wpv_basedir.'includes/WPV_RangeSlider.php';
@@ -48,17 +57,27 @@ class WPV_BookingForm
     if (is_array($atts))
       extract($atts, EXTR_OVERWRITE);    
     
-    $res = $this->cal->getCalendar();
-    $res .= $this->range->range(31, 'startfrom1');
+    $show_timepicker = !empty($timepicker) && 
+                        $timepicker != "off" && 
+                        $timepicker != "no" && 
+                        $timepicker != false && 
+                        $timepicker != "false" && 
+                        $timepicker != 0 && 
+                        $timepicker != "0";
+                        $timepicker != "none";
+    $map_specified = !empty($map_id);
     
-    if (!empty($show_timepicker))
-    {
-      $res .= $this->time->clock();
-    }
+    if (!$map_specified)
+      return '<div class="wpv-error">You must specify a map with the map_id attribute</div>';
     
-    $res .= $this->maps->map();
-    $res .= $this->recap();
-    $res .= $this->addToCartButton();
+    $res = '<div class="'.self::$bookingformcontainerclass.'" data-'.self::$bookingformmapiddatatag.'="'.$map_id.'">';
+      $res .= $this->cal->getCalendar($show_timepicker);
+      $res .= $this->range->range(31, 'startfrom1');
+
+      $res .= $this->maps->map([$map_id]);
+      $res .= $this->recap();
+      $res .= $this->addToCartButton();
+    $res .= "</div>";
     
     return $res;
   }
@@ -500,11 +519,6 @@ class WPV_BookingForm
   
   public function setupDefaults(array $params)
   {  
-    $postid = $params[0];
-    $target = $params[1];
-    $highlight = $params[2];
-    $allowSingleDaySelection = boolval(get_option(Wpvacancy_Admin::$allowSingleDaySelection));
-    $currentDurationDays = intval(get_option(Wpvacancy_Admin::$defaultBookingDurationDays));
     return array('load', 
                  'setupDefaults', 
                   array(self::$loadingClass,
@@ -521,9 +535,16 @@ class WPV_BookingForm
                         self::$singleAccmUnavailable,
                         WPV_AccommodationsMap::$accommodation_ok_class,
                         WPV_AccommodationsMap::$accommodation_ko_class,
-                        WPV_AccommodationsMap::$accommodation_class,
-                        $allowSingleDaySelection,
-                        $currentDurationDays,
+                        WPV_AccommodationsMap::$accommodation_class
+                        ));    
+  }
+  
+  public function loadMapParams(array $params)
+  {  
+    return array('load', 
+                 'loadMapParams', 
+                  array(self::$bookingformcontainerclass,
+                        self::$bookingformmapiddatatag
                         ));    
   }
   
@@ -537,6 +558,10 @@ class WPV_BookingForm
     register_rest_route(Wpvacancy::$namespace, '/addToCart', array(
     'methods'  => WP_REST_Server::READABLE,
     'callback' => array($this, 'addToCart'),
+      ) );
+    register_rest_route(Wpvacancy::$namespace, '/getMapParams', array(
+    'methods'  => WP_REST_Server::READABLE,
+    'callback' => array($this, 'getMapParams'),
       ) );
   }
   
@@ -675,6 +700,19 @@ class WPV_BookingForm
     return $result;
   }
   
+  public function getMapParams(WP_REST_Request $request)
+  {
+    global $vb_wpv_custom_fields_prefix;
+    $mapid = $request->get_param("mapid");
+    
+    $allowSingleDayBooking = get_post_meta($mapid, $vb_wpv_custom_fields_prefix."accm_map_singledayselection", true);
+    $defaultSliderDuration = get_post_meta($mapid, $vb_wpv_custom_fields_prefix."accm_map_defaultsliderduration", true);
+    
+    return ["value" => "params", 
+             "allowSingleDayBooking" => $allowSingleDayBooking,
+             "defaultSliderDuration" => $defaultSliderDuration];
+  }
+
   public function registerAddToCart()
   {
     return array('click', 

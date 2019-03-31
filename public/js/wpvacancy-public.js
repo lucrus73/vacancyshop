@@ -6,8 +6,8 @@ if (wpvacancy_was_here_global_flag !== true)
   (function ($) {
     'use strict';
 
-    var allowSingleDaySelection = false;
     var currentDurationDays = 1;
+    var singleDayBooking = false;
     var limitedCurrentDurationDays = 0;
     var currentDurationMinutes = 0;
     var limitedCurrentDurationMinutes = 0;
@@ -461,6 +461,21 @@ if (wpvacancy_was_here_global_flag !== true)
                     );
       });
     }
+
+    function getMapParams(mapid)
+    {
+      wpv_wp_api.then(function (site)
+      {
+        site.namespace(restNamespace).getMapParams().
+                param('mapid', mapid).
+                then(function (results)
+                {
+                  currentDurationDays = results.defaultSliderDuration;
+                  singleDayBooking = results.allowSingleDayBooking;
+                }
+                    );
+      });
+    }
     
     function updateCart(reload)
     {
@@ -537,10 +552,35 @@ if (wpvacancy_was_here_global_flag !== true)
       accommodationOkTag = argsarray[12];
       accommodationKoTag = argsarray[13];
       allAccommodationsClass = argsarray[14];
-      allowSingleDaySelection = argsarray[15];
-      currentDurationDays = argsarray[16];
       
       initWPAPI();
+    }
+
+    function loadMapParams(jqThis, event, argsarray)
+    {
+      var containerclass = argsarray[0];
+      var dataid = argsarray[1];
+      
+      // KNOWN BUG - (DO NOT) FIXME - DESIGN FLAW: all the code assumes there's 
+      // only one map in the page, while WP assumes you can have more than one
+      // (because it's a shortcode), so we could potentially find more than one 
+      // element tagged with containerclass and dataid. 
+      // We should use only the first, or rewrite the whole plugin handle more 
+      // than one map per page.
+      // We actually do neither one and blindly call getMapParams for every
+      // map in the page: that will screw up everything if the page has more
+      // than one map and they use different params, because the second map
+      // params will overwrite the variables of the first.
+      // But, even if they used the same params, it's likely that two maps on the 
+      // same page won't work anyway, because the UI wasn't designed to handle
+      // more than one map per page.
+
+      $("." + containerclass).each(function(index)
+      {
+        var mapid = this.data(dataid);
+        getMapParams(mapid);
+      });
+      
     }
     
     function initWPAPI()
@@ -551,6 +591,10 @@ if (wpvacancy_was_here_global_flag !== true)
       }
     }
 
+  /*
+   * The ready function parses the jshooks_params array received from the server
+   * (see 
+   */
     $(document).ready(function ()
     {
       $.each(jshooks_params.events, function (index, value)

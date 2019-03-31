@@ -143,6 +143,28 @@ function vb_wpv_accmap_custom_fields() {
     'on_front'        => false, // Optionally designate a field to wp-admin only
 	));
    
+  $cmb->add_field( array(
+		'name'    => __( 'Book by the hour', 'wpvacancy' ),
+		'desc'    => __( 'Shows a timepicker to let users book by the hour instead of whole days', 'wpvacancy' ),
+		'id'      => $prefix . 'accm_map_singledayselection',
+		'type'    => 'checkbox',
+    'default' => false, 
+    'on_front'        => false, // Optionally designate a field to wp-admin only
+	));
+
+  $cmb->add_field( array(
+		'name'    => __( 'Initial slider duration', 'wpvacancy' ),
+		'desc'    => __( 'The default duration of the booking as shown in the slider when the page loads', 'wpvacancy' ),
+		'id'      => $prefix . 'accm_map_defaultsliderduration',
+		'type'    => 'text',
+    'default' => 15, 
+    'attributes' => array(
+        'data-validation' => 'required',
+        'type' => 'number',
+        'min'  => '1',
+    ),
+    'on_front'        => false, // Optionally designate a field to wp-admin only
+	));
 }
 
 add_action( 'cmb2_admin_init', 'vb_wpv_accmap_custom_fields' );

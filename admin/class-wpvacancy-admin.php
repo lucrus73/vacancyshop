@@ -48,7 +48,6 @@ class Wpvacancy_Admin {
   public static $cartMenu;
   public static $anonymousCartsUser;
   public static $defaultBookingExpirationTime;
-  public static $allowSingleDaySelection;
   public static $defaultBookingDurationDays;
   
   
@@ -70,7 +69,6 @@ class Wpvacancy_Admin {
     self::$cartMenu = self::$options_group . '_cart_menu';
     self::$anonymousCartsUser = self::$options_group . '_anonymous_carts_user';
     self::$defaultBookingExpirationTime = self::$options_group . '_default_booking_expiration_time';
-    self::$allowSingleDaySelection = self::$options_group . '_allow_single_day_selection';
     self::$defaultBookingDurationDays = self::$options_group . '_default_booking_duration_days';
     
     self::$plugin_options_slug = $this->plugin_name . '-admin-options';
@@ -103,7 +101,6 @@ class Wpvacancy_Admin {
     register_setting(self::$plugin_options_slug, self::$cartMenu);
     register_setting(self::$plugin_options_slug, self::$anonymousCartsUser);
     register_setting(self::$plugin_options_slug, self::$defaultBookingExpirationTime);
-    register_setting(self::$plugin_options_slug, self::$allowSingleDaySelection);
     register_setting(self::$plugin_options_slug, self::$defaultBookingDurationDays);
     add_settings_section(self::$plugin_options_slug, "Settings", array($this, "settings_section_title"), self::$plugin_options_slug);
     add_settings_field(self::$activeSkin, "Active skin", array($this, 'show_available_skins_select'), self::$plugin_options_slug, self::$plugin_options_slug);
@@ -111,13 +108,12 @@ class Wpvacancy_Admin {
     add_settings_field(self::$paypalBusiness, "Cart menu", array($this, 'show_cartmenu_select'), self::$plugin_options_slug, self::$plugin_options_slug);
     add_settings_field(self::$anonymousCartsUser, "Owner of anonymous carts", array($this, 'show_cartowner_select'), self::$plugin_options_slug, self::$plugin_options_slug);
     add_settings_field(self::$defaultBookingExpirationTime, "Default bookings expiration time", array($this, 'show_expiration_input'), self::$plugin_options_slug, self::$plugin_options_slug);
-    add_settings_field(self::$allowSingleDaySelection, "Allow by the hour bookings?", array($this, 'show_by_the_hour_bookings_check'), self::$plugin_options_slug, self::$plugin_options_slug);
     add_settings_field(self::$defaultBookingDurationDays, "Initial bookings duration in days", array($this, 'show_initial_booking_duration_days'), self::$plugin_options_slug, self::$plugin_options_slug);
   }
   
   public function menu() 
   {
-    add_options_page($this->plugin_options_slug, 'WPVacancy', 'manage_options', self::$plugin_options_slug, array($this, 'show_options'));
+    add_options_page(self::$plugin_options_slug, 'WPVacancy', 'manage_options', self::$plugin_options_slug, array($this, 'show_options'));
   }
   
   public function settings_section_title() 
@@ -235,12 +231,7 @@ class Wpvacancy_Admin {
     </select>
     <?php
   }
-  
-  public function show_by_the_hour_bookings_check()
-  {
-    $this->show_input_check(self::$allowSingleDaySelection);
-  }
-  
+    
   public function show_initial_booking_duration_days()
   {
     $this->show_input_text(self::$defaultBookingDurationDays, 1, "", true);
