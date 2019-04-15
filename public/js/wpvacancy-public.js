@@ -76,6 +76,11 @@ if (wpvacancy_was_here_global_flag !== true)
       currentDurationDays = value;
       updateDurationOnCalendar();    
     }
+    
+    function updateBookingAvailabilityFromCalendarClick(jqThis, event, argsarray)
+    {
+      
+    }
 
     function sliderBaloon(value, handleclass, baloonclass, singularlabel, plurallabel)
     {
@@ -265,7 +270,7 @@ if (wpvacancy_was_here_global_flag !== true)
       var festivitiesTarget = argsarray[6];
       var availabilityTarget = argsarray[7];
       var daySelectionParams = argsarray[8];
-      $("." + loading).show();
+      /*
       wpv_wp_api.then(function (site)
       {
         site.namespace(restNamespace).getCalendarMarkup().
@@ -303,6 +308,7 @@ if (wpvacancy_was_here_global_flag !== true)
           $("." + loading).hide();
         });
       });
+      */
 
     }
 
@@ -577,7 +583,7 @@ if (wpvacancy_was_here_global_flag !== true)
 
       $("." + containerclass).each(function(index)
       {
-        var mapid = this.data(dataid);
+        var mapid = $(this).data(dataid);
         getMapParams(mapid);
       });
       

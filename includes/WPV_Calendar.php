@@ -13,7 +13,7 @@
  */
 class WPV_Calendar
 {
-  private static $endpoint = 'getCalendarMarkup';
+  private static $endpoint = 'getDayAvailability';
   private static $wrapperclass = 'wpv-calendar-wrapper';
   private static $previousMonthButton = 'wpv-calendar-previous-month-button';
   private static $nextMonthButton = 'wpv-calendar-next-month-button';
@@ -26,27 +26,27 @@ class WPV_Calendar
   
   function __construct()
   {
+    add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "daySelection"));
-    $this->controlpanel();
-    add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleFestivities"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleAvailability"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
   }
 
   public function registerRoutes()
   {    
     register_rest_route(Wpvacancy::$namespace, '/'.self::$endpoint, array(
     'methods'  => WP_REST_Server::READABLE,
-    'callback' => array($this, 'get_calendar_markup'),
+    'callback' => array($this, 'get_day_availability'),
       ) );
   }
   
-  public function get_calendar_markup(WP_REST_Request $request)
+  public function get_day_availability(WP_REST_Request $request)
   {
-    $offset = $request->get_param("offset");
-    $span = $request->get_param("span");
-
-    $result["markup"] = $this->months($offset, $span);
+    $dayid = $request->get_param("dayid");
+    $accommodation_id = $request->get_param("accommodationid");
     
     return $result;
   }
@@ -58,7 +58,7 @@ class WPV_Calendar
     $html .= $this->controlpanel();
     $html .= '</div>';
     $html .= '<div class="'.self::$wrapperclass.'">';
-    $html .= WPV_BookingForm::loading();
+    $html .= $this->months();
     $html .= '</div>';
     return $html;
   }
@@ -76,7 +76,7 @@ class WPV_Calendar
       $span = self::$defaultspan;
     }
 
-    $ut_now = time(null);
+    $ut_now = time();
     $m = date("m", $ut_now) + $offset;
     $utnow_day = self::dayid($ut_now);
     $html = '';
@@ -193,7 +193,7 @@ class WPV_Calendar
     $res = $this->nonWorkingDayTag($dayid, $weekday);
     $res .= $this->nonWorkingDayEveTag($dayid, $weekday);
     if (!empty($dayid) && $showavailability === true)
-      $res .= $this->accommodationAvailability($dayid);
+      $res .= $this->accommodationAvailabilityHtml($dayid);
     $res .= '<div class="wpv-calendar-daytag '.WPV_BookingForm::$singleAccmAvailable.'"></div>';
     $res .= '<div class="wpv-calendar-daytag '.WPV_BookingForm::$singleAccmUnavailable.'"></div>';
     return $res;
@@ -223,21 +223,36 @@ class WPV_Calendar
     return '';
   }
   
-  private function accommodationAvailability($dayid)
+  /**
+   * 
+   * @param type $dayid
+   */
+  private function accommodationAvailability($dayid, $accommodationid = null)
   {
-    $all = WPV_BookingForm::getAllAccommodations();
-    $bookable = WPV_BookingForm::getBookableAccommodations($dayid);
+    if ($accommodationid === null)
+      $all = WPV_BookingForm::getAllAccommodations();
+    else
+      $all = [$accommodationid];
+    
+    $bookable = WPV_BookingForm::getBookableAccommodations($dayid, $accommodationid);
     $ratio = count($bookable) / count($all);
-    $availImage = 'empty';
+    $availability = 'empty';
     if ($ratio > 0 && $ratio <= self::$ratio_low_availability)
-      $availImage = 'low';
+      $availability = 'low';
     else
       if ($ratio > self::$ratio_low_availability && $ratio <= self::$ratio_norm_availability)
-        $availImage = 'normal';
+        $availability = 'normal';
       else
         if ($ratio > self::$ratio_norm_availability)
-          $availImage = 'full';
-    return '<div class="wpv-calendar-daytag wpv-calendar-daytag-availability wpv-calendar-daytag-availability-'.$availImage.'"></div>';
+          $availability = 'full';
+    return $availability;
+  }
+  
+  private function accommodationAvailabilityHtml($dayid)
+  {
+    return '<div class="wpv-calendar-daytag wpv-calendar-daytag-availability wpv-calendar-daytag-availability-'.
+            $this->accommodationAvailability($dayid).
+           '"></div>';
   }
   
   private function fc($string) // First Character
@@ -318,9 +333,6 @@ class WPV_Calendar
 
       $res .= '</div>';
     $res .= '</div>';
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleFestivities"));
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleAvailability"));
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
     return $res;
   }
   

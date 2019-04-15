@@ -1,11 +1,10 @@
-u<?php
+<?php
 
 
 class WPV_BookingForm
 {
   private $html;
   private $cal;
-  private $range;
   private $time;
   private $maps;
   public static $namespace = 'wpvacancy/v1';
@@ -29,9 +28,9 @@ class WPV_BookingForm
 
   function __construct()
   {
-    /* WARNING: these two MUST be called BEFORE constructing the calendar, 
-     * range slider, map and so on, so that the JS code calls the corresponding
-     * API functions and initializes JS variables beforehand.
+    /* WARNING: these two MUST be called BEFORE constructing the calendar and  
+     * the map, so that the JS code calls the corresponding API functions and 
+     * initializes JS variables beforehand.
      */
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "setupDefaults"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "loadMapParams"));
@@ -39,12 +38,10 @@ class WPV_BookingForm
     
     global $vb_wpv_basedir;
     require_once $vb_wpv_basedir.'includes/WPV_Calendar.php';
-    require_once $vb_wpv_basedir.'includes/WPV_RangeSlider.php';
     require_once $vb_wpv_basedir.'includes/WPV_AccommodationsMap.php';
     require_once $vb_wpv_basedir.'includes/WPV_Timepicker.php';
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
     $this->cal = new WPV_Calendar();
-    $this->range = new WPV_RangeSlider();
     $this->maps = new WPV_AccommodationsMap();
     $this->time = new WPV_Timepicker();
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "registerAddToCart"));
@@ -63,7 +60,7 @@ class WPV_BookingForm
                         $timepicker != false && 
                         $timepicker != "false" && 
                         $timepicker != 0 && 
-                        $timepicker != "0";
+                        $timepicker != "0" &&
                         $timepicker != "none";
     $map_specified = !empty($map_id);
     
@@ -72,7 +69,6 @@ class WPV_BookingForm
     
     $res = '<div class="'.self::$bookingformcontainerclass.'" data-'.self::$bookingformmapiddatatag.'="'.$map_id.'">';
       $res .= $this->cal->getCalendar($show_timepicker);
-      $res .= $this->range->range(31, 'startfrom1');
 
       $res .= $this->maps->map([$map_id]);
       $res .= $this->recap();
@@ -275,14 +271,18 @@ class WPV_BookingForm
     return self::$accommodations;
   }
   
-  public static function getBookableAccommodations($dayid)
+  public static function getBookableAccommodations($dayid, $accommodationid = null)
   {
     global $vb_wpv_custom_fields_prefix;
     $bookable = array();
     if (self::isBookableDay(!$dayid))
       return $bookable;
     
-    $accommodations = self::getAllAccommodations();
+    if ($accommodationid === null)
+      $accommodations = self::getAllAccommodations();
+    else
+      $accommodations = [$accommodationid];
+    
     $bookings = self::getAllBookings($dayid);
     // let's remove the alreay booked accommodations
     foreach ($accommodations as $acc)
@@ -377,6 +377,10 @@ class WPV_BookingForm
             empty(self::$periodsCacheStartsFrom) || $startdayid < self::$periodsCacheStartsFrom ||
             empty(self::$periodsCacheSpansTo) ||(!empty($enddayid) && $enddayid > self::$periodsCacheSpansTo))
     {
+      if (!is_array(self::$periodsCache))
+      {
+        self::$periodsCache = array();
+      }
       if (!empty($enddayid))
       {
         $periods = self::getAllPeriodsInRange($startdayid, $enddayid);
@@ -389,10 +393,6 @@ class WPV_BookingForm
       {
         $pstart = WPV_Calendar::dayid(self::dateparse(get_post_meta($p->ID, $vb_wpv_custom_fields_prefix.'period_start_date', true)));
         $pend = WPV_Calendar::dayid(self::dateparse(get_post_meta($p->ID, $vb_wpv_custom_fields_prefix.'period_end_date', true)));
-        if (!is_array(self::$periodsCache))
-        {
-          self::$periodsCache = array();
-        }
         array_push(self::$periodsCache, array($pstart, $pend, $p));
         if (empty($enddayid) || $pend > $enddayid)
         {
@@ -401,7 +401,7 @@ class WPV_BookingForm
       }
     }
     
-    if (empty(self::$periodsCacheStartsFrom || $startdayid < self::$periodsCacheStartsFrom))
+    if (empty(self::$periodsCacheStartsFrom) || $startdayid < self::$periodsCacheStartsFrom)
     {
       self::$periodsCacheStartsFrom = $startdayid;
     }
