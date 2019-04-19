@@ -735,8 +735,8 @@ class WPV_BookingForm
     global $vb_wpv_custom_fields_prefix;
     $mapid = $request->get_param("mapid");
     
-    $allowSingleDayBooking = get_post_meta($mapid, $vb_wpv_custom_fields_prefix."accm_map_singledayselection", true);
-    $defaultSliderDuration = get_post_meta($mapid, $vb_wpv_custom_fields_prefix."accm_map_defaultsliderduration", true);
+    $allowSingleDayBooking = (boolean)get_post_meta($mapid, $vb_wpv_custom_fields_prefix."accm_map_singledayselection", true);
+    $defaultSliderDuration = (int)get_post_meta($mapid, $vb_wpv_custom_fields_prefix."accm_map_defaultsliderduration", true);
     
     return ["value" => "params", 
              "allowSingleDayBooking" => $allowSingleDayBooking,

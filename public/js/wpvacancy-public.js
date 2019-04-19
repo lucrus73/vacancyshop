@@ -7,6 +7,8 @@ if (wpvacancy_was_here_global_flag !== true)
     'use strict';
 
     var currentDurationDays = 1;
+    var calendarClickStateEnum = Object.freeze({NOTHING:1, STARTED:2, COMPLETE:3}); // enum (sort of)
+    var calendarClickState = calendarClickStateEnum.NOTHING; // enum (sort of)
     var singleDayBooking = false;
     var limitedCurrentDurationDays = 0;
     var currentDurationMinutes = 0;
@@ -41,56 +43,10 @@ if (wpvacancy_was_here_global_flag !== true)
     var recapTimer;
 
     var wpv_wp_api;
-
-    function showDurationSlider(jqThis, event, argsarray)
-    {
-      sliderClass = argsarray[0];
-      var handleclass = argsarray[1];
-      var baloonclass = argsarray[2];
-      var singularlabel = argsarray[3];
-      var plurallabel = argsarray[4];
-      var init = argsarray[5];
-      var min = argsarray[6];
-      rangeMax = argsarray[7];
-      var step = argsarray[8];
-      durationSlider = $("." + sliderClass).slider({
-        value: init,
-        min: min,
-        max: rangeMax,
-        step: step,
-        slide: function (s_event, ui) {
-          updateSliderFromUserAction(ui.value);
-          sliderBaloon(limitedCurrentDurationDays > 0 ? limitedCurrentDurationDays : currentDurationDays, handleclass, baloonclass, singularlabel, plurallabel);
-        },
-        change: function (s_event, ui) {
-          sliderBaloon(limitedCurrentDurationDays > 0 ? limitedCurrentDurationDays : currentDurationDays, handleclass, baloonclass, singularlabel, plurallabel);
-        }
-      });
-      currentDurationDays = init;
-      sliderBaloon(init, handleclass, baloonclass, singularlabel, plurallabel);
-      updateDurationOnCalendar();
-    }
-    
-    function updateSliderFromUserAction(value)
-    {
-      currentDurationDays = value;
-      updateDurationOnCalendar();    
-    }
     
     function updateBookingAvailabilityFromCalendarClick(jqThis, event, argsarray)
     {
       
-    }
-
-    function sliderBaloon(value, handleclass, baloonclass, singularlabel, plurallabel)
-    {
-      var label = plurallabel;
-      if (value == 1)
-        label = singularlabel;
-      var str = value + " " + label;
-      $("." + handleclass).html(
-              '<div class="' + baloonclass + '">' + str + '</div>');
-      $("." + baloonclass).css("width", str.length + "rem");
     }
 
     function showSelectionDialog(jqThis, event, argsarray)
@@ -111,28 +67,6 @@ if (wpvacancy_was_here_global_flag !== true)
       });
     }
     
-    function rangeClickMinus(jqThis, event, argsarray)
-    {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (currentDurationDays > 1)
-      {
-        updateSliderFromUserAction(currentDurationDays - 1);
-        durationSlider.slider("value", currentDurationDays - 1);
-      }
-    }
-
-    function rangeClickPlus(jqThis, event, argsarray)
-    {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (currentDurationDays < durationSlider.slider("option", "max"))
-      {
-        updateSliderFromUserAction(currentDurationDays + 1);
-        durationSlider.slider("value", currentDurationDays + 1);
-      }
-    }
-
     function viewMoreOfAccommodationItem(jqThis, event, argsarray)
     {
       var lightboxclass = argsarray[1];
@@ -162,7 +96,6 @@ if (wpvacancy_was_here_global_flag !== true)
       $("." + allAccommodationsClass).removeClass(selectionclass);
       $("." + selectedunitclass).addClass(selectionclass);
       
-      updateDurationOnCalendar();
       updateRecap();
     }
 
@@ -231,7 +164,7 @@ if (wpvacancy_was_here_global_flag !== true)
       else
         $("." + checksymbol).hide();
       update_calendar_ui(target, availability_shown);
-      updateDurationOnCalendar();
+      
     }
 
     function toggleOptions(jqThis, event, argsarray)
@@ -250,14 +183,8 @@ if (wpvacancy_was_here_global_flag !== true)
       selectedFirstDayCssClass = argsarray[1];
       selectedDayCssClass = argsarray[2];
       selectedLastDayCssClass = argsarray[3];
-      currentStartDate = $(jqThis).data("wpvdayid");
-      var saveLimitedDuration = limitedCurrentDurationDays;
-      updateDurationOnCalendar();
-      if (saveLimitedDuration != limitedCurrentDurationDays)
-      {
-        // Let's force UI refresh
-        durationSlider.slider("value", limitedCurrentDurationDays);
-      }
+      var clickedDate = $(jqThis).data("wpvdayid");
+      onCalendarClick(clickedDate);
     }
 
     function loadCalendar(jqThis, event, argsarray)
@@ -309,27 +236,41 @@ if (wpvacancy_was_here_global_flag !== true)
         });
       });
       */
+      
 
     }
 
-    function updateDurationOnCalendar()
+    function onCalendarClick(clickedDate)
     {
-      if (currentStartDate === 0)
-        return;
+      switch(calendarClickState)
+      {
+        case calendarClickStateEnum.NOTHING:
+          calendarClickState = setStartingDayOnCalendar(clickedDate);
+          break;
+        case calendarClickStateEnum.STARTED:
+          calendarClickState = setEndingDayOnCalendar(clickedDate);
+          break;
+        case calendarClickStateEnum.COMPLETE:
+          calendarClickState = clearCalendarSelection(clickedDate);
+          break;
+      }
+    }
+    
+    function setStartingDayOnCalendar(clickedDate)
+    {
+      if (clickedDate === 0)
+        return calendarClickStateEnum.NOTHING; // next calendar slick state is the same as current
 
+      currentStartDate = clickedDate;
+      
       var id;
       for (id = currentStartDate + limitedCurrentDurationDays; id >= currentStartDate; id--)
         $(document).find("[data-wpvdayid='" + id + "']").removeClass(selectedLastDayCssClass);
 
       limitedCurrentDurationDays = currentDurationDays;
 
-      clearSingleAccommodationAvailabilityOnCalendar();
-      clearPeriodAvailabilityOnMap();
-
-      $("." + selectableDayCssClass).removeClass(selectedFirstDayCssClass);
-      $("." + selectableDayCssClass).removeClass(selectedDayCssClass);
-      $("." + selectableDayCssClass).removeClass(selectedLastDayCssClass);
-      $(document).find("[data-wpvdayid='" + (currentStartDate + currentDurationDays + 1) + "']").removeClass(selectedLastDayCssClass);
+      clearCalendarSelectionUI();
+      
       var requiredDays = '';
       for (id = currentStartDate; id <= (currentStartDate + currentDurationDays); id++)
       {
@@ -376,6 +317,35 @@ if (wpvacancy_was_here_global_flag !== true)
       }
       
       updateRecap();
+      
+      return calendarClickStateEnum.STARTED; // next calendar click state
+    }
+
+    function setEndingDayOnCalendar(clickedDate)
+    {
+      if (clickedDate <= currentStartDate || clickedDate === 0) // 2nd test is useless but here for readability
+        return calendarClickStateEnum.STARTED; // next calendar slick state is the same as current
+      
+      currentDurationDays = clickedDate - currentStartDate;
+      setStartingDayOnCalendar(currentStartDate);
+      return calendarClickStateEnum.COMPLETE;
+    }
+    
+    function clearCalendarSelection(clickedDate)
+    {
+      clearCalendarSelectionUI();
+      currentDurationDays = 1;
+      return calendarClickStateEnum.NOTHING;
+    }
+    
+    function clearCalendarSelectionUI()
+    {
+      clearSingleAccommodationAvailabilityOnCalendar();
+      clearPeriodAvailabilityOnMap();
+      $("." + selectableDayCssClass).removeClass(selectedFirstDayCssClass);
+      $("." + selectableDayCssClass).removeClass(selectedDayCssClass);
+      $("." + selectableDayCssClass).removeClass(selectedLastDayCssClass);
+      $(document).find("[data-wpvdayid='" + (currentStartDate + currentDurationDays + 1) + "']").removeClass(selectedLastDayCssClass);
     }
     
     function recapDate(dayIdToShow, targetClass)
@@ -476,8 +446,8 @@ if (wpvacancy_was_here_global_flag !== true)
                 param('mapid', mapid).
                 then(function (results)
                 {
-                  currentDurationDays = results.defaultSliderDuration;
-                  singleDayBooking = results.allowSingleDayBooking;
+                  currentDurationDays = Number(results.defaultSliderDuration);
+                  singleDayBooking = Number(results.allowSingleDayBooking) > 0 ? true : false;
                 }
                     );
       });
