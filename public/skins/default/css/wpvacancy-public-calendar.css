@@ -61,7 +61,7 @@
 }
 
 .wpv-calendar-daytag-daytype {
-  display: none;
+  /* display: none; */ /* option to show them has been removed and they now are displayed by default */
 }
 
 .wpv-calendar-daytag-nonworking {
@@ -81,7 +81,7 @@
 }
 
 .wpv-calendar-daytag-availability {
-  display: none;
+  /* display: none; */ /* option to show them has been removed and they now are displayed by default */
 }
 
 .wpv-calendar-daytag-availability-empty {

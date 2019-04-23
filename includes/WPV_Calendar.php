@@ -262,6 +262,10 @@ class WPV_Calendar
   
   private function option_checkbox($optiontext)
   {
+    return '';
+    /*
+     * For the time being the implemented options options are just useless clutter. 
+     * 
     $res = '<div class="wpv-calendar-option-checkbox">';
       $res .= '<div class="wpv-calendar-option-checkboxicon-wrapper">';
         $res .= '<i class="fa fa-circle-thin wpv-calendar-option-checkbox-icon"></i>';
@@ -271,6 +275,8 @@ class WPV_Calendar
         $res .= $optiontext;
       $res .= '</div>';
     $res .= '</div>';
+     * 
+     */
     return $res;
   }
   

@@ -6,7 +6,8 @@ if (wpvacancy_was_here_global_flag !== true)
   (function ($) {
     'use strict';
 
-    var currentDurationDays = 1;
+    var defaultDurationDays = 1;
+    var currentDurationDays = defaultDurationDays;
     var calendarClickStateEnum = Object.freeze({NOTHING:1, STARTED:2, COMPLETE:3}); // enum (sort of)
     var calendarClickState = calendarClickStateEnum.NOTHING; // enum (sort of)
     var singleDayBooking = false;
@@ -24,7 +25,6 @@ if (wpvacancy_was_here_global_flag !== true)
     var selectedLastDayCssClass = '';
     var sliderClass = '';
     var durationSlider = '';
-    var rangeMax = 0;
     var loading = '';
     var accunitDetailClass = '';
     var accunitTypeClass = '';
@@ -334,7 +334,7 @@ if (wpvacancy_was_here_global_flag !== true)
     function clearCalendarSelection(clickedDate)
     {
       clearCalendarSelectionUI();
-      currentDurationDays = 1;
+      currentDurationDays = defaultDurationDays;
       return calendarClickStateEnum.NOTHING;
     }
     
@@ -446,7 +446,8 @@ if (wpvacancy_was_here_global_flag !== true)
                 param('mapid', mapid).
                 then(function (results)
                 {
-                  currentDurationDays = Number(results.defaultSliderDuration);
+                  defaultDurationDays = Number(results.defaultSliderDuration);
+                  currentDurationDays = defaultDurationDays;
                   singleDayBooking = Number(results.allowSingleDayBooking) > 0 ? true : false;
                 }
                     );
