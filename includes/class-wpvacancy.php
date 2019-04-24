@@ -168,7 +168,7 @@ class Wpvacancy
     require_once $vb_wpv_basedir . 'models/cart-post-type.php';
     require_once $vb_wpv_basedir . 'models/booking-post-type.php';
     require_once $vb_wpv_basedir . 'models/price-post-type.php';
-
+    require_once $vb_wpv_basedir . 'models/Maps_percents.php';
     require_once $vb_wpv_basedir . 'includes/WPV_BookingForm.php';
     require_once $vb_wpv_basedir . 'includes/WPV_Cart.php';
 
