@@ -79,8 +79,6 @@ class WPV_BookingForm
   
   private function toHtml($atts = null, $content = '')
   {
-    $show_timepicker = false;
-    
     if (is_array($atts))
       extract($atts, EXTR_OVERWRITE);    
     
@@ -110,6 +108,9 @@ class WPV_BookingForm
   
   public function getHtml($atts = null, $content = '')
   {
+    if (is_preview() || !is_singular())
+      return '';
+    
     if (empty($this->html))
       $this->html = $this->toHtml($atts, $content);
     

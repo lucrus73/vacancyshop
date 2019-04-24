@@ -28,7 +28,7 @@
 if (!defined('WPINC'))
 {
   die;
-}
+}  
 
 global $vb_wpv_custom_fields_prefix;
 $vb_wpv_custom_fields_prefix = 'vb_wpvac_cf_';
