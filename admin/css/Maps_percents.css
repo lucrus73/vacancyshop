@@ -1,0 +1,55 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 22 apr 2019, 16:41:38
+    Author     : famiglia
+*/
+
+input {
+  font-size: 80%;
+}
+
+#wrap {
+  display: flex;
+}
+
+#hotel {
+  margin-top:20px;
+  position: relative;
+  width: 30em;
+  height: 20em;
+  min-width: 30em;
+  min-height: 20em;
+  background-image: url('http://www.bristolhotel-odessa.com/wp-content/uploads/2015/06/1-hotel-front.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#savebox {
+ margin: 2em;
+}
+
+#name input {
+  width: 100%;
+}
+
+#buttons {
+  margin-top: 0.3em;
+  display: block;
+  justify-content: space-between;
+}
+
+.selection-box {
+  border: 2px dashed red;
+  position: absolute;
+  margin:0;
+  padding:0;
+}
+
+.finish {
+  padding: 0.2em;
+}
