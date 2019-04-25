@@ -138,35 +138,6 @@ if (wpvacancy_was_here_global_flag !== true)
       }
     }
 
-    function toggleFestivities(jqThis, event, argsarray)
-    {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      var target = argsarray[1];
-      var checksymbol = argsarray[2];
-      festivities_shown = !festivities_shown;
-      if (festivities_shown === true)
-        $("." + checksymbol).show();
-      else
-        $("." + checksymbol).hide();
-      update_calendar_ui(target, festivities_shown);
-    }
-
-    function toggleAvailability(jqThis, event, argsarray)
-    {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      var target = argsarray[1];
-      var checksymbol = argsarray[2];
-      availability_shown = !availability_shown;
-      if (availability_shown === true)
-        $("." + checksymbol).show();
-      else
-        $("." + checksymbol).hide();
-      update_calendar_ui(target, availability_shown);
-      
-    }
-
     function toggleOptions(jqThis, event, argsarray)
     {
       event.stopImmediatePropagation();

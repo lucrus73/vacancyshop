@@ -30,8 +30,6 @@ class WPV_Calendar
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "daySelection"));
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleFestivities"));
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleAvailability"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
   }
 
@@ -369,26 +367,6 @@ class WPV_Calendar
                       ));    
   }
   
-  public function toggleFestivities()
-  {
-    return array('click', 
-                  'toggleFestivities', 
-                  array('wpv-calendar-show-festivities-check',
-                        'wpv-calendar-daytag-daytype',
-                        'wpv-calendar-show-festivities-check .wpv-calendar-option-checkbox-icon-checked'));
-    
-  }
-
-  public function toggleAvailability()
-  {
-    return array('click', 
-                  'toggleAvailability', 
-                  array('wpv-calendar-show-availability-check',
-                        'wpv-calendar-daytag-availability',
-                        'wpv-calendar-show-availability-check .wpv-calendar-option-checkbox-icon-checked'));
-    
-  }
-
   public function toggleOptions()
   {
     return array('click', 
