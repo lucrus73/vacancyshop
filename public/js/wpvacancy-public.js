@@ -222,7 +222,7 @@ if (wpvacancy_was_here_global_flag !== true)
           calendarClickState = setEndingDayOnCalendar(clickedDate);
           break;
         case calendarClickStateEnum.COMPLETE:
-          calendarClickState = clearCalendarSelection(clickedDate);
+          calendarClickState = editOrClearCalendarSelection(clickedDate);
           break;
       }
     }
@@ -302,8 +302,30 @@ if (wpvacancy_was_here_global_flag !== true)
       return calendarClickStateEnum.COMPLETE;
     }
     
-    function clearCalendarSelection(clickedDate)
+    function editOrClearCalendarSelection(clickedDate)
     {
+      // if the user clicked within 1 day more or 1 day less than the current start
+      // and the period is 3 days or longer
+      // we assume he wants to edit the current start
+      if (Math.abs(clickedDate - currentStartDate) <= 1 && currentDurationDays >= 3) 
+      {
+        var currentEnd = currentStartDate + limitedCurrentDurationDays;
+        setStartingDayOnCalendar(clickedDate);
+        setEndingDayOnCalendar(currentEnd);
+        return calendarClickStateEnum.COMPLETE; // we stay in the current state
+      }
+      // if the user clicked within 1 day more or 1 day less than the current end
+      // and the period is 3 days or longer
+      // we assume he wants to edit the current end
+      if (Math.abs(clickedDate - (currentStartDate + limitedCurrentDurationDays)) <= 1 && currentDurationDays >= 3) 
+      {
+        setEndingDayOnCalendar(clickedDate);
+        return calendarClickStateEnum.COMPLETE; // we stay in the current state
+      }
+      
+      // in all other cases we assume the user is clicking far away from the
+      // current start and end, so he wants to cancel the selection
+      
       clearCalendarSelectionUI();
       currentDurationDays = defaultDurationDays;
       return calendarClickStateEnum.NOTHING;
