@@ -23,18 +23,19 @@ input {
   height: 20em;
   min-width: 30em;
   min-height: 20em;
-  background-image: url('http://www.bristolhotel-odessa.com/wp-content/uploads/2015/06/1-hotel-front.jpg');
+  /*background-image: url('http://www.bristolhotel-odessa.com/wp-content/uploads/2015/06/1-hotel-front.jpg');*/
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
 }
 
 #savebox {
- margin: 2em;
+  margin: 2em;
 }
 
 #name input {
-  width: 100%;
+  /*width: 100%;*/
+  width:auto;
 }
 
 #buttons {
@@ -52,4 +53,15 @@ input {
 
 .finish {
   padding: 0.2em;
+}
+
+.perc{
+  width:100%;
+  text-align: center; 
+}
+
+.grid{
+  display: inline-grid;
+  width: 10%;
+  text-align: center;
 }

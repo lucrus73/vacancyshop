@@ -25,10 +25,9 @@
  * Domain Path:       /languages
  */
 // If this file is called directly, abort.
-if (!defined('WPINC'))
-{
+if (!defined('WPINC')) {
   die;
-}  
+}
 
 global $vb_wpv_custom_fields_prefix;
 $vb_wpv_custom_fields_prefix = 'vb_wpvac_cf_';
@@ -58,8 +57,7 @@ $vb_wpv_weekdays = array(VB_WPV_SUNDAY => __('Sunday', 'wpvacancy'),
  * The code that runs during plugin activation.
  * This action is documented in includes/class-wpvacancy-activator.php
  */
-function activate_wpvacancy()
-{
+function activate_wpvacancy() {
   global $vb_wpv_basedir;
   require_once $vb_wpv_basedir . 'includes/class-wpvacancy-activator.php';
   Wpvacancy_Activator::activate();
@@ -69,8 +67,7 @@ function activate_wpvacancy()
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-wpvacancy-deactivator.php
  */
-function deactivate_wpvacancy()
-{
+function deactivate_wpvacancy() {
   global $vb_wpv_basedir;
   require_once $vb_wpv_basedir . 'includes/class-wpvacancy-deactivator.php';
   Wpvacancy_Deactivator::deactivate();
@@ -96,11 +93,11 @@ require $vb_wpv_basedir . 'includes/class-wpvacancy.php';
  */
 require_once $vb_wpv_basedir . '/cmb2/init.php';
 require_once $vb_wpv_basedir . '/cmb2-attached-posts/cmb2-attached-posts-field.php';
+require_once $vb_wpv_basedir . 'database.php';
 
 global $wpvacancy_plugin;
 
-function run_wpvacancy()
-{
+function run_wpvacancy() {
   global $wpvacancy_plugin, $vb_wpv_basedir;
   $wpvacancy_plugin = new Wpvacancy($vb_wpv_basedir);
   $wpvacancy_plugin->run();
