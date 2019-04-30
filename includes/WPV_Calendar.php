@@ -106,7 +106,7 @@ class WPV_Calendar
                             __('Dec', 'wpvacancy'));
 
       $html .= '<div class="wpv-calendar-month">';
-      $html .= '<table cellspacing="0" cellpadding="5" align="center" width="100" border="1">';
+      $html .= '<table cellspacing="0" align="center" border="1">';
       $html .= '<thead>';
       $html .= '<tr>';
       $html .= '<th>';

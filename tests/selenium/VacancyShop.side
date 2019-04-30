@@ -1,0 +1,21 @@
+{
+  "id": "88128011-1574-403d-9302-bf796715dd1e",
+  "version": "2.0",
+  "name": "VacancyShop",
+  "url": "",
+  "tests": [{
+    "id": "a9e1ba0e-4185-437b-8f43-a09ff351988d",
+    "name": "PageRenders",
+    "commands": []
+  }],
+  "suites": [{
+    "id": "65f127ce-3581-47c0-8655-6541e61596d2",
+    "name": "Default Suite",
+    "persistSession": false,
+    "parallel": false,
+    "timeout": 300,
+    "tests": ["a9e1ba0e-4185-437b-8f43-a09ff351988d"]
+  }],
+  "urls": [],
+  "plugins": []
+}

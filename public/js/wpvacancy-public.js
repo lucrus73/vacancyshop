@@ -294,9 +294,16 @@ if (wpvacancy_was_here_global_flag !== true)
 
     function setEndingDayOnCalendar(clickedDate)
     {
-      if (clickedDate <= currentStartDate || clickedDate === 0) // 2nd test is useless but here for readability
-        return calendarClickStateEnum.STARTED; // next calendar slick state is the same as current
+      if (clickedDate < (currentStartDate - 2)) // if the user clicked far away before the current start
+      {
+        clearCalendarSelectionUI();
+        return calendarClickStateEnum.NOTHING; // he probably wants to cancel the selected start
+      }
       
+      if (clickedDate < currentStartDate) // if the user clicked before, but near, the current start
+      {
+        return setStartingDayOnCalendar(clickedDate); // he likely wants to edit the start date
+      }
       currentDurationDays = clickedDate - currentStartDate;
       setStartingDayOnCalendar(currentStartDate);
       return calendarClickStateEnum.COMPLETE;
