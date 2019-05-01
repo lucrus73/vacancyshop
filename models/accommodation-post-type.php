@@ -1,4 +1,6 @@
 <?php
+wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . '../admin/js/Maps_percents.js', array('jquery'), rand(111, 9999), false);
+wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . '../admin/css/Maps_percents.css');
 
 // let's create the function for the custom type
 function accommodation_post_type() { 
@@ -120,7 +122,8 @@ function vb_wpv_accommodation_custom_fields() {
 		'desc'    => __( 'The map where this accommodation unit is placed', 'wpvacancy' ),
 		'id'      => $prefix . 'acc_map_id',
 		'type'    => 'custom_attached_posts',
-		'options' => array(
+    'after' => 'test',
+    'options' => array(
 			'show_thumbnails' => true, // Show thumbnails on the left
 			'filter_boxes'    => true, // Show a text box for filtering the results
 			'query_args'      => array(
@@ -133,7 +136,18 @@ function vb_wpv_accommodation_custom_fields() {
       ),
       'on_front'        => false, // Optionally designate a field to wp-admin only
 	));
+  
+  $cmb->add_field( array(
+	'name' =>  __( 'Map_percents', 'wpvacancy' ),
+	'desc' => __( 'The percents map where this accommodation unit is placed', 'wpvacancy' ),
+	'id'   => $prefix . 'acc_map_percents_id',
+	'type' => 'text',
+	'render_row_cb' => 'cmb_test_render_row_cb',
+  'on_front'=> false,
+  
+) ); 
    
+  
   $cmb->add_field( array(
       'name'       => __( 'Unit left position', 'wpvacancy' ),
       'desc'       => __( 'The X coordinate of the upper-left corner of the unit box (in percentage of the map width)', 'wpvacancy' ),
@@ -257,5 +271,31 @@ function vb_wpv_get_accommodation_name($accm_id)
   return $name;
 }
 
+ function cmb_test_render_row_cb( $field_args, $field ) {
+	
+	?>
+<h1>Map_percents</h1>
 
-?>
+	 <div id="wrap">
+    <div id="hotel">
+
+    </div>
+   <div id="ui"> 
+
+      <div id="savebox">
+        <div id="name">
+          <input id="accmname" type="text" value="">
+        </div>
+        <div id="buttons">
+          <input id="clear" class="finish" type="button" value="Clear Selection">
+          <input id="Save" class="finish" type="button" value="Save Accommodation">
+        </div>
+        <ul id="accmlist">
+
+        </ul>
+        </div>  
+   </div>
+   </div>
+<?php
+ }
+

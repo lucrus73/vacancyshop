@@ -1,5 +1,3 @@
-
-
 (function ($) {
   'use strict';
   /* 
@@ -15,8 +13,11 @@
     $("#accmname").val("Room " + $accm_counter);
     var $container = $('#hotel');
 
-    $("#save").click(function (event)
+    $("#Save").click(function (event)
     {
+     // console.log($("#save").css({ 
+        //'background-color':'red'
+     // }));
       if ($last_selection != null)
       {
         var percx = Math.round($last_selection.position().left / $container.width() * 1000.0) / 10;
@@ -31,21 +32,12 @@
         $("#accmname").val("Room " + $accm_counter);
         $rooms.push($last_selection);
         $last_selection = null;
-        var perc = [percx, percy, percw, perch];
-        post(perc);
+        $('#vb_wpvac_cf_acc_unit_box_x').val(percx);
+        $('#vb_wpvac_cf_acc_unit_box_y').val(percy);
+        $('#vb_wpvac_cf_acc_unit_box_w').val(percw);
+        $('#vb_wpvac_cf_acc_unit_box_h').val(perch);
       }
     });
-
-    function post(perc) {
-
-      var data = {
-        'action': 'salva',
-        'perc': perc
-      };
-      $.post(ajaxurl, data, function (risposta) {
-        //console.log('percx= '+ perc[0]+' percy= '+ perc[1]+' percw= '+ perc[2]+ ' perch= '+ perc[3]);
-      });
-    }
 
     $("#clear").click(function (event)
     {
