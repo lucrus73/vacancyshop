@@ -1,4 +1,22 @@
 <?php
+wp_enqueue_script($this->plugin_name, plugin_dir_url(__FILE__) . '../admin/js/Maps_percents.js', array('jquery'), rand(111, 9999), false);
+wp_enqueue_style($this->plugin_name, plugin_dir_url(__FILE__) . '../admin/css/Maps_percents.css');
+
+	function remove_post_custom_fields() {
+	  remove_meta_box( 'postcustom' , 'accommodation_type' , 'normal' ); 
+    //remove_meta_box( 'linktargetdiv', 'link', 'normal' );
+		//remove_meta_box( 'linkxfndiv', 'link', 'normal' );
+		//remove_meta_box( 'linkadvanceddiv', 'link', 'normal' );
+		remove_meta_box( 'postexcerpt', 'accommodation_type', 'normal' );
+		remove_meta_box( 'trackbacksdiv', 'accommodation_type', 'normal' );
+		remove_meta_box( 'commentstatusdiv', 'accommodation_type', 'normal' );
+		remove_meta_box( 'commentsdiv', 'accommodation_type', 'normal' );
+		//remove_meta_box( 'revisionsdiv', 'accommodation_type', 'normal' );
+		//remove_meta_box( 'authordiv', 'accommodation_type', 'normal' );
+		//remove_meta_box( 'sqpt-meta-tags', 'accommodation_type', 'normal' );
+}
+add_action( 'admin_menu' , 'remove_post_custom_fields' );
+
 
 // let's create the function for the custom type
 function accommodation_post_type() { 
@@ -91,10 +109,10 @@ function accommodation_post_type() {
 	
 }
 
-	// adding the function to the Wordpress init
-	add_action( 'init', 'accommodation_post_type');
-	
-	
+// adding the function to the Wordpress init
+	add_action( 'init', 'accommodation_post_type');	
+  
+  
 function vb_wpv_accommodation_custom_fields() {
 
   global $vb_wpv_custom_fields_prefix ;
@@ -111,7 +129,7 @@ function vb_wpv_accommodation_custom_fields() {
       'context'       => 'normal',
       'priority'      => 'high',
       'show_names'    => true, // Show field names on the left
-      // 'cmb_styles' => false, // false to disable the CMB stylesheet
+      //'cmb_styles' => false, // false to disable the CMB stylesheet
       'closed'     => false, // Keep the metabox closed by default
   ) );
 
@@ -120,10 +138,10 @@ function vb_wpv_accommodation_custom_fields() {
 		'desc'    => __( 'The map where this accommodation unit is placed', 'wpvacancy' ),
 		'id'      => $prefix . 'acc_map_id',
 		'type'    => 'custom_attached_posts',
-		'options' => array(
+    'options' => array(
 			'show_thumbnails' => true, // Show thumbnails on the left
 			'filter_boxes'    => true, // Show a text box for filtering the results
-			'query_args'      => array(
+        'query_args'      => array(
 				'posts_per_page' => 10,
 				'post_type'      => 'accm_map_type',
 			), // override the get_posts args
@@ -133,7 +151,18 @@ function vb_wpv_accommodation_custom_fields() {
       ),
       'on_front'        => false, // Optionally designate a field to wp-admin only
 	));
-   
+  
+  $cmb->add_field( array(
+	'name' =>  __( 'Map_percents', 'wpvacancy' ),
+	'desc' => __( 'The percents map where this accommodation unit is placed', 'wpvacancy' ),
+	'id'   => $prefix . 'acc_map_percents_id',
+	'type' => 'text',
+	'render_row_cb' => 'cmb_test_render_row_cb',
+  'on_front'=> false,
+  
+) ); 
+  
+  
   $cmb->add_field( array(
       'name'       => __( 'Unit left position', 'wpvacancy' ),
       'desc'       => __( 'The X coordinate of the upper-left corner of the unit box (in percentage of the map width)', 'wpvacancy' ),
@@ -239,14 +268,28 @@ function vb_wpv_accommodation_custom_fields() {
       // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
       'on_front'        => false, // Optionally designate a field to wp-admin only
       // 'repeatable'      => true,
-  ) );
-}
-
+  ) ); 
+ 
+ }
+ 
 add_action( 'cmb2_admin_init', 'vb_wpv_accommodation_custom_fields' );
+
+
+function get_my_custom_posts() {
+   $posts = get_posts( [ 'post_type' => 'accm_map_type' ] );
+   $options = [];
+   foreach ( $posts as $post ) {
+      $options[ $post->ID ] = $post->post_title;
+      
+   }
+
+   return $options;
+}
 
 function vb_wpv_get_accommodation_name($accm_id)
 {
   global $vb_wpv_custom_fields_prefix;
+  $prefix = $vb_wpv_custom_fields_prefix;
   $name = get_post_meta($accm_id, $vb_wpv_custom_fields_prefix.'acc_unit_name');
   if (empty($name))
   {
@@ -257,5 +300,46 @@ function vb_wpv_get_accommodation_name($accm_id)
   return $name;
 }
 
+ function cmb_test_render_row_cb( $field_args, $field ) {   
+                  global $vb_wpv_custom_fields_prefix;
+                  $prefix = $vb_wpv_custom_fields_prefix;
+                  $posts = get_posts( [ 'post_type' => 'accm_map_type' ] );
+                  $options = [];
+                  foreach ( $posts as $post ) {
+                         $options[ $post->ID ] = $post->ID ;
+                         $act = get_post_meta(get_the_ID(),'vb_wpvac_cf_acc_map_id');
+                         ?>
+                  <script type="text/javascript">   
+                  immagine({'id':<?php echo $options[ $post->ID ]; ?>,'url':'<?php echo wp_get_attachment_image_src(get_post_thumbnail_id( $options[ $post->ID ]),$large)[0]; ?>'});
+                  immstart({'id':<?php echo $options[ $post->ID ]; ?>,'url':'<?php echo wp_get_attachment_image_src(get_post_thumbnail_id( $options[ $post->ID ]),$large)[0]; ?>'},'<?php echo get_post_meta(get_the_ID(),'vb_wpvac_cf_acc_map_id')[0][0]; ?>');
+                  </script>
+                  <?php
+                  }
+ ?>
 
-?>
+<h1>Map_percents</h1>
+  
+	 <div id="<?php echo $prefix.'wrap';?>">
+     <div id="<?php echo $prefix.'hotel';?>">
+      
+    </div>
+   <div id="<?php echo $prefix.'ui';?>"> 
+
+      <div id="<?php echo $prefix.'savebox';?>">
+        <div id="<?php echo $prefix.'name';?>">
+          
+        </div>
+        <div id="<?php echo $prefix.'buttons';?>">
+          <input id="<?php echo $prefix.'clear';?>" class="finish" type="button" value="Clear Selection">
+          <input id="<?php echo $prefix.'save';?>" class="finish" type="button" value="Acquire Selection">
+        </div>
+        <ul id="<?php echo $prefix.'accmlist';?>">
+          
+        </ul> 
+        </div> 
+    
+   </div>
+   </div>
+<?php
+ }
+
