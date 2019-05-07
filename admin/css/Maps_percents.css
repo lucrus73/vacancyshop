@@ -1,0 +1,54 @@
+/*
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+*/
+/* 
+    Created on : 22 apr 2019, 16:41:38
+    Author     : Lucrus73
+*/
+
+input {
+  font-size: 80%;
+}
+
+#vb_wpvac_cf_wrap {
+  display: flex;
+}
+
+#vb_wpvac_cf_hotel {
+  margin-top:20px;
+  position: relative;
+  width: 30em;
+  height: 20em;
+  min-width: 30em;
+  min-height: 20em;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+#vb_wpvac_cf_savebox {
+  margin: 2em;
+}
+
+#vb_wpvac_cf_name input {
+  width:auto;
+}
+
+#vb_wpvac_cf_buttons {
+  margin-top: 0.3em;
+  display: block;
+  justify-content: space-between;
+}
+
+.vb_wpvac_cf_selection-box {
+  border: 2px dashed red;
+  position: absolute;
+  margin:0;
+  padding:0;
+}
+
+.cmb-type-custom-attached-posts .has-thumbnails.connected {
+    height: auto !important;
+}
