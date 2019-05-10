@@ -70,12 +70,14 @@ class Wpvacancy
    * @var $plugin_public Wpvacancy_Public
    */
   public $plugin_public;
-  private $script_handle;
-
+  
   /**
-   * @var $script_params_callbacks array
+   *
+   * @var $plugin_admin Wpvacancy_Admin
    */
-  private $script_params_callbacks;
+  public $plugin_admin;
+  
+  private $jsCallbackManager;
 
   /**
    *
@@ -101,15 +103,12 @@ class Wpvacancy
    * @since    1.0.0
    */
   public function __construct($vb_wpv_basedir)
-  {
-
+  { 
     if (empty(self::$instance))
       self::$instance = &$this;
 
     $this->plugin_name = 'wpvacancy';
     $this->version = '1.0.0';
-    $this->script_params_callbacks = array();
-    $this->script_handle = 'wpv_formsubmitter';
 
     $this->load_dependencies($vb_wpv_basedir);
     $this->set_locale();
@@ -171,6 +170,9 @@ class Wpvacancy
 
     require_once $vb_wpv_basedir . 'includes/WPV_BookingForm.php';
     require_once $vb_wpv_basedir . 'includes/WPV_Cart.php';
+    require_once $vb_wpv_basedir . 'includes/JsCallbackManager.php';
+
+    $this->jsCallbackManager = new JsCallbackManager('public'); // any handle will do
 
     $this->loader = new Wpvacancy_Loader();
     $this->bookingform = new WPV_BookingForm();
@@ -204,12 +206,12 @@ class Wpvacancy
   private function define_admin_hooks()
   {
 
-    $plugin_admin = new Wpvacancy_Admin($this->get_plugin_name(), $this->get_version());
+    $this->plugin_admin = new Wpvacancy_Admin($this->get_plugin_name(), $this->get_version());
 
-    $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
-    $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
-    $this->loader->add_action('admin_init', $plugin_admin, 'register_settings');
-    $this->loader->add_action('admin_menu', $plugin_admin, 'menu');
+    $this->loader->add_action('admin_enqueue_scripts', $this->plugin_admin, 'enqueue_styles');
+    $this->loader->add_action('admin_enqueue_scripts', $this->plugin_admin, 'enqueue_scripts');
+    $this->loader->add_action('admin_init', $this->plugin_admin, 'register_settings');
+    $this->loader->add_action('admin_menu', $this->plugin_admin, 'menu');
 
     add_action('admin_enqueue_scripts', array(&$this, 'enqueue_scripts'));
     add_action( 'pre_get_posts', array(&$this, 'paymentResult'));
@@ -316,80 +318,27 @@ class Wpvacancy
   
   public function enqueue_scripts()
   {
-    $wpapifileurl = plugin_dir_url(__FILE__) . '../public/js/wpapi.min.js';
-    $wpapihandle = "wpv-node-wpapi";
-    wp_register_script($wpapihandle, $wpapifileurl);
-    wp_enqueue_script($wpapihandle);
-
-    wp_enqueue_script('jquery-ui-slider');
+    $this->jsCallbackManager->enqueueWPApi("wpv-node-wpapi");
 
     $jsfileurl = plugin_dir_url(__FILE__) . '../public/js/wpvacancy-public.js';
-    wp_register_script($this->script_handle, $jsfileurl);
+    wp_register_script($this->jsCallbackManager->getScriptHandle(), $jsfileurl);
 
-    $this->callRegisteredCallbacks();
+    $this->jsCallbackManager->callRegisteredCallbacks();
     
     $skinjsfileurl = self::skinfileUrl('js/skin.js');
     if ($skinjsfileurl !== false)
     {
-      wp_register_script($this->script_handle.'-skin', $skinjsfileurl);
-      wp_enqueue_script($this->script_handle.'-skin');
+      wp_register_script($this->jsCallbackManager->getScriptHandle().'-skin', $skinjsfileurl);
+      wp_enqueue_script($this->jsCallbackManager->getScriptHandle().'-skin');
     }
   }
   
-  
   /**
-   * This function calls the registered callbacks in the same order they were
-   * registered. See registerScriptParamsCallback in this class.
-   * This function is executed during the wp_enqueue_scripts hook.
-   * This function calls each callback, it provides it with the registered
-   * params and it expects a array as a result of calling it.
-   * The resulting array must contain a JS event name (such as 'load', 'click'
-   * and so on) and other parameters that the $(document).ready JS function will
-   * receive, parse and execute accordingly. 
-   * See wpvacancy-public.js for details.
-   * jshooks_params is the vector that makes the communication possible: it
-   * is the resulting array of arrays: actually it is just a pair whose key is
-   * always 'events' and whose value is always the array of the callbacks results.
-   * @param array $hooks_data_events
-   */
-  private function callRegisteredCallbacks()
-  {
-    $hooks_data_events = array();
-
-    foreach ($this->script_params_callbacks as $callback_pack)
-    {
-      $callback = $callback_pack['call'];
-      $params = $callback_pack['params'];
-      $cbarr = $callback($params);
-      $hooks_data_events[count($hooks_data_events)] = $cbarr;
-    }
-
-    $hooks_data = array('events' => $hooks_data_events);
-
-    wp_localize_script($this->script_handle, 'jshooks_params', $hooks_data);
-    wp_enqueue_script($this->script_handle);
-  }
-
-  /**
-   * This function saves the callable so that the wp_enqueue_scripts event will
-   * call it afterwards (see callRegisteredCallbacks function in this class). 
-   * This registerScriptParamsCallback function is intened to be used in 
-   * constructors or other functions that are executed before said event takes
-   * place and that need to hook that event, but in a guaranteed call order.
-   * The callRegisteredCallbacks  function guaratees that the registered 
-   * callbacks will be called in the same order they were registered (FIFO order).
-   * Maybe WP code that handles hooks does just the same, but, since, even if it
-   * did, that's not documented behavior, we cannot rely upon what it 
-   * incidentally does as of today.
-   * @param Callable $callable_arg The callback
-   * @param array $params The params the callback will receive
-   * @return boolean is_callable($callable_arg)
+   * This is just a delegate function kept here after a refactoring
    */
   public function registerScriptParamsCallback($callable_arg, array $params = array())
   {
-    if (is_callable($callable_arg))
-      array_push($this->script_params_callbacks, array('call' => $callable_arg, 'params' => $params));
-    return is_callable($callable_arg);
+    return $this->jsCallbackManager->registerScriptParamsCallback($callable_arg, $params);
   }
 
   public static function is_admin()

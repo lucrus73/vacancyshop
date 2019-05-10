@@ -576,17 +576,21 @@ if (wpvacancy_was_here_global_flag !== true)
     {
       $.each(jshooks_params.events, function (index, value)
       {
-        var event = value[0];
-        var fname = value[1];
-        var fargs = value[2];
-        if (event === 'load')
-          eval(fname + '($(this), null, fargs);');
-        else
+        var target = value[0];
+        if (target === 'public')
         {
-          var cssclasstoselect = fargs[0];
-          $('.' + cssclasstoselect).on(event, function (e) {
-            return eval(fname + '($(this), e, fargs);');
-          });
+          var event = value[1];
+          var fname = value[2];
+          var fargs = value[3];
+          if (event === 'load')
+            eval(fname + '($(this), null, fargs);');
+          else
+          {
+            var cssclasstoselect = fargs[0];
+            $('.' + cssclasstoselect).on(event, function (e) {
+              return eval(fname + '($(this), e, fargs);');
+            });
+          }
         }
       });
     });

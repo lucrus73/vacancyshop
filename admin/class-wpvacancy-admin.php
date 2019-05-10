@@ -49,6 +49,9 @@ class Wpvacancy_Admin {
   public static $anonymousCartsUser;
   public static $defaultBookingExpirationTime;
   public static $defaultBookingDurationDays;
+
+
+  private $jsCallbackManager;
   
   
 	/**
@@ -62,6 +65,8 @@ class Wpvacancy_Admin {
 
 		$this->plugin_name = $plugin_name;
 		$this->version = $version;
+    $this->jsCallbackManager = new JsCallbackManager("admin");
+    $this->registerCallbacks();
 
 	  self::$options_group = $this->plugin_name . '_wpvacancy_options';
     self::$activeSkin = self::$options_group . '_active_skin';
@@ -91,8 +96,13 @@ class Wpvacancy_Admin {
 	 */
 	public function enqueue_scripts() 
   {
-		wp_enqueue_script( $this->plugin_name, plugin_dir_url( __FILE__ ) . 'js/wpvacancy-admin.js', array( 'jquery' ), $this->version, false );
-	}
+    $this->jsCallbackManager->enqueueWPApi("wpv-node-wpapi-adm");
+
+    $jsfileurl = plugin_dir_url( __FILE__ ) . 'js/wpvacancy-admin.js';
+    wp_register_script($this->jsCallbackManager->getScriptHandle(), $jsfileurl);
+    
+    $this->jsCallbackManager->callRegisteredCallbacks();
+  }
 
   public function register_settings() 
   {
@@ -253,4 +263,26 @@ class Wpvacancy_Admin {
     $list = apply_filters("vb_wpv_list_available_skins", $list);
     return $list;
   }
+  
+  public function getJsCallbackManager()
+  {
+    return $this->jsCallbackManager;
+  }
+
+  private function registerCallbacks() 
+  {   
+    global $vb_wpv_custom_fields_prefix;
+    $prefix = $vb_wpv_custom_fields_prefix;
+    $posts = get_posts( [ 'post_type' => 'accm_map_type' ] );
+    foreach ( $posts as $post ) 
+    {
+      $act = get_post_meta(get_the_ID(), $prefix.'acc_map_id', true);
+      $imagesrc = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'large')[0];
+      $this->jsCallbackManager->registerScriptParamsCallback('onLoadRegisterAccommodationMapClick',
+                                        array("postid" => $post->ID, "imagesrc" => $imagesrc));
+      $this->jsCallbackManager->registerScriptParamsCallback('onLoadShowAccommodatioMapsImage',
+                                        array("postid" => $post->ID, "imagesrc" => $imagesrc, "act" => $act));
+    }
+  }
+
 }
