@@ -13,10 +13,13 @@
  */
 class WPV_Calendar
 {
-  private static $endpoint = 'getDayAvailability';
+  private static $dayAvailabilityEndpoint = 'getDayAvailability';
+  private static $calendarMarkupEndpoint = 'getCalendarMarkup';
   private static $wrapperclass = 'wpv-calendar-wrapper';
   private static $previousMonthButton = 'wpv-calendar-previous-month-button';
   private static $nextMonthButton = 'wpv-calendar-next-month-button';
+  private static $selectMonthButton = 'wpv-calendar-monthselectactivate';
+  private static $selectMonth = 'wpv-calendar-monthselectwrap';
   private static $defaultoffset = 0;
   private static $defaultspan = 2;
   private static $nonworkingday = 1;
@@ -30,12 +33,16 @@ class WPV_Calendar
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "daySelection"));
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
+//    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
   }
 
   public function registerRoutes()
   {    
-    register_rest_route(Wpvacancy::$namespace, '/'.self::$endpoint, array(
+    register_rest_route(Wpvacancy::$namespace, '/'.self::$dayAvailabilityEndpoint, array(
+    'methods'  => WP_REST_Server::READABLE,
+    'callback' => array($this, 'get_day_availability'),
+      ) );
+    register_rest_route(Wpvacancy::$namespace, '/'.self::$calendarMarkupEndpoint, array(
     'methods'  => WP_REST_Server::READABLE,
     'callback' => array($this, 'get_day_availability'),
       ) );
@@ -46,6 +53,16 @@ class WPV_Calendar
     $dayid = $request->get_param("dayid");
     $accommodation_id = $request->get_param("accommodationid");
     
+    
+    return $result;
+  }
+
+  public function get_calendar_markup(WP_REST_Request $request)
+  {
+    $offset = $request->get_param("offset");
+    $span = $request->get_param("span");
+    $tags = $request->get_param("includeavailabilitytags");
+    $result = ["markup" => $this->months($offset, $span, $tags)];
     return $result;
   }
   
@@ -53,7 +70,7 @@ class WPV_Calendar
   {
     $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">';
     $html .= __('When does your holiday start?', 'wpvacancy');
-    $html .= $this->controlpanel();
+    // $html .= $this->controlpanel(); too much burden for the user
     $html .= '</div>';
     $html .= '<div class="'.self::$wrapperclass.'">';
     $html .= $this->months();
@@ -66,7 +83,27 @@ class WPV_Calendar
     return (int)($unixtime / 86400);
   }
   
-  public function months($offset = null, $span = null)
+  private function monthsSelect($MONTHS, $monthnumber, $year)
+  {
+    $nowismonth = intval(date("n")) - 1;
+    $showupto = $nowismonth + 24;
+    $nowisyear = intval(date("y"));
+    $showingyear = $nowisyear;
+    $result = '<select name="wpvoffset">';
+    
+    for ($m = $nowismonth; $m <= $showupto; $m++)
+    {
+      $showingyear = $nowisyear + intval($m / 12);
+      $rrmonth = $m % count($MONTHS);
+      $selected = ($m == $monthnumber - 1 && $year == $showingyear) ? " selected" : "";
+      $result .= '<option value="'.($m - $nowismonth).'"'.$selected.'>'.$MONTHS[$rrmonth].' '.$showingyear."</option>";
+    }
+    
+    $result .= '</select>';
+    return $result;
+  }
+  
+  public function months($offset = null, $span = null, $availabilitytags = true)
   {
     if (empty($offset) || empty($span) || intval($span) >= 4 || intval($span) < 1)
     {
@@ -75,7 +112,7 @@ class WPV_Calendar
     }
 
     $ut_now = time();
-    $m = date("m", $ut_now) + $offset;
+    $m = date("n", $ut_now) + $offset;
     $utnow_day = self::dayid($ut_now);
     $html = '';
     $meseiniziale = $m;
@@ -86,13 +123,13 @@ class WPV_Calendar
       $y = date("Y");
       $nd = date('t', mktime(0, 0, 0, $meseincostruzione, 1, $y));
       $mn = date('n', mktime(0, 0, 0, $meseincostruzione, 1, $y));
-      $yn = date('Y', mktime(0, 0, 0, $meseincostruzione, 1, $y));
+      $yn = date('y', mktime(0, 0, 0, $meseincostruzione, 1, $y));
       $j = date('w', mktime(0, 0, 0, $meseincostruzione, 1, $y)) + 1;
       if ($j == "7")
       {
         $j = "0";
       }
-      $MONTHS = array(1 =>  __('Jan', 'wpvacancy'), 
+      $MONTHS = array(0 =>  __('Jan', 'wpvacancy'), 
                             __('Feb', 'wpvacancy'), 
                             __('Mar', 'wpvacancy'), 
                             __('Apr', 'wpvacancy'),
@@ -115,8 +152,16 @@ class WPV_Calendar
         $html .= '<i class="fa fa-arrow-left '.self::$previousMonthButton.'" data-wpvoffset="'.($offset - 1).'" data-wpvspan="'.$span.'" aria-hidden="true"></i>';
       
       $html .= '</th>';
-      $html .= '<th colspan="5">';
-      $html .= $MONTHS[$mn] . " " . $yn;
+      $html .= '<th colspan="5" class="wpv-calendar-monthnamewrap">';
+      if ($meseincostruzione == $meseiniziale)
+      {
+        $html .= '<div class="'.self::$selectMonthButton.'"></div>';
+        $html .= '<div class="'.self::$selectMonth.'">';
+        $html .= $this->monthsSelect($MONTHS, $mn, $yn);
+        $html .= '</div>';
+      }
+      
+      $html .= $MONTHS[$mn - 1] . " " . $yn;
       $html .= '</th>';
       $html .= '<th align="center">';
       
@@ -149,13 +194,13 @@ class WPV_Calendar
         $weekday = ($column + $j) % 7;
         $ut_dayofmonth = self::dayid(mktime(0, 0, 0, $meseincostruzione, $giornodelmese, $y));
 
-        $showavailability = WPV_BookingForm::isBookableDay($ut_dayofmonth);
+        $showavailability = $availabilitytags && WPV_BookingForm::isBookableDay($ut_dayofmonth);
         
         $timeline_class = "wpv-calendar-day-today";
         if ($ut_dayofmonth < $utnow_day)
         {
           $timeline_class = "wpv-calendar-day-inthepast";
-          $showavailability = self::$always_show_availability_for_admin_users && Wpvacancy::is_admin();
+          $showavailability = $availabilitytags && self::$always_show_availability_for_admin_users && Wpvacancy::is_admin();
         }
         else
         if ($ut_dayofmonth > $utnow_day)
@@ -164,7 +209,8 @@ class WPV_Calendar
         $clickable = $showavailability ? "wpv-calendar-clickable-day" : "";
         
         $html .= '<td class="wpv-calendar-day '.$clickable.'" data-wpvdayid="'.$ut_dayofmonth.'">'; 
-        $html .= $this->allTheTagsForADay($ut_dayofmonth, $weekday, $showavailability);
+        if ($availabilitytags)
+          $html .= $this->allTheTagsForADay($ut_dayofmonth, $weekday, $showavailability);
         $html .= '<div class="wpv-calendar-daynumber '.$timeline_class.'">';
         $html .= $giornodelmese;
         $html .= '</div>';
@@ -182,7 +228,7 @@ class WPV_Calendar
       $html .= '</div>';
     }
 
-    $html .= WPV_BookingForm::loading();
+    // $html .= WPV_BookingForm::loading();
     return $html; 
   }
   
@@ -358,6 +404,8 @@ class WPV_Calendar
                         self::$defaultspan,  // span N months (2 -> current and next one)
                         self::$previousMonthButton,
                         self::$nextMonthButton,
+                        self::$selectMonthButton, 
+                        self::$selectMonth,
                         'wpv-calendar-daytag-daytype',
                         'wpv-calendar-daytag-availability',
                         array('wpv-calendar-clickable-day', 

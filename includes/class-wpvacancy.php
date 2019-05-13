@@ -321,7 +321,8 @@ class Wpvacancy
     $this->jsCallbackManager->enqueueWPApi("wpv-node-wpapi");
 
     $jsfileurl = plugin_dir_url(__FILE__) . '../public/js/wpvacancy-public.js';
-    wp_register_script($this->jsCallbackManager->getScriptHandle(), $jsfileurl);
+    wp_register_script($this->jsCallbackManager->getScriptHandle(), $jsfileurl, array('jquery'));
+    wp_enqueue_script('jquery-ui-selectmenu');
 
     $this->jsCallbackManager->callRegisteredCallbacks();
     

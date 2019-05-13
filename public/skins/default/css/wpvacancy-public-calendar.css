@@ -266,3 +266,24 @@
 .wpv-calendar-option-checkbox-icon-checked {
     top: -1rem;
 }
+
+
+.wpv-calendar-monthnamewrap {
+  position: relative;
+}
+
+.wpv-calendar-monthselectactivate {
+  width: 1.5rem;
+  height: 1.5rem;
+  position: absolute;
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-image: url('../images/monthsselect-icon.png');
+  cursor: pointer;
+}
+
+.wpv-calendar-monthselectwrap {
+  display: none;
+  position: absolute;
+}

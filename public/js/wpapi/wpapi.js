@@ -8600,6 +8600,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	
 	var WPRequest = __webpack_require__( 18 );
 	var checkMethodSupport = __webpack_require__( 55 );
+	var extend = __webpack_require__( 1 );
 	var objectReduce = __webpack_require__( 4 );
 	var isEmptyObject = __webpack_require__( 56 );
 	
@@ -8728,12 +8729,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * - `prev` {WPRequest} A WPRequest object bound to the "previous" page (if page exists)
 	 *
 	 * @private
-	 * @param result {Object} The response object from the HTTP request
-	 * @param endpoint {String} The base URL of the requested API endpoint
-	 * @returns {Object} The body of the HTTP request, conditionally augmented with
-	 *                   pagination metadata
+	 * @param {Object} result           The response object from the HTTP request
+	 * @param {Object} options          The options hash from the original request
+	 * @param {String} options.endpoint The base URL of the requested API endpoint
+	 * @param {Object} httpTransport    The HTTP transport object used by the original request
+	 * @returns {Object} The pagination metadata object for this HTTP request, or else null
 	 */
-	function createPaginationObject( result, endpoint, httpTransport ) {
+	function createPaginationObject( result, options, httpTransport ) {
 		var _paging = null;
 	
 		if ( ! result.headers || ! result.headers[ 'x-wp-totalpages' ] ) {
@@ -8758,20 +8760,24 @@ return /******/ (function(modules) { // webpackBootstrap
 			links: links
 		};
 	
+		// Re-use any options from the original request, updating only the endpoint
+		// (this ensures that request properties like authentication are preserved)
+		var endpoint = options.endpoint;
+	
 		// Create a WPRequest instance pre-bound to the "next" page, if available
 		if ( links.next ) {
-			_paging.next = new WPRequest({
+			_paging.next = new WPRequest( extend( {}, options, {
 				transport: httpTransport,
 				endpoint: mergeUrl( endpoint, links.next )
-			});
+			}));
 		}
 	
 		// Create a WPRequest instance pre-bound to the "prev" page, if available
 		if ( links.prev ) {
-			_paging.prev = new WPRequest({
+			_paging.prev = new WPRequest( extend( {}, options, {
 				transport: httpTransport,
 				endpoint: mergeUrl( endpoint, links.prev )
-			});
+			}));
 		}
 	
 		return _paging;
@@ -8840,10 +8846,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *                  pagination information if the result is a partial collection.
 	 */
 	function returnBody( wpreq, result ) {
-		var endpoint = wpreq._options.endpoint;
-		var httpTransport = wpreq.transport;
 		var body = extractResponseBody( result );
-		var _paging = createPaginationObject( result, endpoint, httpTransport );
+		var _paging = createPaginationObject( result, wpreq._options, wpreq.transport );
 		if ( _paging ) {
 			body._paging = _paging;
 		}

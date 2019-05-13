@@ -165,9 +165,46 @@ if (wpvacancy_was_here_global_flag !== true)
       var span = argsarray[3];
       var previousMonth = argsarray[4];
       var nextMonth = argsarray[5];
-      var festivitiesTarget = argsarray[6];
-      var availabilityTarget = argsarray[7];
-      var daySelectionParams = argsarray[8];
+      var selectMonthButton = argsarray[6];
+      var selectMonth = argsarray[7];
+      var festivitiesTarget = argsarray[8];
+      var availabilityTarget = argsarray[9];
+      var daySelectionParams = argsarray[10];
+      
+      $("." + selectMonthButton).on("click", function (event)
+      {
+        $("." + selectMonthButton).hide();
+        $("." + selectMonth).show();
+        $("." + selectMonth + " select").selectmenu();
+        $("." + selectMonth + " select").selectmenu("open").on("selectmenuchange", function (ev)
+        {
+          $("." + selectMonth).hide();
+          $("." + selectMonthButton).show();
+          var selectoffset = this.value;
+          wpv_wp_api.then(function (site)
+          {
+            site.namespace(restNamespace).getCalendarMarkup().
+            param('offset', selectoffset).
+            param('span', span).
+            param('includeavailabilitytags', false).
+            then(function (results)
+            {
+              var markup = results.markup;
+              $("." + wrapperclass).html(markup);
+              $("." + previousMonth).off("click");
+              $("." + nextMonth).off("click");
+              update_calendar_ui(festivitiesTarget, festivities_shown);
+              update_calendar_ui(availabilityTarget, availability_shown);
+              var dayclass = daySelectionParams[0];
+              $("." + dayclass).off("click");
+              $("." + dayclass).on("click", function (ev) 
+              {
+                daySelection($(this), ev, daySelectionParams);
+              });
+            })
+          });
+        });
+      });
       /*
       wpv_wp_api.then(function (site)
       {

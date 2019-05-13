@@ -93,7 +93,7 @@ class JsCallbackManager
   
   public function enqueueWPApi()
   {
-    $wpapifileurl = plugin_dir_url(__FILE__) . '../public/js/wpapi.min.js';
+    $wpapifileurl = plugin_dir_url(__FILE__) . '../public/js/wpapi/wpapi.min.js';
     $wpapihandle = "wpv-node-wpapi";
     wp_register_script($wpapihandle, $wpapifileurl);
     wp_enqueue_script($wpapihandle);    
