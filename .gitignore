@@ -44,3 +44,4 @@ wpsvn/
 deploy.sh
 zipit.sh
 nbproject/
+.git-credentials
