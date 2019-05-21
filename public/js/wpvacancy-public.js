@@ -17,8 +17,6 @@ if (wpvacancy_was_here_global_flag !== true)
     var currentStartDate = 0;
     var currentStartTime = 0;
     var currentAccommodation = 0;
-    var festivities_shown = false;
-    var availability_shown = false;
     var selectableDayCssClass = '';
     var selectedDayCssClass = '';
     var selectedFirstDayCssClass = '';
@@ -53,11 +51,13 @@ if (wpvacancy_was_here_global_flag !== true)
     {
       var buttonclass = argsarray[0];
       var dialogclass = argsarray[1];
-      $("." + dialogclass).fadeIn("fast", "linear", function (e) {
+      var accid = "-id-" + $(jqThis).data("accunitid");
+      var dialogid = dialogclass + accid;
+      $("#" + dialogid).fadeIn("fast", "linear", function (e) {
         $("." + buttonclass).off("click");
         $("." + buttonclass).on("click", function (e) {
           $("." + buttonclass).off("click");
-          $("." + dialogclass).fadeOut("fast", "linear", function (e) {
+          $("#" + dialogid).fadeOut("fast", "linear", function (e) {
             $("." + buttonclass).off("click");
             $("." + buttonclass).on("click", function (e) {
               showSelectionDialog(jqThis, e, argsarray);
@@ -101,7 +101,7 @@ if (wpvacancy_was_here_global_flag !== true)
 
     function showSingleAccommodationAvailabilityOnCalendar(dayid, accm_id)
     {
-      if (availability_shown === true && accm_id > 0)
+      if (accm_id > 0)
       {
         var available = $(document).find("[data-accunitid='" + accm_id + "']").data("bookable");
         if (available.includes(dayid))
@@ -157,95 +157,109 @@ if (wpvacancy_was_here_global_flag !== true)
       var clickedDate = $(jqThis).data("wpvdayid");
       onCalendarClick(clickedDate);
     }
-
-    function loadCalendar(jqThis, event, argsarray)
+    
+    function replaceCalendarMarkup(markup, cfg, offset)
     {
-      var wrapperclass = argsarray[1];
-      var offset = argsarray[2];
-      var span = argsarray[3];
-      var previousMonth = argsarray[4];
-      var nextMonth = argsarray[5];
-      var selectMonthButton = argsarray[6];
-      var selectMonth = argsarray[7];
-      var festivitiesTarget = argsarray[8];
-      var availabilityTarget = argsarray[9];
-      var daySelectionParams = argsarray[10];
+      $("." + cfg.wrapperclass).html(markup);
+
+      update_calendar_ui(cfg.festivitiesTarget, true);
+      update_calendar_ui(cfg.availabilityTarget, true);
       
-      $("." + selectMonthButton).on("click", function (event)
+      var dayclass = cfg.daySelectionParams[0];
+      $("." + dayclass).off("click");
+      $("." + dayclass).on("click", function (ev) 
       {
-        $("." + selectMonthButton).hide();
-        $("." + selectMonth).show();
-        $("." + selectMonth + " select").selectmenu();
-        $("." + selectMonth + " select").selectmenu("open").on("selectmenuchange", function (ev)
-        {
-          $("." + selectMonth).hide();
-          $("." + selectMonthButton).show();
-          var selectoffset = this.value;
-          wpv_wp_api.then(function (site)
-          {
-            site.namespace(restNamespace).getCalendarMarkup().
-            param('offset', selectoffset).
-            param('span', span).
-            param('includeavailabilitytags', false).
-            then(function (results)
-            {
-              var markup = results.markup;
-              $("." + wrapperclass).html(markup);
-              $("." + previousMonth).off("click");
-              $("." + nextMonth).off("click");
-              update_calendar_ui(festivitiesTarget, festivities_shown);
-              update_calendar_ui(availabilityTarget, availability_shown);
-              var dayclass = daySelectionParams[0];
-              $("." + dayclass).off("click");
-              $("." + dayclass).on("click", function (ev) 
-              {
-                daySelection($(this), ev, daySelectionParams);
-              });
-            })
-          });
-        });
+        daySelection($(this), ev, cfg.daySelectionParams);
       });
-      /*
+      registerCalendarClicks(cfg, offset);
+      showCurrentSelectionOnCalendar();
+    }
+    
+    function requestCalendarMarkup(cfg, offset)
+    {
       wpv_wp_api.then(function (site)
       {
         site.namespace(restNamespace).getCalendarMarkup().
         param('offset', offset).
-        param('span', span).
+        param('span', cfg.span).
+        param('includeavailabilitytags', false).
         then(function (results)
         {
-          var markup = results.markup;
-          $("." + wrapperclass).html(markup);
-          $("." + previousMonth).off("click");
-          $("." + nextMonth).off("click");
-          update_calendar_ui(festivitiesTarget, festivities_shown);
-          update_calendar_ui(availabilityTarget, availability_shown);
-          var dayclass = daySelectionParams[0];
-          $("." + dayclass).off("click");
-          $("." + dayclass).on("click", function (ev) 
-          {
-            daySelection($(this), ev, daySelectionParams);
-          });
-
-          $("." + previousMonth).on("click", function (event)
-          {
-            var newargs = argsarray;
-            newargs[2]--; // offset for previous month;
-            loadCalendar($(this), event, newargs);
-          });
-          $("." + nextMonth).off("click");
-          $("." + nextMonth).on("click", function (event)
-          {
-            var newargs = argsarray;
-            newargs[2]++; // offset for next month;
-            loadCalendar($(this), event, newargs);
-          });
-          updateDurationOnCalendar();
-          $("." + loading).hide();
-        });
+          replaceCalendarMarkup(results.markup, cfg, offset);
+        })
       });
-      */
-      
+    }
+    
+    function toggleCalendarMonthsButton(cfg)
+    {
+      $("." + cfg.selectMonthButton).hide();
+      $("." + cfg.selectMonth).show();
+      $("." + cfg.selectMonth + " select").selectmenu();
+      $("." + cfg.selectMonth + " select").selectmenu("open").on("selectmenuchange", function (ev)
+      {
+        $("." + cfg.selectMonth).hide();
+        $("." + cfg.selectMonthButton).show();
+        var selectoffset = this.value;
+        requestCalendarMarkup(cfg, selectoffset);
+      });
+    }
+    
+    function disableCalendarClicks(cfg)
+    {
+      $("." + cfg.previousMonth).off("click");
+      $("." + cfg.nextMonth).off("click");
+      $("." + cfg.selectMonthButton).off("click");      
+    }
+    
+    function enableCalendarClicks(cfg, currentoffset)
+    {
+      $("." + cfg.previousMonth).on("click", function (event)
+      {
+        disableCalendarClicks(cfg);
+        requestCalendarMarkup(cfg, currentoffset - 1);
+      });
 
+      $("." + cfg.nextMonth).on("click", function (event)
+      {
+        disableCalendarClicks(cfg);
+        requestCalendarMarkup(cfg, currentoffset + 1);
+      });
+
+      $("." + cfg.selectMonthButton).on("click", function (event)
+      {
+        disableCalendarClicks(cfg);
+        toggleCalendarMonthsButton(cfg);
+      });      
+    }
+    
+    function registerCalendarClicks(cfg, currentoffset)
+    {
+      disableCalendarClicks(cfg);
+      enableCalendarClicks(cfg, currentoffset);
+    }
+
+    function getLoadCalendarConfig(argsarray)
+    {
+      var config = 
+      {
+        wrapperclass: argsarray[1],
+        offset: argsarray[2],
+        span: argsarray[3],
+        previousMonth: argsarray[4],
+        nextMonth: argsarray[5],
+        selectMonthButton: argsarray[6],
+        selectMonth: argsarray[7],
+        festivitiesTarget: argsarray[8],
+        availabilityTarget: argsarray[9],
+        daySelectionParams: argsarray[10]
+      };
+      return config;
+    }
+    
+    function loadCalendar(jqThis, event, argsarray)
+    {
+      var cfg = getLoadCalendarConfig(argsarray);
+      registerCalendarClicks(cfg, cfg.offset);
     }
 
     function onCalendarClick(clickedDate)
@@ -271,6 +285,13 @@ if (wpvacancy_was_here_global_flag !== true)
 
       currentStartDate = clickedDate;
       
+      showCurrentSelectionOnCalendar();
+
+      return calendarClickStateEnum.STARTED; // next calendar click state
+    }
+    
+    function showCurrentSelectionOnCalendar()
+    {
       var id;
       for (id = currentStartDate + limitedCurrentDurationDays; id >= currentStartDate; id--)
         $(document).find("[data-wpvdayid='" + id + "']").removeClass(selectedLastDayCssClass);
@@ -307,26 +328,22 @@ if (wpvacancy_was_here_global_flag !== true)
           break;
         }
       }
-      if (availability_shown)
+      $("." + allAccommodationsClass).each(function(index) 
       {
-        $("." + allAccommodationsClass).each(function(index) 
+        var thisid = $(this).attr('id');
+        var av = $(this).data("bookable");
+        if (av.includes(requiredDays))
         {
-          var thisid = $(this).attr('id');
-          var av = $(this).data("bookable");
-          if (av.includes(requiredDays))
-          {
-            $("#" + thisid + " ." + accommodationOkTag).show();
-          }
-          else
-          {
-            $("#" + thisid + " ." + accommodationKoTag).show();
-          }
-        });
-      }
+          $("#" + thisid + " ." + accommodationOkTag).show();
+        }
+        else
+        {
+          $("#" + thisid + " ." + accommodationKoTag).show();
+        }
+      });
       
       updateRecap();
       
-      return calendarClickStateEnum.STARTED; // next calendar click state
     }
 
     function setEndingDayOnCalendar(clickedDate)

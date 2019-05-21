@@ -40,12 +40,12 @@ class WPV_Calendar
   {    
     register_rest_route(Wpvacancy::$namespace, '/'.self::$dayAvailabilityEndpoint, array(
     'methods'  => WP_REST_Server::READABLE,
-    'callback' => array($this, 'get_day_availability'),
-      ) );
+    'callback' => array($this, 'get_day_availability'
+      )));
     register_rest_route(Wpvacancy::$namespace, '/'.self::$calendarMarkupEndpoint, array(
     'methods'  => WP_REST_Server::READABLE,
-    'callback' => array($this, 'get_day_availability'),
-      ) );
+    'callback' => array($this, 'get_calendar_markup'
+      )));
   }
   
   public function get_day_availability(WP_REST_Request $request)

@@ -5,6 +5,8 @@ class WPV_AccommodationsMap
   private $lightbox_template_postid = "lightbox-show-accommodation";
   private $postid;
   private static $endpoint = 'getLightboxPermalink';
+  private static $accommodationBoxClass = 'wpv-accommodation-box';
+  private static $accommodationHintClass = 'wpv-accommodation-hint';
   public static $accommodation_ok_class = 'wpv-accommodation-tag-ok';
   public static $accommodation_ko_class = 'wpv-accommodation-tag-ko';
   public static $accommodation_class = 'wpv-booking-accommodation-unit';
@@ -107,17 +109,18 @@ class WPV_AccommodationsMap
     $args = array('post_type'   => 'accommodation_type',
                   'post_status' => 'publish',
                   'numberposts' => 5000);
+    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"));    
+
     // $units = get_posts($args);
     // TODO: can't call get_posts before init or so as of WP5. We need to make this 
     // binding later.
     $units = []; // for the time being
     foreach ($units as $u)
     {
-      $elementclass = 'wpv-accommodation-box-id-'.$u->ID;
       $viewmorebuttonclass = 'wpv-accommodation-hint-image-button-viewmore-'.$u->ID;
       $choosethisbuttonclass = 'wpv-accommodation-hint-image-button-choosethis-'.$u->ID;
 
-      Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"), array($elementclass, 'wpv-accommodation-hint-id-'.$u->ID));    
       Wpvacancy::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
       Wpvacancy::$instance->registerScriptParamsCallback(array($this, "chooseThisAccommodationItem"), array($u->ID, $choosethisbuttonclass, $elementclass)); 
     }
@@ -148,14 +151,13 @@ class WPV_AccommodationsMap
       $top = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_y", true);
       $width = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_w", true);
       $height = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix."acc_unit_box_h", true);
-      $elementclass = 'wpv-accommodation-box-id-'.$u->ID;
       $viewmorebuttonclass = 'wpv-accommodation-hint-image-button-viewmore-'.$u->ID;
       $choosethisbuttonclass = 'wpv-accommodation-hint-image-button-choosethis-'.$u->ID;
       $extra_class = get_post_meta($u->ID, $vb_wpv_custom_fields_prefix.'css_class', true);
       if (empty($extra_class))
         $extra_class = '';
       
-      $result .= '<div id="'.$elementclass.'" class="'.$elementclass.
+      $result .= '<div id="'.self::$accommodationBoxClass.'-id-'.$u->ID.'" class="'.self::$accommodationBoxClass.
                     ' '.self::$accommodation_class;
       $ucatnames = "";
       if (taxonomy_exists('accommodation_cat')) // it happens it does not when called from the constructor, since the taxonomy is not registered yet
@@ -197,7 +199,7 @@ class WPV_AccommodationsMap
       $result .= '>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ok_class.'"></div>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ko_class.'"></div>';
-        $result .= '<div class="wpv-accommodation-hint wpv-accommodation-hint-id-'.$u->ID.'" style="position: absolute;">';
+        $result .= '<div class="'.self::$accommodationHintClass.'" id="'.self::$accommodationHintClass.'-id-'.$u->ID.'" style="position: absolute;">';
           $result .= self::featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", $scalefactor, false);
             $result .= '<div class="wpv-accommodation-hint-image-buttons">';
               $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'">';
@@ -229,11 +231,9 @@ class WPV_AccommodationsMap
   
   public function selectionDialog(array $params)
   {
-    $elementclass = $params[0];
-    $dialogclass = $params[1];
     return array('click', 
                   'showSelectionDialog', 
-                  array($elementclass, $dialogclass));
+                  array(self::$accommodationBoxClass, self::$accommodationHintClass));
     
   }
   
