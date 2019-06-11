@@ -14,8 +14,6 @@ class WPV_AccommodationsMap
   public static $accommodation_ko_class = 'wpv-accommodation-tag-ko';
   public static $accommodation_class = 'wpv-booking-accommodation-unit';
   
-  public static $defaultScaleFactor = 5;
-
   function __construct()
   {
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
@@ -192,9 +190,6 @@ class WPV_AccommodationsMap
     );
     $units = get_posts($args);
     $result = '';
-    $scalefactor = get_post_meta($map, $vb_wpv_custom_fields_prefix.'accm_map_previewscalefactor', true);
-    if (empty($scalefactor))
-      $scalefactor = self::$defaultScaleFactor;
     foreach ($units as $u)
     {
       // each unit can belong to different maps
@@ -323,7 +318,7 @@ class WPV_AccommodationsMap
                         ));    
   }
  
-  public static function getImageInADivParams($imgfile_or_url, $scale)
+  public static function getImageInADivParams($imgfile_or_url)
   {
     $size = getimagesize($imgfile_or_url);
 
@@ -334,9 +329,9 @@ class WPV_AccommodationsMap
     $hpx = $size[1];
 
     $ratio = $hpx / $wpx;
-    $heightpercent = $scale * $ratio;
+    $heightpercent = $ratio;
 
-    $w = $scale * 100;
+    $w = 100;
     $h = $heightpercent * 100;
    
     return array("max-width" => $wpx."px", "width" => $w."%", "padding-bottom" => $h."%");
@@ -353,14 +348,14 @@ class WPV_AccommodationsMap
    * @param type $tsize
    * @param string $default_img_url
    * @param type $class_prefix
-   * @param type $scale
    * @param $wrapper if true (default) it adds a wrapper <div>
    * @return string
    */  
-  public static function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = null, $scale = 0.8, $wrapper = true)
+  public static function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = null, $cssclass = 'wpv-booking-accommodationsmapimage', $wrapper = true)
   {
     if (!is_object($post))
       $post = get_post($post);
+    
     $thumb = get_post_thumbnail_id($post->ID);
     $bgimage_file = get_attached_file($thumb);
 
@@ -377,7 +372,7 @@ class WPV_AccommodationsMap
       $bgimage_url = $default_img_url;  
     }
 
-    $iparams = self::getImageInADivParams($bgimage_url, $scale);
+    $iparams = self::getImageInADivParams($bgimage_url);
     
     if ($class_prefix === null)
       $class_prefix = self::$accommodationMapClass;
@@ -387,7 +382,7 @@ class WPV_AccommodationsMap
       $res = '<div class="'.$class_prefix.'-wrapper" style="max-width: '.$iparams['max-width'].'; min-width: 0;" >';
 
     $res .= '<div class="'.$class_prefix.'-container '.
-            $class_prefix.'-container-'.$post->post_name.'" style="position:relative;max-width:'.$iparams['max-width'].
+            $class_prefix.'-container-'.$post->post_name.' '.$cssclass.'" style="position:relative;max-width:'.$iparams['max-width'].
             ';min-width:0;width:'.$iparams["width"].';">';
       $res .= '<img src="'.$bgimage_url.'" style="width: 100%; display:block;">';
     return $res;

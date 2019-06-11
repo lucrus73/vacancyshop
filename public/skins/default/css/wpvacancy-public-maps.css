@@ -102,18 +102,40 @@
   opacity: 0.6;
 }
 
-.wpv-accommodation-carousel-button-prev {
-  top: 0;
-  width: 3.2rem;
-  padding-bottom: 1rem;
-  background-image: url('../images/carousel-up.png');
+@media only screen and (max-width: 767px) {
+  .wpv-accommodation-carousel-button-prev {
+    left: 0;
+    top: 0;
+    height: 3.2rem;
+    padding-right: 1rem;
+    background-image: url('../images/carousel-left.png');
+  }
+}
+@media only screen and (min-width: 768px) {
+  .wpv-accommodation-carousel-button-prev {
+    top: 0;
+    width: 3.2rem;
+    padding-bottom: 1rem;
+    background-image: url('../images/carousel-up.png');
+  }
 }
 
-.wpv-accommodation-carousel-button-next {
-  bottom: 0;
-  width: 3.2rem;
-  padding-top: 1rem;
-  background-image: url('../images/carousel-down.png');
+@media only screen and (max-width: 767px) {
+  .wpv-accommodation-carousel-button-next {
+    right: 0;
+    left: calc(100% - 1rem);
+    height: 3.2rem;
+    padding-right: 1rem;
+    background-image: url('../images/carousel-right.png');
+  }
+}
+@media only screen and (min-width: 768px) {
+  .wpv-accommodation-carousel-button-next {
+    bottom: 0;
+    width: 3.2rem;
+    padding-top: 1rem;
+    background-image: url('../images/carousel-down.png');
+  }
 }
 
 .wpv-booking-accommodation-unit {
@@ -260,4 +282,14 @@
 .wpv-accommodation-tag-ko {
   display: none;
   background-image: url('../images/legendicon-ko.png');
+}
+
+.wpv-booking-accommodationsmapimage {
+  width: 100%;
+}
+
+@media only screen and (min-width: 768px) {
+  .wpv-booking-accommodationsmapimage {
+    width: 80%;
+  }
 }
