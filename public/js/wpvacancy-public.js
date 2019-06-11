@@ -1,8 +1,8 @@
-var wpvacancy_was_here_global_flag;
+var it_virtualbit_wpvacancy_was_here_global_flag;
 
-if (wpvacancy_was_here_global_flag !== true)
+if (it_virtualbit_wpvacancy_was_here_global_flag !== true)
 {
-  wpvacancy_was_here_global_flag = true;
+  it_virtualbit_wpvacancy_was_here_global_flag = true;
   (function ($) {
     'use strict';
 
@@ -39,6 +39,8 @@ if (wpvacancy_was_here_global_flag !== true)
     var accommodationKoTag;
     var allAccommodationsClass;
     var recapTimer;
+    var originalCarouselImgH = 0;
+    var originalCarouselImgW = 0;
 
     var wpv_wp_api;
     
@@ -47,24 +49,93 @@ if (wpvacancy_was_here_global_flag !== true)
       
     }
 
-    function showSelectionDialog(jqThis, event, argsarray)
+    function updateCarousel(jqThis, event, argsarray)
     {
-      var buttonclass = argsarray[0];
-      var dialogclass = argsarray[1];
-      var accid = "-id-" + $(jqThis).data("accunitid");
-      var dialogid = dialogclass + accid;
-      $("#" + dialogid).fadeIn("fast", "linear", function (e) {
-        $("." + buttonclass).off("click");
-        $("." + buttonclass).on("click", function (e) {
-          $("." + buttonclass).off("click");
-          $("#" + dialogid).fadeOut("fast", "linear", function (e) {
-            $("." + buttonclass).off("click");
-            $("." + buttonclass).on("click", function (e) {
-              showSelectionDialog(jqThis, e, argsarray);
-            });
-          });
-        });
+      var carouselclass = argsarray[1];
+      var accid = $(jqThis).data("accunitid");
+      
+      wpv_wp_api.then(function (site)
+      {
+        site.namespace(restNamespace).getAccommodationImages().
+        param('accunitid', accid).
+        then(function (results)
+        {
+          $("." + carouselclass).html(results.markup);
+          parseEventsMappings(results.events);
+        })
       });
+    }
+    
+    function moveCarousel(elem, clicklistener, adderfn)
+    {
+      if (originalCarouselImgH === 0)
+        originalCarouselImgH = elem.height();
+      if (originalCarouselImgW === 0)
+        originalCarouselImgW = elem.width();
+      elem.animate(
+              {
+                height: 0,
+                width: 0
+              }, 200, function()
+              {
+                elem.remove();
+
+                // 2: add child at the end
+                adderfn(elem);
+                parseEventsMappings(clicklistener);
+                elem.animate(
+                        {
+                          height: originalCarouselImgH,
+                          width: originalCarouselImgW,
+                        }, 200);
+              }
+                      );
+    }
+
+    function previousImageInCarousel(jqThis, event, argsarray)
+    {
+      var carouselclass = argsarray[1];
+      var carouselimgclass = argsarray[2];
+      var clickEventHandler = argsarray[3];
+      
+      // 1: remove last child
+      var last = $('.' + carouselclass).find('.' + carouselimgclass).last();
+      moveCarousel(last, clickEventHandler, function(elem)
+      {
+        $('.' + carouselclass).prepend(elem);
+      });
+    }
+    
+    function nextImageInCarousel(jqThis, event, argsarray)
+    {
+      var carouselclass = argsarray[1];
+      var carouselimgclass = argsarray[2];
+      var clickEventHandler = argsarray[3];
+      
+      // 1: remove 1st child
+      var first = $('.' + carouselclass).find('.' + carouselimgclass).first();
+      moveCarousel(first, clickEventHandler, function(elem)
+      {
+        $('.' + carouselclass).append(elem);
+      });      
+    }
+
+    function showCarouselPictureInLightbox(jqThis, event, argsarray)
+    {
+      var lightboxclass = argsarray[1];
+      var lightboximgcontainerclass = argsarray[2];
+      var dataid = argsarray[3];
+      var closebuttonclass = argsarray[4];
+      
+      var fullimgsrc = $(jqThis).data(dataid);
+      $("." + lightboximgcontainerclass).css("background-image", "url('" + fullimgsrc + "')");
+      $("." + lightboxclass).fadeIn();
+      
+      $("." + closebuttonclass).on('click', function(event){
+        $("." + lightboxclass).hide();
+      });
+      
+      
     }
     
     function viewMoreOfAccommodationItem(jqThis, event, argsarray)
@@ -621,14 +692,10 @@ if (wpvacancy_was_here_global_flag !== true)
         wpv_wp_api = WPAPI.discover(restRoute);
       }
     }
-
-  /*
-   * The ready function parses the jshooks_params array received from the server
-   * (see 
-   */
-    $(document).ready(function ()
+    
+    function parseEventsMappings(events)
     {
-      $.each(jshooks_params.events, function (index, value)
+      $.each(events, function (index, value)
       {
         var target = value[0];
         if (target === 'public')
@@ -647,6 +714,15 @@ if (wpvacancy_was_here_global_flag !== true)
           }
         }
       });
+    }
+
+  /*
+   * The ready function parses the jshooks_params array received from the server
+   * (see 
+   */
+    $(document).ready(function ()
+    {
+      parseEventsMappings(jshooks_params.events);
     });
 
     $(document).ajaxStart(function () {

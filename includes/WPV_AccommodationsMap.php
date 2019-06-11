@@ -4,9 +4,12 @@ class WPV_AccommodationsMap
 {
   private $lightbox_template_postid = "lightbox-show-accommodation";
   private $postid;
-  private static $endpoint = 'getLightboxPermalink';
+  private static $lightboxPermalinkEndpoint = 'getLightboxPermalink';
+  private static $accommodationImagesEndpoint = 'getAccommodationImages';
   private static $accommodationBoxClass = 'wpv-accommodation-box';
-  private static $accommodationHintClass = 'wpv-accommodation-hint';
+  private static $accommodationMapClass = 'wpv-booking-accommodations-map';
+  private static $accommodationCarouselClass = 'wpv-accommodation-carousel';
+  private static $carouselLightboxClass = 'wpv-booking-accomodations-maps-lightbox';
   public static $accommodation_ok_class = 'wpv-accommodation-tag-ok';
   public static $accommodation_ko_class = 'wpv-accommodation-tag-ko';
   public static $accommodation_class = 'wpv-booking-accommodation-unit';
@@ -15,11 +18,7 @@ class WPV_AccommodationsMap
 
   function __construct()
   {
-    $this->postid = filter_input(INPUT_GET, $this->lightbox_template_postid, FILTER_SANITIZE_NUMBER_INT);
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
-    add_filter( 'single_template', array($this, 'lightbox_template'));
-    remove_action( 'wp_footer', array($this, 'lightboxTags'), PHP_INT_MAX); // avoid adding more than once
-    add_action( 'wp_footer', array($this, 'lightboxTags'), PHP_INT_MAX);
     $this->registerCallbacks(); // ensures the registerScriptParamsCallback calls are executed early
   }
   
@@ -37,9 +36,9 @@ class WPV_AccommodationsMap
   public function lightboxTags()
   {
     global $vb_wpv_baseurl;
-    $res = '<div class="wpv-booking-accomodations-maps-lightbox" style="z-index:999999;">';
-      $res .= '<iframe id="wpv-booking-accomodations-maps-lightbox-frame" src="#"></iframe>';
-      $res .= '<div class="wpv-booking-accomodations-maps-lightbox-close" style="background-image:url('. Wpvacancy::skinfileUrl('images/button-close.png').')"></div>';
+    $res = '<div class="'.self::$carouselLightboxClass.'" style="z-index:999999;">';
+      $res .= '<div class="'.self::$carouselLightboxClass.'-frame"></div>';
+      $res .= '<div class="'.self::$carouselLightboxClass.'-close" style="background-image:url('. Wpvacancy::skinfileUrl('images/button-close.png').')"></div>';
     $res .= '</div>';
     echo $res;
   }
@@ -98,19 +97,35 @@ class WPV_AccommodationsMap
       
       $res .= $mapOpenDiv;
       $res .= $this->accommodationUnits($m->ID);
-      $res .= '</div></div>'; // see comment in featuredImageInADiv
+      $res .= '</div>'; // see comment in featuredImageInADiv
+      
+      $res .= $this->carousel($m);
+      
+      $res .= '</div>'; // see comment in featuredImageInADiv
     }
+    $res .= '</div>';
+    $res .= $this->lightboxTags();
+    return $res;
+  }
+  
+  private function carousel($post)
+  {
+    $res = '<div class="'.self::$accommodationCarouselClass.'-side-wrapper '.self::$accommodationCarouselClass.'-side-wrapper-'.$post->post_name.'">';
+      $res .= '<div class="'.self::$accommodationCarouselClass.' '.self::$accommodationCarouselClass.'-'.$post->post_name.'">';
+        $res .= '<div class="'.self::$accommodationCarouselClass.'-image"></div>';
+      $res .= '</div>';
+      $res .= '<div class="'.self::$accommodationCarouselClass.'-button '.self::$accommodationCarouselClass.'-button-prev"></div>'; 
+      $res .= '<div class="'.self::$accommodationCarouselClass.'-button '.self::$accommodationCarouselClass.'-button-next"></div>'; 
     $res .= '</div>';
     return $res;
   }
   
   private function registerCallbacks()
-  {
-    $args = array('post_type'   => 'accommodation_type',
-                  'post_status' => 'publish',
-                  'numberposts' => 5000);
-    
-    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "selectionDialog"));    
+  {   
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "updateCarousel"));    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "previousImageInCarousel"));    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "nextImageInCarousel"));    
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "showCarouselPictureInLightbox"));    
 
     // $units = get_posts($args);
     // TODO: can't call get_posts before init or so as of WP5. We need to make this 
@@ -124,6 +139,47 @@ class WPV_AccommodationsMap
       Wpvacancy::$instance->registerScriptParamsCallback(array($this, "viewMoreOfAccommodationItem"), array($u->ID, $viewmorebuttonclass)); 
       Wpvacancy::$instance->registerScriptParamsCallback(array($this, "chooseThisAccommodationItem"), array($u->ID, $choosethisbuttonclass, $elementclass)); 
     }
+  }
+  
+  public function getAccommodationImages(WP_REST_Request $request)
+  {
+    $divImageUrl = function ($url)
+    {
+      $postid = attachment_url_to_postid($url);
+      $thumburl = wp_get_attachment_image_src($postid, 'thumbnail', true);
+      return '<div class="'.self::$accommodationCarouselClass.'-image" style="background-image: url('.$thumburl[0].');" data-fullsize="'.$url.'"></div>';
+    };
+
+    $postid = $request->get_param("accunitid");
+    
+    $result['markup'] = '';
+    $gallery = get_post_gallery_images($postid);
+
+    foreach( $gallery as $image_url ) 
+    {
+      $result['markup'] .= $divImageUrl($image_url);
+    }
+
+    $attachments = get_attached_media( 'image', $postid);
+    foreach($attachments as $id => $imagepost)
+    {
+      $full_img_url = wp_get_attachment_url($imagepost->ID);
+      $result['markup'] .= $divImageUrl($full_img_url);
+    }    
+   
+    $result['events'] = $this->getJsHandlerDescriptiorForCarouselLightbox();
+    return $result;
+  }
+  
+  private function getJsHandlerDescriptiorForCarouselLightbox()
+  {
+    return array(array('public', 'click', 
+                      'showCarouselPictureInLightbox', 
+                      array(self::$accommodationCarouselClass."-image",
+                            self::$carouselLightboxClass,
+                            self::$carouselLightboxClass."-frame",
+                            "fullsize",
+                            self::$carouselLightboxClass."-close")));         
   }
     
   private function accommodationUnits($map)
@@ -160,7 +216,7 @@ class WPV_AccommodationsMap
       $result .= '<div id="'.self::$accommodationBoxClass.'-id-'.$u->ID.'" class="'.self::$accommodationBoxClass.
                     ' '.self::$accommodation_class;
       $ucatnames = "";
-      if (taxonomy_exists('accommodation_cat')) // it happens it does not when called from the constructor, since the taxonomy is not registered yet
+      if (taxonomy_exists('accommodation_cat')) // it happens it does not exist when called from the constructor, since the taxonomy is not registered yet
       {
         $ucats = wp_get_object_terms($u->ID, 'accommodation_cat', array('fields' => 'id=>slug'));
         foreach ($ucats as $unitcategoryslug)
@@ -199,41 +255,39 @@ class WPV_AccommodationsMap
       $result .= '>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ok_class.'"></div>';
       $result .= '<div class="wpv-accommodation-tag '.self::$accommodation_ko_class.'"></div>';
-        $result .= '<div class="'.self::$accommodationHintClass.'" id="'.self::$accommodationHintClass.'-id-'.$u->ID.'" style="position: absolute;">';
-          $result .= self::featuredImageInADiv($u, "medium", null, "wpv-accommodation-hint-image", $scalefactor, false);
-            $result .= '<div class="wpv-accommodation-hint-image-buttons">';
-              $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-viewmore '.$viewmorebuttonclass.'">';
-                $result .= '<span>';
-                $result .= __("View more", 'wpvacancy');
-                $result .= '</span>';
-              $result .= '</div>';
-              $result .= '<div class="wpv-accommodation-hint-image-button wpv-accommodation-hint-image-button-choosethis '.$choosethisbuttonclass.'" data-accunitid="'.$u->ID.'">';
-                $result .= '<span>';
-                $result .= __('Choose this', 'wpvacancy');
-                $result .= '</span>';
-              $result .= '</div>';
-            $result .= '</div>'; // see comment in featuredImageInADiv
-
-            // I add 4 transparent divs around the hint and above all the rest to grab any clicks around.
-            // This way the hint is like a modal or a lightbox but with static positioning (e.g. relative to the clicked icon)
-            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-right"></div>';
-            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-left"></div>';
-            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-top"></div>';
-            $result .= '<div class="wpv-accommodation-hint-inputgrab wpv-accommodation-hint-inputgrab-bottom"></div>';
-                        
-          $result .= '</div>';      
-
-        $result .= '</div>';
       $result .= '</div>';
     }
     return $result;
   }
   
-  public function selectionDialog(array $params)
+  public function updateCarousel(array $params)
   {
     return array('click', 
-                  'showSelectionDialog', 
-                  array(self::$accommodationBoxClass, self::$accommodationHintClass));
+                  'updateCarousel', 
+                  array(self::$accommodationBoxClass, self::$accommodationCarouselClass));
+    
+  }
+  
+  public function previousImageInCarousel(array $params)
+  {
+    return array('click', 
+                  'previousImageInCarousel', 
+                  array(self::$accommodationCarouselClass.'-button-prev', 
+                        self::$accommodationCarouselClass,
+                        self::$accommodationCarouselClass."-image",
+                        $this->getJsHandlerDescriptiorForCarouselLightbox()));
+    
+  }
+
+  public function nextImageInCarousel(array $params)
+  {
+    return array('click', 
+                  'nextImageInCarousel', 
+                  array(self::$accommodationCarouselClass.'-button-next', 
+                      self::$accommodationCarouselClass,
+                      self::$accommodationCarouselClass."-image",
+                      $this->getJsHandlerDescriptiorForCarouselLightbox()));
+    
     
   }
   
@@ -268,6 +322,25 @@ class WPV_AccommodationsMap
                         $highlight
                         ));    
   }
+ 
+  public static function getImageInADivParams($imgfile_or_url, $scale)
+  {
+    $size = getimagesize($imgfile_or_url);
+
+    if (empty($size))
+      $size = array(100, 100);
+    
+    $wpx = $size[0];
+    $hpx = $size[1];
+
+    $ratio = $hpx / $wpx;
+    $heightpercent = $scale * $ratio;
+
+    $w = $scale * 100;
+    $h = $heightpercent * 100;
+   
+    return array("max-width" => $wpx."px", "width" => $w."%", "padding-bottom" => $h."%");
+  }
   
   /**
    * This function returns a string containing a HTML fragment. It opens one or two <div> tags
@@ -284,9 +357,8 @@ class WPV_AccommodationsMap
    * @param $wrapper if true (default) it adds a wrapper <div>
    * @return string
    */  
-  public static function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = "wpv-booking-accommodations-map", $scale = 0.8, $wrapper = true)
+  public static function featuredImageInADiv($post, $tsize = "large", $default_img_url = null, $class_prefix = null, $scale = 0.8, $wrapper = true)
   {
-    global $vb_wpv_baseurl;
     if (!is_object($post))
       $post = get_post($post);
     $thumb = get_post_thumbnail_id($post->ID);
@@ -295,8 +367,6 @@ class WPV_AccommodationsMap
     if (!empty($bgimage_file))
     {
       $bgimage_url = wp_get_attachment_image_url($thumb, $tsize);
-      $size = getimagesize($bgimage_file);
-
     }
     else
     {      
@@ -305,51 +375,51 @@ class WPV_AccommodationsMap
         $default_img_url = Wpvacancy::skinfileUrl('images/no-image.png');        
       }
       $bgimage_url = $default_img_url;  
-      $size = getimagesize($default_img_url);
     }
 
-    if (empty($size))
-      $size = array(100, 100);
+    $iparams = self::getImageInADivParams($bgimage_url, $scale);
     
-    $wpx = $size[0];
-    $hpx = $size[1];
-
-    $ratio = $hpx / $wpx;
-    $widthpercent = $scale;
-    $heightpercent = $widthpercent * $ratio;
-
-    $w = $widthpercent * 100;
-    $h = $heightpercent * 100;
-
+    if ($class_prefix === null)
+      $class_prefix = self::$accommodationMapClass;
+    
     $res = '';
     if ($wrapper === true)
-      $res = '<div class="'.$class_prefix.'-wrapper" style="max-width: '.$wpx.'px; min-width: 0;" >';
-    $res .= '<div class="'.$class_prefix.' '.$class_prefix.'-'.$post->post_name.
-              '" style="background-image: url('.$bgimage_url.'); max-width: '.$wpx.'px; min-width: 0; width: '.$w.'%; padding-bottom: '.$h.'%; margin-left: auto; margin-right: auto;">';
+      $res = '<div class="'.$class_prefix.'-wrapper" style="max-width: '.$iparams['max-width'].'; min-width: 0;" >';
+
+    $res .= '<div class="'.$class_prefix.'-container '.
+            $class_prefix.'-container-'.$post->post_name.'" style="position:relative;max-width:'.$iparams['max-width'].
+            ';min-width:0;width:'.$iparams["width"].';">';
+      $res .= '<img src="'.$bgimage_url.'" style="width: 100%; display:block;">';
     return $res;
   }
   
   public function registerRoutes()
   {    
-    register_rest_route(Wpvacancy::$namespace, '/'.self::$endpoint, array(
+    register_rest_route(Wpvacancy::$namespace, '/'.self::$accommodationImagesEndpoint, array(
     'methods'  => WP_REST_Server::READABLE,
-    'callback' => array($this, 'get_lightbox_permalink'),
+    'callback' => array($this, 'getAccommodationImages'),
       ) );
   }
   
-  public function get_lightbox_permalink(WP_REST_Request $request)
+  public function enqueueScripts()
   {
-    $postid = $request->get_param("postid");
-    $result = ["url" => '404'];
-
-    if (!empty($postid))
-    {
-      $postlink = get_permalink($postid, false);
-      strpos($postlink,'?') !== false ? $postlink .= '&' : $postlink .= '?';
-      $postlink .= $this->lightbox_template_postid.'='.$postid; 
-      $result["url"] = $postlink;
-    }
-    return $result;
+    /*
+    $hnd = "slickcarousel-css";
+    $url = Wpvacancy::skinfileUrl("css/slick/slick.css");
+    wp_register_style($hnd, $url);
+    wp_enqueue_style($hnd);
+    
+    $hnd = "slickcarousel-css-theme";
+    $url = Wpvacancy::skinfileUrl("css/slick/slick-theme.css");
+    wp_register_style($hnd, $url);
+    wp_enqueue_style($hnd);
+    
+    $hnd = "slickcarousel-js";
+    $url = Wpvacancy::skinfileUrl("js/slick/slick.min.js");
+    wp_register_script($hnd, $url, array('jquery'));
+    wp_enqueue_script($hnd);
+     
+     */
   }
   
   

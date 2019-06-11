@@ -319,7 +319,9 @@ class Wpvacancy
   public function enqueue_scripts()
   {
     $this->jsCallbackManager->enqueueWPApi("wpv-node-wpapi");
-
+    
+    $this->bookingform->enqueueScripts();
+    
     $jsfileurl = plugin_dir_url(__FILE__) . '../public/js/wpvacancy-public.js';
     wp_register_script($this->jsCallbackManager->getScriptHandle(), $jsfileurl, array('jquery'));
     wp_enqueue_script('jquery-ui-selectmenu');

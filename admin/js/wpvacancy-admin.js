@@ -1,8 +1,8 @@
-var wpvacancy_admin_was_here_global_flag;
+var it_virtualbit_wpvacancy_admin_was_here_global_flag;
 
-if (wpvacancy_admin_was_here_global_flag !== true)
+if (it_virtualbit_wpvacancy_admin_was_here_global_flag !== true)
 {
-  wpvacancy_admin_was_here_global_flag = true;
+  it_virtualbit_wpvacancy_admin_was_here_global_flag = true;
 
   (function( $ ) 
   {

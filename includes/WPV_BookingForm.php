@@ -817,5 +817,9 @@ class WPV_BookingForm
       }
     }
   }
-
+  
+  public function enqueueScripts()
+  {
+    $this->maps->enqueueScripts();
+  }
 }
