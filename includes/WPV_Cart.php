@@ -118,7 +118,7 @@ class WPV_Cart
   private function itemImage($booking)
   {
     $accm_id = vb_wpv_get_booking_accommodation_id($booking);
-    $res = WPV_AccommodationsMap::featuredImageInADiv($accm_id, "small", null, self::$cartbookingimage."-featured", 1);
+    $res = WPV_AccommodationsMap::featuredImageInADiv($accm_id, "small", null, self::$cartbookingimage."-featured");
     $res .= '</div>';
     $res .= '</div>';
     return $res;

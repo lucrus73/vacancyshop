@@ -348,12 +348,19 @@ class WPV_AccommodationsMap
       $bgimage_url = wp_get_attachment_image_url($thumb, $tsize);
     }
     else
-    {      
-      if (empty($default_img_url))
+    {  
+      $gallery = get_post_gallery_images($post->ID);
+      if (count($gallery) > 0)
+        $bgimage_url = $gallery[0];
+      
+      if (empty($bgimage_url))
       {
-        $default_img_url = Wpvacancy::skinfileUrl('images/no-image.png');        
+        if (empty($default_img_url))
+        {
+          $default_img_url = Wpvacancy::skinfileUrl('images/no-image.png');        
+        }
+        $bgimage_url = $default_img_url;  
       }
-      $bgimage_url = $default_img_url;  
     }
 
     $iparams = self::getImageInADivParams($bgimage_url);

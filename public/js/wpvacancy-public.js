@@ -21,9 +21,6 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     var selectedDayCssClass = '';
     var selectedFirstDayCssClass = '';
     var selectedLastDayCssClass = '';
-    var sliderClass = '';
-    var durationSlider = '';
-    var loading = '';
     var accunitDetailClass = '';
     var accunitTypeClass = '';
     var startDateClass = '';
@@ -177,38 +174,6 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       
     }
     
-    function viewMoreOfAccommodationItem(jqThis, event, argsarray)
-    {
-      var lightboxclass = argsarray[1];
-      var lightboxspeed = argsarray[2];
-      var iframeid = argsarray[3];
-      var sourcedocument = argsarray[4];
-      var closebuttonclass = argsarray[5];
-
-      event.stopImmediatePropagation();
-      event.preventDefault();
-
-      $("#" + iframeid).attr("src", sourcedocument);
-      $("." + lightboxclass).css("width", $(window).width() + "px");
-      $("." + lightboxclass).css("height", $(window).height() + "px");
-      $("." + lightboxclass).fadeIn(lightboxspeed);
-      $("." + closebuttonclass).on("click", function (e) {
-        $("." + lightboxclass).fadeOut(lightboxspeed);
-      });
-    }
-
-    function chooseThisAccommodationItem(jqThis, event, argsarray)
-    {
-      currentAccommodation = argsarray[1];
-      var selectionclass = argsarray[2];
-      var selectedunitclass = argsarray[3];
-
-      $("." + allAccommodationsClass).removeClass(selectionclass);
-      $("." + selectedunitclass).addClass(selectionclass);
-      
-      updateRecap();
-    }
-
     function showSingleAccommodationAvailabilityOnCalendar(dayid, accm_id)
     {
       if (accm_id > 0)
@@ -499,6 +464,8 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       
       clearCalendarSelectionUI();
       currentDurationDays = defaultDurationDays;
+      currentStartDate = 0;
+      updateRecap();
       return calendarClickStateEnum.NOTHING;
     }
     
@@ -514,20 +481,17 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function recapDate(dayIdToShow, targetClass)
     {
-      if (dayIdToShow > 0)
+      wpv_wp_api.then(function (site)
       {
-        wpv_wp_api.then(function (site)
-        {
-          site.namespace(restNamespace).getRecapInfo().
-            param('key', 'dateFromDayId').
-            param('dayid', dayIdToShow).
-            then(function (results)
-            {
-              $("." + targetClass + " ." + recapTarget).html(results.value);
-            }
-          )
-        });
-      }
+        site.namespace(restNamespace).getRecapInfo().
+          param('key', 'dateFromDayId').
+          param('dayid', dayIdToShow).
+          then(function (results)
+          {
+            $("." + targetClass + " ." + recapTarget).html(results.value);
+          }
+        )
+      });
     }
 
     function recapNotes()
@@ -584,8 +548,11 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
           recapPrice();
         }
       }
-      recapDate(currentStartDate, startDateClass);
-      recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
+      if (currentStartDate > 0)
+      {
+        recapDate(currentStartDate, startDateClass);
+        recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
+      }
     }
     
     function addToCart(jqThis, event, argsarray)
@@ -686,21 +653,20 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
 
     function setupDefaults(jqThis, event, argsarray)
     {
-      loading = argsarray[0];
-      accunitDetailClass = argsarray[1];
-      accunitTypeClass = argsarray[2];
-      startDateClass = argsarray[3];
-      endDateClass = argsarray[4];
-      totalPriceClass = argsarray[5];
-      notesClass = argsarray[6];
-      recapTarget = argsarray[7];
-      restRoute = argsarray[8];
-      restNamespace = argsarray[9];
-      accommodationAvailableTag = argsarray[10];
-      accommodationUnavailableTag = argsarray[11];
-      accommodationOkTag = argsarray[12];
-      accommodationKoTag = argsarray[13];
-      allAccommodationsClass = argsarray[14];
+      accunitDetailClass = argsarray[0];
+      accunitTypeClass = argsarray[1];
+      startDateClass = argsarray[2];
+      endDateClass = argsarray[3];
+      totalPriceClass = argsarray[4];
+      notesClass = argsarray[5];
+      recapTarget = argsarray[6];
+      restRoute = argsarray[7];
+      restNamespace = argsarray[8];
+      accommodationAvailableTag = argsarray[9];
+      accommodationUnavailableTag = argsarray[10];
+      accommodationOkTag = argsarray[11];
+      accommodationKoTag = argsarray[12];
+      allAccommodationsClass = argsarray[13];
       
       initWPAPI();
     }
@@ -765,7 +731,6 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
 
   /*
    * The ready function parses the jshooks_params array received from the server
-   * (see 
    */
     $(document).ready(function ()
     {

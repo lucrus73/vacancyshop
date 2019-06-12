@@ -39,7 +39,6 @@ class WPV_BookingForm
   private $maps;
   public static $namespace = 'wpvacancy/v1';
   private static $accommodations = null;
-  private static $loadingClass = 'wpv-loading';
   private static $accunitDetailClass = 'wpv-booking-details-row-accommodation';
   private static $accunitTypeClass = 'wpv-booking-details-row-accommodationtype';
   private static $startDateClass = 'wpv-booking-details-row-startdate';
@@ -117,13 +116,6 @@ class WPV_BookingForm
     return $this->html;
   }
   
-  public static function loading()
-  {
-    $html = '<div class="'.self::$loadingClass.'">';
-    $html .= '</div>';
-    return $html;
-  }
-
   
   public static function getAllBookings($dayid)
   {
@@ -325,16 +317,11 @@ class WPV_BookingForm
       $booked = false;
       foreach ($bookings as $b)
       {
-        if ($booked == true)
-          break;
-        $bookedAccms = get_post_meta($b->ID, $vb_wpv_custom_fields_prefix.'booking_acc_unit_id', true);
-        foreach ($bookedAccms as $accid)
+        $bookedAcc = get_post_meta($b->ID, $vb_wpv_custom_fields_prefix.'booking_acc_unit_id', true);
+        if ($acc->ID == $bookedAcc)
         {
-          if ($acc->ID == $accid)
-          {
-            $booked = true;
-            break;
-          }
+          $booked = true;
+          break;
         }
       }
       if ($booked === false)
@@ -520,7 +507,7 @@ class WPV_BookingForm
 
       $res .= '<div class="wpv-booking-details-row '.self::$notesClass.'">';
         $res .= '<div class="wpv-booking-details-label">';
-        $res .= __('Please note', 'wpvacancy');
+        $res .= __('Notes', 'wpvacancy');
         $res .= '</div>';
         $res .= '<div class="wpv-booking-details-value">';
         $res .= '---';
@@ -552,8 +539,7 @@ class WPV_BookingForm
   {  
     return array('load', 
                  'setupDefaults', 
-                  array(self::$loadingClass,
-                        self::$accunitDetailClass,
+                  array(self::$accunitDetailClass,
                         self::$accunitTypeClass,
                         self::$startDateClass,
                         self::$endDateClass,
@@ -605,7 +591,7 @@ class WPV_BookingForm
     
   }
 
-  public static function getTotalPrice($accid, $startdayid, $enddayid, $starttime, $endtime)
+  public static function getTotalPrice($accid, $startdayid, $enddayid, $starttime = 0, $endtime = 0)
   {
     $total = 0;
     $price_per_day_for_debug = 150;
@@ -669,7 +655,12 @@ class WPV_BookingForm
         $accid = $request->get_param("accid");
         $startdayid = $request->get_param("startdayid");
         $enddayid = $request->get_param("enddayid");
-        $total = self::getTotalPrice($accid, $startdayid, $enddayid);
+        $starttime = $request->get_param("starttime");
+        $endtime = $request->get_param("endtime");
+        if (empty($starttime) || empty($endtime))
+          $total = self::getTotalPrice($accid, $startdayid, $enddayid);
+        else
+          $total = self::getTotalPrice($accid, $startdayid, $enddayid, $starttime, $endtime);
         if ($total > 0)
           $result["value"] = "€ ".$total.' '.__("tax included", 'wpvacancy');
         else
