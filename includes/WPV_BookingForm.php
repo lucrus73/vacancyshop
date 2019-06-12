@@ -46,8 +46,8 @@ class WPV_BookingForm
   private static $endDateClass = 'wpv-booking-details-row-enddate';
   private static $totalPriceClass = 'wpv-booking-details-row-totalprice';
   private static $notesClass = 'wpv-booking-details-row-notes';
-  private static $bookingformcontainerclass = 'wpv-booking-form-container';
-  private static $bookingformmapiddatatag = 'mapid';
+  public static $bookingformcontainerclass = 'wpv-booking-form-container';
+  public static $bookingformmapiddatatag = 'mapid';
   public static $singleAccmAvailable = 'wpv-calendar-daytag-single-accommodation-ok';
   public static $singleAccmUnavailable = 'wpv-calendar-daytag-single-accommodation-ko';
   public static $addToCartButtonClass = 'wpv-booking-addtocart-button';

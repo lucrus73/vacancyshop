@@ -91,6 +91,7 @@
     border: 0.1rem solid lightcyan;
     border-radius: 0.2rem;
     box-sizing: border-box;
+    cursor: pointer;
 }
 
 .wpv-accommodation-carousel-button {
@@ -148,45 +149,9 @@
 }
 
 .wpv-booking-accommodation-selected-unit {
-  border: 2px solid #00b9eb;
-  border-radius: 4px;
-  box-shadow: cyan 3px 3px 2px;
-}
-
-.wpv-accommodation-hint-image {
-  position: absolute;
-  background-size: contain;
-  background-position: top;
-  background-repeat: no-repeat;
-}
-
-.wpv-accommodation-hint {
-  display: none;
-  top: 120%;
-  width: 100%;
-  height: 100%;
-}
-
-.wpv-accommodation-hint-image-button {
-  border: 2px solid black;
-  margin: 0 2px;
-  background-color: rgba(255, 255, 255, 0.6);
-  color: black;
-  text-align: center;
-  font-weight: bolder;
-  font-family: serif;
+  border: 2px solid lightcyan;
   border-radius: 2px;
-  cursor: pointer;
-  padding-left: 1rem;
-  padding-right: 1rem;
-}
-
-.wpv-accommodation-hint-image-buttons {
-  display: flex;
-  position: absolute;
-  width: 100%;
-  bottom: -2em;
-  justify-content: space-around;
+  box-shadow: cyan 3px 3px 2px;
 }
 
 .wpv-booking-accomodations-maps-lightbox {
@@ -225,16 +190,6 @@
   background-size: contain;
   cursor: pointer;
   z-index: 3;
-}
-
-.wpv-accommodation-hint-inputgrab {
-  position:absolute; 
-  z-index:9999;
-  background-color: transparent;
-  border: 0;
-  box-shadow: none;
-  border-color: transparent;
-  opacity: 0;
 }
 
 .wpv-accommodation-hint-inputgrab-right {
@@ -284,12 +239,16 @@
   background-image: url('../images/legendicon-ko.png');
 }
 
-.wpv-booking-accommodationsmapimage {
+.wpv-booking-accommodations-map-image {
+  opacity: 0.5;
+}
+
+.wpv-booking-accommodations-map-container {
   width: 100%;
 }
 
 @media only screen and (min-width: 768px) {
-  .wpv-booking-accommodationsmapimage {
+  .wpv-booking-accommodations-map-container {
     width: 80%;
   }
 }

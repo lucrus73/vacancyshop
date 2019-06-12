@@ -1,8 +1,8 @@
-var it_virtualbit_wpvacancy_was_here_global_flag;
+var it_virtualbit_vacancyshop_was_here_global_flag;
 
-if (it_virtualbit_wpvacancy_was_here_global_flag !== true)
+if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
 {
-  it_virtualbit_wpvacancy_was_here_global_flag = true;
+  it_virtualbit_vacancyshop_was_here_global_flag = true;
   (function ($) {
     'use strict';
 
@@ -48,22 +48,61 @@ if (it_virtualbit_wpvacancy_was_here_global_flag !== true)
     {
       
     }
-
-    function updateCarousel(jqThis, event, argsarray)
+    
+    function chooseAccommodation(jqThis, event, argsarray)
     {
-      var carouselclass = argsarray[1];
-      var accid = $(jqThis).data("accunitid");
-      
+      var accommodationBoxClass = argsarray[0];
+      var selectedClass = argsarray[1];
+      $("." + accommodationBoxClass).removeClass(selectedClass);
+      $(jqThis).addClass(selectedClass);
+      currentAccommodation = $(jqThis).data("accunitid");
+      updateRecap();
+    }
+
+    function clearAccommodation(jqThis, event, argsarray)
+    {
+      var accommodationMapImageClass = argsarray[0];
+      var accommodationBoxClass = argsarray[1];
+      var selectedClass = argsarray[2];
+      var mapclass = argsarray[3];
+      var datamapid = argsarray[4];
+      var carouselclass = argsarray[5];
+
+      $("." + accommodationBoxClass).removeClass(selectedClass);
+      currentAccommodation = 0;
+      updateRecap();
+      var mapid = $("." + mapclass).data(datamapid); 
+      reloadCarouselImages(mapid, carouselclass);
+    }
+
+    function reloadCarouselImages(postid, carouselclass)
+    {
       wpv_wp_api.then(function (site)
       {
         site.namespace(restNamespace).getAccommodationImages().
-        param('accunitid', accid).
+        param('postid', postid).
         then(function (results)
         {
           $("." + carouselclass).html(results.markup);
           parseEventsMappings(results.events);
         })
       });
+    }
+    
+    function updateCarousel(jqThis, event, argsarray)
+    {
+      var carouselclass = argsarray[1];
+      var accid = $(jqThis).data("accunitid"); 
+      reloadCarouselImages(accid, carouselclass);
+    }
+    
+    function loadCarousel(jqThis, event, argsarray)
+    {
+      var mapclass = argsarray[0];
+      var datamapid = argsarray[1];
+      var carouselclass = argsarray[2];
+      var mapid = $("." + mapclass).data(datamapid); 
+      reloadCarouselImages(mapid, carouselclass);
     }
     
     function moveCarousel(elem, clicklistener, adderfn)
@@ -526,16 +565,24 @@ if (it_virtualbit_wpvacancy_was_here_global_flag !== true)
 
     function updateRecap()
     {
+      var novalue = "---";
+      $("." + accunitDetailClass + " ." + recapTarget).html(novalue);
+      $("." + accunitTypeClass + " ." + recapTarget).html(novalue);
+      $("." + notesClass + " ." + recapTarget).html(novalue);
+      $("." + totalPriceClass + " ." + recapTarget).html(novalue);      
+      $("." + startDateClass + " ." + recapTarget).html(novalue);
+      $("." + endDateClass + " ." + recapTarget).html(novalue);
       if (currentAccommodation > 0)
       {
-        $("." + accunitDetailClass + " ." + recapTarget).html($(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitname"));
-        $("." + accunitTypeClass + " ." + recapTarget).html($(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitcat"));
+        var auname = $(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitname");
+        var aucat = $(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitcat");
+        $("." + accunitDetailClass + " ." + recapTarget).html(auname);
+        $("." + accunitTypeClass + " ." + recapTarget).html(aucat);
         recapNotes();
         if (currentStartDate > 0 && currentDurationDays > 0)
         {
           recapPrice();
         }
-          
       }
       recapDate(currentStartDate, startDateClass);
       recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
