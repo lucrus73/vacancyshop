@@ -3,6 +3,7 @@
 class WPV_Cart
 {
   private $html;
+  private $itemscount;
   public static $cartwrapperclass = "wpv-cart-wrapper";
   public static $cartbuttonwrapperclass = "wpv-cart-button-wrapper";
   public static $numberofitemsclass = "wpv-cart-nitems";
@@ -86,6 +87,8 @@ class WPV_Cart
     $cartitems = [];
     if (!empty($cart))
       $cartitems = vb_wpv_get_cart_items($cart);
+    
+    $this->itemscount = count($cartitems);
     
     foreach ($cartitems as $booking)
     {
@@ -224,7 +227,8 @@ class WPV_Cart
     $update = $request->get_param("update");
     if ($update == "true")
       $this->html = false;
-    $result = ["status" => 'ok', "wrapperclass" => self::$cartwrapperclass, "markup" => $this->cartHtml(['wrapper' => 0])];
+    $markup = $this->cartHtml(['wrapper' => 0]);
+    $result = ["status" => 'ok', "wrapperclass" => self::$cartwrapperclass, "markup" => $markup, "itemscount" => $this->itemscount];
     return $result;
   }
 

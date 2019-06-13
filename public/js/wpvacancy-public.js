@@ -53,7 +53,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       $("." + accommodationBoxClass).removeClass(selectedClass);
       $(jqThis).addClass(selectedClass);
       currentAccommodation = $(jqThis).data("accunitid");
-      updateRecap();
+      updateMapRecap();
     }
 
     function clearAccommodation(jqThis, event, argsarray)
@@ -67,7 +67,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
 
       $("." + accommodationBoxClass).removeClass(selectedClass);
       currentAccommodation = 0;
-      updateRecap();
+      updateMapRecap();
       var mapid = $("." + mapclass).data(datamapid); 
       reloadCarouselImages(mapid, carouselclass);
     }
@@ -417,7 +417,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
         }
       });
       
-      updateRecap();
+      updateCalendarRecap();
       
     }
 
@@ -465,7 +465,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       clearCalendarSelectionUI();
       currentDurationDays = defaultDurationDays;
       currentStartDate = 0;
-      updateRecap();
+      updateCalendarRecap();
       return calendarClickStateEnum.NOTHING;
     }
     
@@ -526,16 +526,30 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
                     );
       });
     }
-
-    function updateRecap()
+    
+    function updateCalendarRecap()
+    {
+      var novalue = "---";
+      $("." + startDateClass + " ." + recapTarget).html(novalue);
+      $("." + endDateClass + " ." + recapTarget).html(novalue);
+      if (currentStartDate > 0 && currentDurationDays > 0)
+      {
+        recapDate(currentStartDate, startDateClass);
+        recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
+        if (currentAccommodation > 0)
+        {
+          recapPrice();
+        }
+      }
+    }
+    
+    function updateMapRecap()
     {
       var novalue = "---";
       $("." + accunitDetailClass + " ." + recapTarget).html(novalue);
       $("." + accunitTypeClass + " ." + recapTarget).html(novalue);
       $("." + notesClass + " ." + recapTarget).html(novalue);
       $("." + totalPriceClass + " ." + recapTarget).html(novalue);      
-      $("." + startDateClass + " ." + recapTarget).html(novalue);
-      $("." + endDateClass + " ." + recapTarget).html(novalue);
       if (currentAccommodation > 0)
       {
         var auname = $(document).find("[data-accunitid='" + currentAccommodation + "']").data("accunitname");
@@ -548,11 +562,12 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
           recapPrice();
         }
       }
-      if (currentStartDate > 0)
-      {
-        recapDate(currentStartDate, startDateClass);
-        recapDate(currentStartDate + limitedCurrentDurationDays, endDateClass);
-      }
+    }
+
+    function updateRecap()
+    {
+      updateMapRecap();
+      updateCalendarRecap();
     }
     
     function addToCart(jqThis, event, argsarray)
@@ -569,9 +584,26 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
                 {
                   //$("." + notesClass + " ." + recapTarget).html(results.value);
                   if (results.value == "booked")
-                    updateCart(true);
+                  {
+                    updateCart();
+                    $("." + results.nitemsclass).html(results.nitems);
+                    var elem = $(results.animationelement);
+                    $(jqThis).append(elem);
+                    setTimeout(function()
+                              {
+                                elem.addClass(results.animationelementclass);
+                                setTimeout(function()
+                                {
+                                  elem.remove();
+                                }, 5000);
+                              }, 200);
+                  }
                   else
                     message(results.message);
+                },
+                function (error)
+                {
+                  alert(error);
                 }
                     );
       });
@@ -588,7 +620,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
                 then(function (results)
                 {
                   if (results.status == "removed")
-                    updateCart(true);
+                    updateCart();
                   else
                     message(results.message);
                 }
@@ -612,18 +644,18 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       });
     }
     
-    function updateCart(reload)
+    function updateCart()
     {
       wpv_wp_api.then(function (site)
       {
         site.namespace(restNamespace).getCartMarkup().
-                param('update', reload).
+                param('update', true).
                 then(function (results)
                 {
                   if (results.status == "ok")
                   {
                     $("." + results.wrapperclass).html(results.markup);
-                    showCart(null, null, [null, results.wrapperclass, null]);
+                    // showCart(null, null, [null, results.wrapperclass, null]);
                   }
                   else
                     message(results.message);

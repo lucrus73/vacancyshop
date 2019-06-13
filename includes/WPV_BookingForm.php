@@ -681,6 +681,8 @@ class WPV_BookingForm
     $startTime = $request->get_param("startTime");
     $endTime = $request->get_param("endTime");
     
+    $cart_id = vb_wpv_get_cart(get_current_user_id(), true);
+
     // step 1: try to edit this booking if it is already in the cart
     // step 2: check real availability at this exact time
     // step 3: add to cart
@@ -707,12 +709,16 @@ class WPV_BookingForm
         }
         if (!empty($booking))
         {
+          $nitems = count(vb_wpv_get_cart_items($cart_id));
           $result = ["value" => 'booked', 
                       "itemwrapperclass" => 'wpv-booking-details', 
                       "cartwrapperclass" => WPV_Cart::$cartbuttonwrapperclass, 
                       "nitemsclass" => WPV_Cart::$numberofitemsclass,
-                      "nitems" => count(vb_wpv_get_cart_items()),
-                      "message" => $bmessage];
+                      "nitems" => $nitems,
+                      "message" => $bmessage,
+                      "animationelement" => '<div class="wpv-addtocart-animated-number">'.$nitems.'</div>',
+                      "animationelementclass" => "wpv-addtocart-animated-number-stop1"
+                    ];
         }
       }
     }

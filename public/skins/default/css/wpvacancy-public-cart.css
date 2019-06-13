@@ -6,6 +6,7 @@
 
 .wpv-booking-addtocart-button {
     cursor: pointer;
+    position: relative;
     background-color: olive;
     color: white;
     border-radius: 1.5em;
@@ -75,6 +76,23 @@
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
+}
+
+.wpv-addtocart-animated-number {
+  position: absolute;
+  height: 1rem;
+  margin: auto;
+  font-weight: 900;
+  font-size: 100%;
+  transition: all 2s ease;
+  color: darkslategray;
+}
+
+.wpv-addtocart-animated-number-stop1 {
+  height: 20rem;
+  font-size: 1000%;
+  opacity: 0;
+  color: red;
 }
 
 

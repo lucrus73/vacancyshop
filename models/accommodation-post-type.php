@@ -249,7 +249,7 @@ function vb_wpv_get_accommodation_name($accm_id)
 {
   global $vb_wpv_custom_fields_prefix;
   $prefix = $vb_wpv_custom_fields_prefix;
-  $name = get_post_meta($accm_id, $vb_wpv_custom_fields_prefix.'acc_unit_name');
+  $name = get_post_meta($accm_id, $vb_wpv_custom_fields_prefix.'acc_unit_name', true);
   if (empty($name))
   {
     $apost = get_post($accm_id);

@@ -123,7 +123,10 @@ add_action( 'cmb2_admin_init', 'vb_wpv_cart_custom_fields' );
 function vb_wpv_get_cart_items($cart_id)
 {
   global $vb_wpv_custom_fields_prefix;
-    
+ 
+  if (empty($cart_id))
+    $cart_id = vb_wpv_get_cart();
+  
   $bookings = get_posts( 
           array('post_type' => 'booking_type',
               'numberposts' => '999999', 
@@ -245,7 +248,7 @@ function vb_wpv_get_cart_by_sessionid()
   return false;
 }
 
-function vb_wpv_get_cart($userid, $create_it_if_missing = false)
+function vb_wpv_get_cart($userid = 0, $create_it_if_missing = false)
 {
   global $vb_wpv_custom_fields_prefix;
   

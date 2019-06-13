@@ -338,8 +338,11 @@ function vb_wpv_create_booking($userid, $accommodation_id, $startDayId, $endDayI
   $expiration = vb_wpv_get_configured_booking_expiration($userid, $expiration);
   
   $now = time();
-  $cart = vb_wpv_get_cart($userid, true);
-  $items = vb_wpv_get_cart_items($cart->ID);
+  $cart_id = vb_wpv_get_cart($userid, true);
+  if (!is_integer($cart_id))
+    $cart_id = $cart_id->ID;
+  
+  $items = vb_wpv_get_cart_items($cart_id);
   
   foreach ($items as $preexistingbooking)
   {
@@ -371,7 +374,7 @@ function vb_wpv_create_booking($userid, $accommodation_id, $startDayId, $endDayI
   $booking = array(
         'post_status'           => 'publish', 
         'post_type'             => 'booking_type',
-        'post_author'           => $user
+        'post_author'           => $userid
       );
   
   $startDate = date("Y-m-d", $startDayId * 86400);
