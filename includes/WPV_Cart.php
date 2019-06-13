@@ -2,7 +2,6 @@
 
 class WPV_Cart
 {
-  private static $endpoint = 'getCartMarkup';
   private $html;
   public static $cartwrapperclass = "wpv-cart-wrapper";
   public static $cartbuttonwrapperclass = "wpv-cart-button-wrapper";
@@ -18,19 +17,25 @@ class WPV_Cart
   public static $cartbookingwhen = "wpv-cart-item-when";
 
   public static $cartbookingremove = "wpv-cart-item-remove";
+  public static $cartbookingiddataname = "cartitemid";
 
   function __construct()
   {
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "registerCartButton"));
+    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "registerRemoveButton"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "registerClickToHideButton"));
   }
 
   public function registerRoutes()
   {    
-    register_rest_route(Wpvacancy::$namespace, '/'.self::$endpoint, array(
+    register_rest_route(Wpvacancy::$namespace, '/getCartMarkup', array(
     'methods'  => WP_REST_Server::READABLE,
-    'callback' => array($this, 'get_cart_markup'),
+    'callback' => array($this, 'getCartMarkup'),
+      ) );
+    register_rest_route(Wpvacancy::$namespace, '/removeFromCart', array(
+    'methods'  => WP_REST_Server::READABLE,
+    'callback' => array($this, 'removeFromCart'),
       ) );
   }
   
@@ -84,7 +89,12 @@ class WPV_Cart
     
     foreach ($cartitems as $booking)
     {
-      $res .= '<div class="'.self::$cartbookingwrapper.'">';
+      $id = $booking;
+      if (!is_integer($id))
+      {
+        $id = $booking->ID;
+      }
+      $res .= '<div class="'.self::$cartbookingwrapper.'" data-'.self::$cartbookingiddataname.'="'.$id.'">';
         $res .= $this->itemHtml($booking);
       $res .= '</div>';
     }
@@ -169,7 +179,7 @@ class WPV_Cart
   
   private function itemActions($booking)
   {
-    $res = '<div class="'.self::$cartbookingremove.'" data-remove="'.$booking->ID.'"><i class="fa fa-times" aria-hidden="true"></i>';
+    $res = '<div class="'.self::$cartbookingremove.'" data-'.self::$cartbookingiddataname.'="'.$booking->ID.'"><i class="fa fa-times" aria-hidden="true"></i>';
     $res .= '</div>';
     return $res;
   }
@@ -197,7 +207,7 @@ class WPV_Cart
     return array('click', 
                   'removeFromCart', 
                   array(self::$cartbookingremove,
-                        "remove"));
+                        self::$cartbookingiddataname));
     
   }
 
@@ -209,12 +219,21 @@ class WPV_Cart
     
   }
 
-  public function get_cart_markup(WP_REST_Request $request)
+  public function getCartMarkup(WP_REST_Request $request)
   {
     $update = $request->get_param("update");
     if ($update == "true")
       $this->html = false;
     $result = ["status" => 'ok', "wrapperclass" => self::$cartwrapperclass, "markup" => $this->cartHtml(['wrapper' => 0])];
+    return $result;
+  }
+
+  public function removeFromCart(WP_REST_Request $request)
+  {
+    $cartitemid = $request->get_param("cartitemid");
+    wp_delete_post($cartitemid);
+    $this->html = false;
+    $result = ["status" => 'removed'];
     return $result;
   }
 

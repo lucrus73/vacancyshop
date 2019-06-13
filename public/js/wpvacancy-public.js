@@ -576,6 +576,25 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
                     );
       });
     }
+    
+    function removeFromCart(jqThis, event, argsarray)
+    {
+      var dataname = argsarray[1];
+      var cartitemid = $(jqThis).data(dataname);
+      wpv_wp_api.then(function (site)
+      {
+        site.namespace(restNamespace).removeFromCart().
+                param('cartitemid', cartitemid).
+                then(function (results)
+                {
+                  if (results.status == "removed")
+                    updateCart(true);
+                  else
+                    message(results.message);
+                }
+                    );
+      });
+    }
 
     function getMapParams(mapid)
     {
