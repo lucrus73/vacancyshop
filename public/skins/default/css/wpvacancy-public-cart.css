@@ -43,6 +43,9 @@
   justify-content: center;
   border: 0.3rem solid lightslategrey;
   border-radius: 1rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  
 }
 
 .wpv-cart-button-wrapper {
@@ -95,4 +98,57 @@
   color: red;
 }
 
+.wpv-cart-item-remove {
+    cursor: pointer;
+}
 
+.vs-cart-item-remove-dialog {
+  display: none;
+  position: absolute;
+  left: 15%;
+  width: 70%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  box-sizing: border-box;
+  border: 0.1rem solid red;
+  border-radius: 0.3rem;
+  padding: 0.5rem;
+  background-color: darkred;
+  color: linen;
+  cursor: initial;
+  text-align: center;
+  box-shadow: -0.6rem 0.3rem rgba(10, 10, 10, .5);
+}
+
+.vs-cart-item-remove-dialog-buttons {
+    display: flex;
+    justify-content: space-around;
+    width: 100%;
+    padding: 0.5rem;
+}
+
+.vs-cart-item-confirm-remove-button, .vs-cart-item-cancel-remove-button
+{
+    box-sizing: border-box;
+    padding: 0.5rem;
+    border-radius: 0.4rem;
+    flex: 1;
+    margin: 0 0.5rem;
+    cursor: pointer;
+}
+
+.vs-cart-item-confirm-remove-button {
+    border: 0.2rem solid orange;
+    color: orange;
+}
+
+.vs-cart-item-cancel-remove-button {
+    border: 0.2rem solid linen;
+    color: linen;
+}
+
+.vs-cart-item-remove-dialog-msg {
+    padding-bottom: 0.5rem;
+    padding-top: 0.1rem;
+}

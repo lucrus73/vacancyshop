@@ -587,8 +587,11 @@ class WPV_BookingForm
     $bk = vb_wpv_get_booking_accommodation_id($booking);
     $sd = vb_wpv_get_booking_start_as_uxts($booking);
     $ed = vb_wpv_get_booking_end_as_uxts($booking);
-    
-    
+    $dayid_sd = WPV_Calendar::dayid($sd);
+    $dayid_ed = WPV_Calendar::dayid($ed);
+    $starttime = WPV_Calendar::timeofday($sd);
+    $endtime = WPV_Calendar::timeofday($ed);
+    return self::getTotalPrice($bk, $dayid_sd, $dayid_ed, $starttime, $endtime);
   }
 
   public static function getTotalPrice($accid, $startdayid, $enddayid, $starttime = 0, $endtime = 0)

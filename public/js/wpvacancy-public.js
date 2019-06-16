@@ -71,19 +71,38 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       var mapid = $("." + mapclass).data(datamapid); 
       reloadCarouselImages(mapid, carouselclass);
     }
-
-    function reloadCarouselImages(postid, carouselclass)
+       
+    function callWP(ajaxfn, params, responsefn)
     {
+      initWPAPI();
       wpv_wp_api.then(function (site)
       {
-        site.namespace(restNamespace).getAccommodationImages().
-        param('postid', postid).
-        then(function (results)
+        var ajaxfnstub = site.namespace(restNamespace)[ajaxfn]();
+        $.each(params, function(name, value)
         {
-          $("." + carouselclass).html(results.markup);
-          parseEventsMappings(results.events);
+          ajaxfnstub = ajaxfnstub.param(name, value);
+        });
+        
+        ajaxfnstub.then(function (results)
+        {
+          responsefn(results);
+        }, function(error)
+        {
+          console.error(error)
+          console.error(error.rawResponse);
         })
       });
+    }
+    
+    function reloadCarouselImages(postid, carouselclass)
+    {
+      callWP('getAccommodationImages', 
+             {'postid': postid},
+             function (results)
+              {
+                $("." + carouselclass).html(results.markup);
+                parseEventsMappings(results.events);
+              });
     }
     
     function updateCarousel(jqThis, event, argsarray)
@@ -252,17 +271,15 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function requestCalendarMarkup(cfg, offset)
     {
-      wpv_wp_api.then(function (site)
-      {
-        site.namespace(restNamespace).getCalendarMarkup().
-        param('offset', offset).
-        param('span', cfg.span).
-        param('includeavailabilitytags', false).
-        then(function (results)
-        {
-          replaceCalendarMarkup(results.markup, cfg, offset);
-        })
-      });
+      callWP('getCalendarMarkup',
+            {
+              offset: offset,
+              span: cfg.span,
+              includeavailabilitytags: false
+            },function (results)
+            {
+              replaceCalendarMarkup(results.markup, cfg, offset);
+            });
     }
     
     function toggleCalendarMonthsButton(cfg)
@@ -481,50 +498,40 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function recapDate(dayIdToShow, targetClass)
     {
-      wpv_wp_api.then(function (site)
-      {
-        site.namespace(restNamespace).getRecapInfo().
-          param('key', 'dateFromDayId').
-          param('dayid', dayIdToShow).
-          then(function (results)
-          {
-            $("." + targetClass + " ." + recapTarget).html(results.value);
-          }
-        )
-      });
+      callWP('getRecapInfo',
+              {
+                key: 'dateFromDayId',
+                dayid: dayIdToShow
+              }, function (results)
+              {
+                $("." + targetClass + " ." + recapTarget).html(results.value);
+              });
     }
 
     function recapNotes()
     {
-      wpv_wp_api.then(function (site)
-      {
-        site.namespace(restNamespace).getRecapInfo().
-                param('key', 'getNotesForAccommodation').
-                param('accid', currentAccommodation).
-                then(function (results)
-                {
-                  $("." + notesClass + " ." + recapTarget).html(results.value);
-                }
-                    )
-      });
+      callWP('getRecapInfo',
+              {
+                key: 'getNotesForAccommodation',
+                accid: currentAccommodation        
+              }, function (results)
+              {
+                $("." + notesClass + " ." + recapTarget).html(results.value);
+              });
     }
     
     function recapPrice()
     {
-      initWPAPI();
-      wpv_wp_api.then(function (site)
-      {
-        site.namespace(restNamespace).getRecapInfo().
-                param('key', 'getPriceForBooking').
-                param('accid', currentAccommodation).
-                param('startdayid', currentStartDate).
-                param('enddayid', currentStartDate + limitedCurrentDurationDays).
-                then(function (results)
-                {
-                  $("." + totalPriceClass + " ." + recapTarget).html(results.value);      
-                }
-                    );
-      });
+      callWP('getRecapInfo',
+            {
+              key: 'getPriceForBooking',
+              accid: currentAccommodation,
+              startdayid: currentStartDate,
+              enddayid: currentStartDate + limitedCurrentDurationDays
+            }, function (results)
+            {
+              $("." + totalPriceClass + " ." + recapTarget).html(results.value);      
+            });
     }
     
     function updateCalendarRecap()
@@ -572,95 +579,117 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function addToCart(jqThis, event, argsarray)
     {
-      wpv_wp_api.then(function (site)
+      callWP('addToCart',
       {
-        site.namespace(restNamespace).addToCart().
-                param('accid', currentAccommodation).
-                param('startDate', currentStartDate).
-                param('endDate', currentStartDate + limitedCurrentDurationDays).
-                param('startTime', currentStartTime).
-                param('endTime', currentStartTime + limitedCurrentDurationMinutes).
-                then(function (results)
-                {
-                  //$("." + notesClass + " ." + recapTarget).html(results.value);
-                  if (results.value == "booked")
-                  {
-                    updateCart();
-                    $("." + results.nitemsclass).html(results.nitems);
-                    var elem = $(results.animationelement);
-                    $(jqThis).append(elem);
-                    setTimeout(function()
-                              {
-                                elem.addClass(results.animationelementclass);
-                                setTimeout(function()
-                                {
-                                  elem.remove();
-                                }, 5000);
-                              }, 200);
-                  }
-                  else
-                    message(results.message);
-                },
-                function (error)
-                {
-                  alert(error);
-                }
-                    );
+        accid: currentAccommodation,
+        startDate: currentStartDate,
+        endDate: currentStartDate + limitedCurrentDurationDays,
+        startTime: currentStartTime,
+        endTime: currentStartTime + limitedCurrentDurationMinutes
+      }, function (results)
+      {
+        //$("." + notesClass + " ." + recapTarget).html(results.value);
+        if (results.value == "booked")
+        {
+          updateCart();
+          $("." + results.nitemsclass).html(results.nitems);
+          var elem = $(results.animationelement);
+          $(jqThis).append(elem);
+          setTimeout(function()
+                    {
+                      elem.addClass(results.animationelementclass);
+                      setTimeout(function()
+                      {
+                        elem.remove();
+                      }, 5000);
+                    }, 200);
+        }
+        else
+          message(results.message);
       });
     }
     
     function removeFromCart(jqThis, event, argsarray)
     {
+      event.stopImmediatePropagation();
+      event.preventDefault();
       var dataname = argsarray[1];
+      var dialogclass = argsarray[2];
       var cartitemid = $(jqThis).data(dataname);
-      wpv_wp_api.then(function (site)
+      var filter = "[data-" + dataname + "='" + cartitemid + "']." + dialogclass;
+      $(filter).css("display", "flex");
+    }
+    
+    function confirmRemoveFromCart(jqThis, event, argsarray)
+    {
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      var dlgclass = argsarray[1];
+      var cartwrapper = argsarray[2];
+      var nitems = argsarray[3];
+      var bookingiddataname = argsarray[4];
+      var cartitemid =  $(jqThis).data(bookingiddataname);
+      var filter = "[data-" + bookingiddataname + "='" + cartitemid + "']." + dlgclass;
+      $(filter).fadeOut(500, function()
       {
-        site.namespace(restNamespace).removeFromCart().
-                param('cartitemid', cartitemid).
-                then(function (results)
-                {
-                  if (results.status == "removed")
-                    updateCart();
-                  else
-                    message(results.message);
-                }
-                    );
+        $(filter).css("display", "none");
       });
+
+      callWP('removeFromCart',
+      {
+        cartitemid: cartitemid
+      }, function (results)
+      {
+        if (results.status == "removed")
+        {
+          updateCart();
+          $("." + nitems).html(results.nitems);
+        }
+        else
+          message(results.message);
+      });
+    }
+    
+    function cancelRemoveFromCart(jqThis, event, argsarray)
+    {
+      var dlgclass = argsarray[1];
+      var dataname = argsarray[2];
+
+      var filter = "[data-" + dataname + "='" + cartitemid + "']." + dlgclass;
+      $(filter).fadeOut(500, function()
+      {
+        $(filter).css("display", "none");
+      });
+
     }
 
     function getMapParams(mapid)
     {
-      wpv_wp_api.then(function (site)
+      callWP('getMapParams',
       {
-        site.namespace(restNamespace).getMapParams().
-                param('mapid', mapid).
-                then(function (results)
-                {
-                  defaultDurationDays = Number(results.defaultSliderDuration);
-                  currentDurationDays = defaultDurationDays;
-                  singleDayBooking = Number(results.allowSingleDayBooking) > 0 ? true : false;
-                }
-                    );
+        mapid: mapid
+      }, function (results)
+      {
+        defaultDurationDays = Number(results.defaultSliderDuration);
+        currentDurationDays = defaultDurationDays;
+        singleDayBooking = Number(results.allowSingleDayBooking) > 0 ? true : false;
       });
     }
     
     function updateCart()
     {
-      wpv_wp_api.then(function (site)
+      callWP('getCartMarkup',
       {
-        site.namespace(restNamespace).getCartMarkup().
-                param('update', true).
-                then(function (results)
-                {
-                  if (results.status == "ok")
-                  {
-                    $("." + results.wrapperclass).html(results.markup);
-                    // showCart(null, null, [null, results.wrapperclass, null]);
-                  }
-                  else
-                    message(results.message);
-                }
-                    );
+        update: true
+      }, function (results)
+      {
+        if (results.status == "ok")
+        {
+          $("." + results.wrapperclass).html(results.markup);
+          parseEventsMappings(results.events);
+        }
+        else
+          message(results.message);
       });
     }
     

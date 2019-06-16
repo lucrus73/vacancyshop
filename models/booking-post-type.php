@@ -312,6 +312,7 @@ add_action( 'cmb2_admin_init', 'vb_wpv_booking_custom_fields' );
  */
 function vb_wpv_get_configured_booking_expiration($userid = false, $expiration = false)
 {
+  global $vb_wpv_custom_fields_prefix;
   $default_expiration = 7200;
   if (empty($expiration))
   {

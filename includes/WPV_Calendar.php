@@ -83,6 +83,17 @@ class WPV_Calendar
     return (int)($unixtime / 86400);
   }
   
+  public static function unixtime($dayid, $timeinseconds = 0)
+  {
+    return $dayid * 86400 + $timeinseconds;
+  }
+
+  public static function timeofday($unixtime)
+  {
+    return $unixtime % 86400;
+  }
+
+
   private function monthsSelect($MONTHS, $monthnumber, $year)
   {
     $nowismonth = intval(date("n")) - 1;
