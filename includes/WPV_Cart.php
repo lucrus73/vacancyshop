@@ -252,7 +252,7 @@ class WPV_Cart
   {
     return array('click', 
                   'cancelRemoveFromCart', 
-                  array(self::$confirmdeleteitembuttonclass,
+                  array(self::$canceldeleteitembuttonclass,
                         self::$confirmdeletedialogclass,
                         self::$cartbookingiddataname));
     
@@ -299,7 +299,7 @@ class WPV_Cart
         $res .= '<div class="'.self::$confirmdeleteitembuttonclass.'" data-cartitemid="'.$booking->ID.'">';
           $res .= __('Yes', 'wpvacancy');
         $res .= '</div>';
-        $res .= '<div class="'.self::$canceldeleteitembuttonclass.'">';
+        $res .= '<div class="'.self::$canceldeleteitembuttonclass.'" data-cartitemid="'.$booking->ID.'">';
           $res .= __('No', 'wpvacancy');
         $res .= '</div>';
       $res .= '</div>';

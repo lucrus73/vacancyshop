@@ -43,7 +43,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function updateBookingAvailabilityFromCalendarClick(jqThis, event, argsarray)
     {
-      
+      // TODO
     }
     
     function chooseAccommodation(jqThis, event, argsarray)
@@ -58,7 +58,6 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
 
     function clearAccommodation(jqThis, event, argsarray)
     {
-      var accommodationMapImageClass = argsarray[0];
       var accommodationBoxClass = argsarray[1];
       var selectedClass = argsarray[2];
       var mapclass = argsarray[3];
@@ -232,14 +231,6 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       }
     }
 
-    function toggleOptions(jqThis, event, argsarray)
-    {
-      event.stopImmediatePropagation();
-      event.preventDefault();
-      var panel = argsarray[1];
-      $("." + panel).slideToggle(500);
-    }
-
     function daySelection(jqThis, event, argsarray)
     {    
       event.stopImmediatePropagation();
@@ -368,6 +359,12 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
           calendarClickState = editOrClearCalendarSelection(clickedDate);
           break;
       }
+    }
+    
+    function clearCalendarSelection()
+    {
+      calendarClickState = calendarClickStateEnum.COMPLETE;
+      onCalendarClick(0);
     }
     
     function setStartingDayOnCalendar(clickedDate)
@@ -592,6 +589,8 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
         if (results.value == "booked")
         {
           updateCart();
+          clearCalendarSelection();
+          
           $("." + results.nitemsclass).html(results.nitems);
           var elem = $(results.animationelement);
           $(jqThis).append(elem);
@@ -601,6 +600,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
                       setTimeout(function()
                       {
                         elem.remove();
+                        location.reload(true);
                       }, 5000);
                     }, 200);
         }
@@ -652,8 +652,11 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function cancelRemoveFromCart(jqThis, event, argsarray)
     {
+      event.stopImmediatePropagation();
+      event.preventDefault();
       var dlgclass = argsarray[1];
       var dataname = argsarray[2];
+      var cartitemid =  $(jqThis).data(dataname);
 
       var filter = "[data-" + dataname + "='" + cartitemid + "']." + dlgclass;
       $(filter).fadeOut(500, function()
