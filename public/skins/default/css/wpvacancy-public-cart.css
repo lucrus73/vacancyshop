@@ -57,6 +57,7 @@
 
 .wpv-cart-nitems {
   margin-left: 0.2rem;
+  position: relative;
 }
 
 .wpv-cart-item-wrapper {

@@ -1,18 +1,13 @@
 <?php
 
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
-
 /**
  * Description of WPV_Calendario
  *
- * @author lucio
+ * @author info@virtualbit.it
  */
 class WPV_Calendar
 {
+  public $timepicker;
   private static $dayAvailabilityEndpoint = 'getDayAvailability';
   private static $calendarMarkupEndpoint = 'getCalendarMarkup';
   private static $wrapperclass = 'wpv-calendar-wrapper';
@@ -29,6 +24,7 @@ class WPV_Calendar
   
   function __construct()
   {
+    $this->timepicker = new WPV_Timepicker();
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
@@ -70,10 +66,9 @@ class WPV_Calendar
   {
     $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">';
     $html .= __('When does your holiday start?', 'wpvacancy');
-    // $html .= $this->controlpanel(); too much burden for the user
     $html .= '</div>';
     $html .= '<div class="'.self::$wrapperclass.'">';
-    $html .= $this->months();
+    $html .= $this->months(null, null, true, $showTimePicker);
     $html .= '</div>';
     return $html;
   }
@@ -114,7 +109,7 @@ class WPV_Calendar
     return $result;
   }
   
-  public function months($offset = null, $span = null, $availabilitytags = true)
+  public function months($offset = null, $span = null, $availabilitytags = true, $timepicker = false)
   {
     if (empty($offset) || empty($span) || intval($span) >= 4 || intval($span) < 1)
     {
@@ -237,6 +232,11 @@ class WPV_Calendar
       $html .= '</tbody>';
       $html .= '</table>';
       $html .= '</div>';
+      
+      if (!empty($timepicker))
+      {
+        $this->timepicker->clock();
+      }
     }
 
     // $html .= WPV_BookingForm::loading();
@@ -334,69 +334,7 @@ class WPV_Calendar
      */
     return $res;
   }
-  
-  private function controlpanel()
-  {
-    $res = '<i class="fa fa-cog wpv-calendar-options-gear" aria-hidden="true">';
-    $res .= '</i>';
-    $res .= '<div class="wpv-calendar-options">';
-      $res .= '<div class="wpv-calendar-controlpanel">';
-
-        $res .= '<div class="wpv-calendar-option wpv-calendar-show-festivities wpv-calendar-show-festivities-check">';
-          $res .= $this->option_checkbox(__('Show festivities', 'wpvacancy'));
-          // $res .= '<input type="checkbox" class="wpv-calendar-show-festivities-check">'.__('Show festivities', 'wpvacancy').'</input>';
-
-          $res .= '<div class="wpv-calendar-legend">';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-eve">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-nonworkingeve"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Holiday Eves', 'wpvacancy').'</div>';
-            $res .= '</div>';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-holiday">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-nonworking"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Holidays', 'wpvacancy').'</div>';
-            $res .= '</div>';
-          $res .= '</div>';
-
-        $res .= '</div>';
-
-        $res .= '<div class="wpv-calendar-option wpv-calendar-show-availability wpv-calendar-show-availability-check">';
-          $res .= $this->option_checkbox(__('Show availability', 'wpvacancy'));
-          // $res .= '<input type="checkbox" class="wpv-calendar-show-availability-check">'.__('Show availability', 'wpvacancy').'</input>';
-
-          $res .= '<div class="wpv-calendar-legend">';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-full">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-full"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Wide choice', 'wpvacancy').'</div>';
-            $res .= '</div>';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-normal">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-normal"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Some choice', 'wpvacancy').'</div>';
-            $res .= '</div>';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-low">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-low"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Nearly sold out', 'wpvacancy').'</div>';
-            $res .= '</div>';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-empty">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-legendicon-availability-empty"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Sold out', 'wpvacancy').'</div>';
-            $res .= '</div>';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-choice-available">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-daytag-single-accommodation-legendicon-ok"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Your choice is available', 'wpvacancy').'</div>';
-            $res .= '</div>';
-            $res .= '<div class="wpv-calendar-legend-entry wpv-calendar-legend-choice-unavailable">';
-              $res .= '<div class="wpv-calendar-legend-icon wpv-calendar-daytag-single-accommodation-legendicon-ko"></div>';
-              $res .= '<div class="wpv-calendar-legend-text">'.__('Your choice is NOT available', 'wpvacancy').'</div>';
-            $res .= '</div>';
-          $res .= '</div>';
-
-        $res .= '</div>';
-
-      $res .= '</div>';
-    $res .= '</div>';
-    return $res;
-  }
-  
+    
   public function bookingData()
   {
     return array('click', 

@@ -35,7 +35,6 @@ class WPV_BookingForm
 {
   private $html;
   private $cal;
-  private $time;
   private $maps;
   public static $namespace = 'wpvacancy/v1';
   private static $accommodations = null;
@@ -72,7 +71,6 @@ class WPV_BookingForm
     add_action( 'rest_api_init', array($this, 'registerRoutes'), 999, 0); 
     $this->cal = new WPV_Calendar();
     $this->maps = new WPV_AccommodationsMap();
-    $this->time = new WPV_Timepicker();
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "registerAddToCart"));
   }
   
@@ -746,9 +744,12 @@ class WPV_BookingForm
 
   public function registerAddToCart()
   {
+    $addtocartparams = WPV_Cart::getShowCartParams();
+    array_unshift($addtocartparams, self::$addToCartButtonClass);
+
     return array('click', 
                   'addToCart', 
-                  array(self::$addToCartButtonClass));
+                  $addtocartparams);
     
   }
 

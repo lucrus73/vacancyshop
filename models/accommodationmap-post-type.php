@@ -130,20 +130,6 @@ function vb_wpv_accmap_custom_fields() {
   ) );
 
   $cmb->add_field( array(
-		'name'    => __( 'Accommodation preview scale factor', 'wpvacancy' ),
-		'desc'    => __( 'The scale factor relative to the accommodation icon size for the preview of the accommodation', 'wpvacancy' ),
-		'id'      => $prefix . 'accm_map_previewscalefactor',
-		'type'    => 'text',
-    'default' => 10,
-    'attributes' => array(
-        'data-validation' => 'required',
-        'type' => 'number',
-        'min'  => '1',
-    ),
-    'on_front'        => false, // Optionally designate a field to wp-admin only
-	));
-   
-  $cmb->add_field( array(
 		'name'    => __( 'Book by the hour', 'wpvacancy' ),
 		'desc'    => __( 'Shows a timepicker to let users book by the hour instead of whole days', 'wpvacancy' ),
 		'id'      => $prefix . 'accm_map_singledayselection',
@@ -153,9 +139,9 @@ function vb_wpv_accmap_custom_fields() {
 	));
 
   $cmb->add_field( array(
-		'name'    => __( 'Initial slider duration', 'wpvacancy' ),
-		'desc'    => __( 'The default duration of the booking as shown in the slider when the page loads', 'wpvacancy' ),
-		'id'      => $prefix . 'accm_map_defaultsliderduration',
+		'name'    => __( 'Initial duration', 'wpvacancy' ),
+		'desc'    => __( 'The default duration of the booking (days or minutes, depending on timepicker presence)', 'wpvacancy' ),
+		'id'      => $prefix . 'accm_map_defaultduration',
 		'type'    => 'text',
     'default' => 15, 
     'attributes' => array(

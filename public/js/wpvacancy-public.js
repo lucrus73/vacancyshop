@@ -595,14 +595,16 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
           var elem = $(results.animationelement);
           $(jqThis).append(elem);
           setTimeout(function()
-                    {
-                      elem.addClass(results.animationelementclass);
-                      setTimeout(function()
-                      {
-                        elem.remove();
-                        location.reload(true);
-                      }, 5000);
-                    }, 200);
+          {
+            elem.addClass(results.animationelementclass);
+            setTimeout(function()
+            {
+              elem.remove();
+              argsarray.shift();              
+              showCart(jqThis, event, argsarray);
+            }, 1500);
+          }
+          , 50);
         }
         else
           message(results.message);

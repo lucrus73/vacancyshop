@@ -220,9 +220,7 @@ class WPV_Cart
   {
     return array('click', 
                   'showCart', 
-                  array(self::$cartbuttonwrapperclass,
-                        self::$cartwrapperclass,
-                        self::$numberofitemsclass));
+                  self::getShowCartParams());
     
   }
 
@@ -318,5 +316,13 @@ class WPV_Cart
   {
     array_unshift($a, 'public'); 
     return $a;
+  }
+  
+  public static function getShowCartParams()
+  {
+    return array(self::$cartbuttonwrapperclass,
+            self::$cartwrapperclass,
+            self::$numberofitemsclass);
+    
   }
 }
