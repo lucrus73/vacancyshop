@@ -393,5 +393,11 @@ class WPV_AccommodationsMap
   {
   }
   
+  public static function wantsTimepicker($mapid)
+  {
+    $tp = get_post_meta($mapid, VS_AccommodationMapMetaKeys::$singleDaySelection, true);
+    return strcmp("on", $tp) === 0;
+  }
+  
   
 }

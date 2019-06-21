@@ -79,21 +79,13 @@ class WPV_BookingForm
     if (is_array($atts))
       extract($atts, EXTR_OVERWRITE);    
     
-    $show_timepicker = !empty($timepicker) && 
-                        $timepicker != "off" && 
-                        $timepicker != "no" && 
-                        $timepicker != false && 
-                        $timepicker != "false" && 
-                        $timepicker != 0 && 
-                        $timepicker != "0" &&
-                        $timepicker != "none";
     $map_specified = !empty($map_id);
     
     if (!$map_specified)
       return '<div class="wpv-error">You must specify a map with the map_id attribute</div>';
     
     $res = '<div class="'.self::$bookingformcontainerclass.'" data-'.self::$bookingformmapiddatatag.'="'.$map_id.'">';
-      $res .= $this->cal->getCalendar($show_timepicker);
+      $res .= $this->cal->getCalendar($map_id);
 
       $res .= $this->maps->map([$map_id]);
       $res .= $this->recap();

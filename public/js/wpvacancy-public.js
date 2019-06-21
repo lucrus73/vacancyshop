@@ -262,11 +262,13 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function requestCalendarMarkup(cfg, offset)
     {
+      var wrappermapid = $("." + cfg.wrapperclass).data("mapid");
       callWP('getCalendarMarkup',
             {
               offset: offset,
               span: cfg.span,
-              includeavailabilitytags: false
+              includeavailabilitytags: false,
+              mapid: wrappermapid
             },function (results)
             {
               replaceCalendarMarkup(results.markup, cfg, offset);

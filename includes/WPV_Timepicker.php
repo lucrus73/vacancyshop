@@ -6,8 +6,8 @@ class WPV_Timepicker
                         $start = 8, // 8 AM
                         $end = 20) // 8 PM
   {
-    $res = '<div class="vs-timepicker-wrapper>"';
-    $res .= '<div class="vs-timepicker-container>"';
+    $res = '<div class="vs-timepicker-wrapper">';
+    $res .= '<div class="vs-timepicker-container">';
     
     $decimalstep = $stepping / 60;
     for ($t = $start; $t <= $end; $t += $decimalstep)

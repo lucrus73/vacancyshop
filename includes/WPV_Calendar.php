@@ -29,7 +29,6 @@ class WPV_Calendar
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "bookingData"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "load"));
     Wpvacancy::$instance->registerScriptParamsCallback(array($this, "daySelection"));
-//    Wpvacancy::$instance->registerScriptParamsCallback(array($this, "toggleOptions"));
   }
 
   public function registerRoutes()
@@ -58,17 +57,18 @@ class WPV_Calendar
     $offset = $request->get_param("offset");
     $span = $request->get_param("span");
     $tags = $request->get_param("includeavailabilitytags");
-    $result = ["markup" => $this->months($offset, $span, $tags)];
+    $mapid = $request->get_param("mapid");
+    $result = ["markup" => $this->months($offset, $span, $tags, $mapid)];
     return $result;
   }
   
-  public function getCalendar($showTimePicker = false)
+  public function getCalendar($mapId)
   {
     $html = '<div class="wpv-booking-option-title wpv-booking-startdate-title">';
     $html .= __('When does your holiday start?', 'wpvacancy');
     $html .= '</div>';
-    $html .= '<div class="'.self::$wrapperclass.'">';
-    $html .= $this->months(null, null, true, $showTimePicker);
+    $html .= '<div class="'.self::$wrapperclass.'" data-mapid="'.$mapId.'">';
+    $html .= $this->months(null, null, true, $mapId);
     $html .= '</div>';
     return $html;
   }
@@ -109,7 +109,7 @@ class WPV_Calendar
     return $result;
   }
   
-  public function months($offset = null, $span = null, $availabilitytags = true, $timepicker = false)
+  public function months($offset = null, $span = null, $availabilitytags = true, $mapid)
   {
     if (empty($offset) || empty($span) || intval($span) >= 4 || intval($span) < 1)
     {
@@ -233,13 +233,14 @@ class WPV_Calendar
       $html .= '</table>';
       $html .= '</div>';
       
-      if (!empty($timepicker))
-      {
-        $this->timepicker->clock();
-      }
+    }
+    $timepicker = WPV_AccommodationsMap::wantsTimepicker($mapid);
+
+    if (!empty($timepicker))
+    {
+      $html .= $this->timepicker->clock();
     }
 
-    // $html .= WPV_BookingForm::loading();
     return $html; 
   }
   
@@ -357,31 +358,24 @@ class WPV_Calendar
                         self::$selectMonth,
                         'wpv-calendar-daytag-daytype',
                         'wpv-calendar-daytag-availability',
-                        array('wpv-calendar-clickable-day', 
-                              'wpv-calendar-first-selected-day',
-                              'wpv-calendar-selected-day',
-                              'wpv-calendar-last-selected-day')
+                        self::daySelectionParams()
                       ));    
   }
   
-  public function toggleOptions()
-  {
-    return array('click', 
-                  'toggleOptions', 
-                  array('wpv-calendar-options-gear',
-                        'wpv-calendar-options'));
-    
-  }
-
   public function daySelection()
   {
     return array('click', 
                   'daySelection', 
-                  array('wpv-calendar-clickable-day',
-                        'wpv-calendar-first-selected-day',
-                        'wpv-calendar-selected-day',
-                        'wpv-calendar-last-selected-day'));
+                  self::daySelectionParams());
     
+  }
+  
+  private static function daySelectionParams()
+  {
+    return  array('wpv-calendar-clickable-day',
+                  'wpv-calendar-first-selected-day',
+                  'wpv-calendar-selected-day',
+                  'wpv-calendar-last-selected-day');
   }
 
 }

@@ -1,5 +1,21 @@
 <?php
 
+class VS_AccommodationMapMetaKeys
+{
+  public static $singleDaySelection;
+  public static $defaultDuration;
+  
+  function __construct()
+  {
+    global $vb_wpv_custom_fields_prefix;
+    $prefix = $vb_wpv_custom_fields_prefix;
+    self::$singleDaySelection = $prefix . 'accm_map_singledayselection';
+    self::$defaultDuration = $prefix . 'accm_map_defaultduration';
+  }  
+}
+
+new VS_AccommodationMapMetaKeys();
+
 // let's create the function for the custom type
 function accommodationmap_post_type() {
   global $vb_wpv_basedir;
@@ -109,12 +125,8 @@ function wpv_accommodationmap_editor_content( $content, $post )
 }  
 
 
-function vb_wpv_accmap_custom_fields() {
-
-  global $vb_wpv_custom_fields_prefix ;
-  // Start with an underscore to hide fields from custom fields list
-  $prefix = $vb_wpv_custom_fields_prefix;
-
+function vb_wpv_accmap_custom_fields() 
+{
   /**
    * Initiate the metabox
    */
@@ -132,7 +144,7 @@ function vb_wpv_accmap_custom_fields() {
   $cmb->add_field( array(
 		'name'    => __( 'Book by the hour', 'wpvacancy' ),
 		'desc'    => __( 'Shows a timepicker to let users book by the hour instead of whole days', 'wpvacancy' ),
-		'id'      => $prefix . 'accm_map_singledayselection',
+		'id'      => VS_AccommodationMapMetaKeys::$singleDaySelection,
 		'type'    => 'checkbox',
     'default' => false, 
     'on_front'        => false, // Optionally designate a field to wp-admin only
@@ -141,7 +153,7 @@ function vb_wpv_accmap_custom_fields() {
   $cmb->add_field( array(
 		'name'    => __( 'Initial duration', 'wpvacancy' ),
 		'desc'    => __( 'The default duration of the booking (days or minutes, depending on timepicker presence)', 'wpvacancy' ),
-		'id'      => $prefix . 'accm_map_defaultduration',
+		'id'      => VS_AccommodationMapMetaKeys::$defaultDuration,
 		'type'    => 'text',
     'default' => 15, 
     'attributes' => array(
