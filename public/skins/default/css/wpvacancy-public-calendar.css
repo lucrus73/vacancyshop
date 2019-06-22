@@ -1,8 +1,3 @@
-/* 
-    Created on : 15-giu-2017, 12.46.36
-    Author     : lucio
-*/
-
 .wpv-calendar-wrapper {
   display: flex;
   flex-wrap: wrap;
@@ -15,8 +10,7 @@
 
 .wpv-calendar-wrapper td, .wpv-calendar-wrapper td:first-child, .wpv-calendar-wrapper td:last-child, .wpv-calendar-wrapper th, .wpv-calendar-wrapper th:first-child, .wpv-calendar-wrapper th:last-child {
     text-align: center;
-    padding: 0.7rem;
-    /* font-size: 80%; */
+    padding: 3% 1%;
     border: 1px solid lightgray;
 }
 
@@ -116,23 +110,6 @@
   background-image: url('../images/legendicon-availability-full.png');
 }
 
-.wpv-calendar-legend-entry {
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  border-left: 1px solid black;
-  border-bottom: 1px dashed lightgray;
-}
-.wpv-calendar-legend-icon {
-  width: 1rem;
-  height: 1rem;
-  background-position: center;
-  background-size: contain;
-  background-repeat: no-repeat;
-  border: 1px solid lightgray;
-  margin: 0.5rem;
-}
-
 .wpv-booking-startdate-title {
     display: flex;
     justify-content: space-around;
@@ -149,79 +126,6 @@
     font-size: 250%;
     width: 2rem;
     height: 2rem;
-}
-
-.wpv-calendar-controlpanel {
-    border-radius: 1rem;
-    padding: 1rem;
-    box-shadow: 0 0 0.7rem 0.07rem;
-    box-sizing: border-box;
-    margin: 1rem 0;
-}
-
-.wpv-calendar-option-checkbox {
-  padding: 1rem;
-  border: 1px solid lightgray;
-  box-shadow: 0 0 2px 2px;
-  border-radius: 1rem;
-  cursor: pointer;  
-}
-
-.wpv-calendar-option-checkbox-icon-checked {
-  display: none;
-}
-
-.wpv-calendar-option i.fa {
-  font-size: 200%;
-}
-
-.wpv-calendar-option-checkbox {
-    display: flex;
-    justify-content: space-around;
-    align-items: center;
-    flex: 3;
-}
-
-.wpv-calendar-option-checkboxicon-wrapper {
-  height: 3rem;
-  width: 3rem;
-  position: relative;
-}
-
-.wpv-calendar-option-checkbox-icon, .wpv-calendar-option-checkbox-icon-checked {
-    position: absolute;
-    top: 0;
-    left: 0;
-}
-
-.fa.wpv-calendar-option-checkbox-icon-checked {
-  display: none;
-}
-
-.wpv-calendar-legend {
-    margin: 0.5rem 0 0.5rem 2rem;
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: flex-start;
-    flex: 5;
-}
-
-.wpv-calendar-options-gear, .wpv-calendar-clickable-day {
-  cursor: pointer;
-}
-
-.wpv-calendar-options {
-  display: none;
-}
-
-.wpv-calendar-option {
-  font-size: 90%;
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  justify-content: flex-start;
-  align-items: center;
 }
 
 .wpv-calendar-selected-day, .wpv-calendar-first-selected-day, .wpv-calendar-last-selected-day {

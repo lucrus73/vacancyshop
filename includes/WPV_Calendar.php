@@ -117,10 +117,20 @@ class WPV_Calendar
       $span = self::$defaultspan;
     }
 
+    $html = '';
+    $timepicker = WPV_AccommodationsMap::wantsTimepicker($mapid);
+    
+    // if the timepicker is needed then the UI is designed
+    // to handle only 1 month, otherwise we get a complete UX mess
+    if (!empty($timepicker))
+    {
+      $span = 1;
+      $html .= '<div class="vs-month-timepicker-container">';
+    }
+    
     $ut_now = time();
     $m = date("n", $ut_now) + $offset;
     $utnow_day = self::dayid($ut_now);
-    $html = '';
     $meseiniziale = $m;
     $mesefinale = $m + ($span - 1);
     for ($meseincostruzione = $meseiniziale; $meseincostruzione <= $mesefinale; $meseincostruzione++)
@@ -232,15 +242,15 @@ class WPV_Calendar
       $html .= '</tbody>';
       $html .= '</table>';
       $html .= '</div>';
-      
     }
-    $timepicker = WPV_AccommodationsMap::wantsTimepicker($mapid);
-
+    
     if (!empty($timepicker))
     {
-      $html .= $this->timepicker->clock();
+      $html .= $this->timepicker->clock($mapid);
+      $html .= '</div>';
     }
-
+    
+    
     return $html; 
   }
   

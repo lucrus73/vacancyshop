@@ -82,8 +82,8 @@ class Wpvacancy_Public {
 		 */
 
 		$this->enqueue_skin('', 'css/wpvacancy-public.css');
-		$this->enqueue_skin('rangeslider', 'css/wpvacancy-public-rangeslider.css');
 		$this->enqueue_skin('calendar', 'css/wpvacancy-public-calendar.css');
+		$this->enqueue_skin('timepicker', 'css/wpvacancy-public-timepicker.css');
 		$this->enqueue_skin('maps', 'css/wpvacancy-public-maps.css');
 		$this->enqueue_skin('cart', 'css/wpvacancy-public-cart.css');
     wp_enqueue_style('font-awesome', '//maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css');

@@ -31,20 +31,3 @@
     margin-left: 0.5rem;
     font-weight: bolder;
 }
-
-.wpv-loading {
-  min-width: 5em;
-  min-height: 5em;
-  width: 80%;
-  height: 80%;
-  top: 10%;
-  left: 10%;
-  position: absolute;
-  background-image: url('../images/loading.gif');
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: rgba(0,0,0,0.05);
-  border-radius: 2rem;
-  display: none;
-}

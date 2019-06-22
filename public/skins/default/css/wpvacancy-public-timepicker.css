@@ -1,0 +1,107 @@
+.vs-month-timepicker-container {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: nowrap;
+}
+
+.vs-timepicker-wrapper {
+    position: relative;
+    padding: 2rem 0;
+    box-sizing: border-box;
+}
+
+.vs-timepicker-layout {
+    position: absolute;
+    height: 100%;
+    width: 100%;
+    overflow: hidden;
+}
+
+.vs-timepicker-container {
+    position: absolute;
+    overflow: hidden;
+}
+
+.vs-timepicker-scroll {
+    display: flex;
+    flex-wrap: nowrap;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.vs-timepicker-nav-button {
+    position: absolute;
+    background-size: contain;
+    background-position: center;
+    background-repeat: no-repeat;
+}
+
+@media only screen and (max-width: 767px) {
+  .wpv-calendar-wrapper {
+    flex-direction: column;
+  }
+  
+  .vs-timepicker-layout {
+      top: 0;
+  }
+
+  .vs-timepicker-nav-button {
+      width: 5%;
+      height: 100%;
+  }
+
+  .vs-timepicker-next-button {
+    left: 95%;
+  }
+
+  .vs-timepicker-container {
+      width: 90%;
+      left: 5%;
+      height: 100%;
+  }
+
+  .vs-timepicker-scroll {
+    flex-direction: row;
+  }
+  
+  .vs-timepicker-item {
+    writing-mode: vertical-rl;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  .vs-month-timepicker-container {
+      flex-direction: row;
+  }
+
+  .vs-timepicker-wrapper {
+      padding: 0 3rem;
+  }
+
+  .vs-timepicker-layout {
+      left: 0;
+  }
+
+  .vs-timepicker-container {
+      height: 90%;
+      top: 5%;
+      width: 100%;
+  }
+  
+  .vs-timepicker-scroll {
+    flex-direction: column;
+  }
+
+  .vs-timepicker-nav-button {
+      height: 5%;
+      width: 100%;
+  }
+
+  .vs-timepicker-previous-button {
+    top: 0%;
+  }
+
+  .vs-timepicker-next-button {
+    top: 95%;
+  }
+}
