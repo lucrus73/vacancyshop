@@ -1,6 +1,6 @@
 .wpv-calendar-wrapper {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   text-align: center;
   font-family: 'serif';
