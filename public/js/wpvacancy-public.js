@@ -8,8 +8,9 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
 
     var defaultDurationDays = 1;
     var currentDurationDays = defaultDurationDays;
-    var calendarClickStateEnum = Object.freeze({NOTHING:1, STARTED:2, COMPLETE:3}); // enum (sort of)
-    var calendarClickState = calendarClickStateEnum.NOTHING; // enum (sort of)
+    var clickStateEnum = Object.freeze({NOTHING:1, STARTED:2, COMPLETE:3}); // enum (sort of)
+    var calendarClickState = clickStateEnum.NOTHING; 
+    var timepickerClickState = clickStateEnum.NOTHING; 
     var singleDayBooking = false;
     var limitedCurrentDurationDays = 0;
     var currentDurationMinutes = 0;
@@ -21,6 +22,10 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     var selectedDayCssClass = '';
     var selectedFirstDayCssClass = '';
     var selectedLastDayCssClass = '';
+    var selectableTimeCssClass;
+    var selectedFirstTimeCssClass;
+    var selectedTimeCssClass;
+    var selectedLastTimeCssClass;
     var accunitDetailClass = '';
     var accunitTypeClass = '';
     var startDateClass = '';
@@ -42,6 +47,11 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     var wpv_wp_api;
     
     function updateBookingAvailabilityFromCalendarClick(jqThis, event, argsarray)
+    {
+      // TODO
+    }
+    
+    function updateBookingAvailabilityFromTimepickerClick(jqThis, event, argsarray)
     {
       // TODO
     }
@@ -351,13 +361,13 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     {
       switch(calendarClickState)
       {
-        case calendarClickStateEnum.NOTHING:
+        case clickStateEnum.NOTHING:
           calendarClickState = setStartingDayOnCalendar(clickedDate);
           break;
-        case calendarClickStateEnum.STARTED:
+        case clickStateEnum.STARTED:
           calendarClickState = setEndingDayOnCalendar(clickedDate);
           break;
-        case calendarClickStateEnum.COMPLETE:
+        case clickStateEnum.COMPLETE:
           calendarClickState = editOrClearCalendarSelection(clickedDate);
           break;
       }
@@ -365,20 +375,20 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
     
     function clearCalendarSelection()
     {
-      calendarClickState = calendarClickStateEnum.COMPLETE;
+      calendarClickState = clickStateEnum.COMPLETE;
       onCalendarClick(0);
     }
     
     function setStartingDayOnCalendar(clickedDate)
     {
       if (clickedDate === 0)
-        return calendarClickStateEnum.NOTHING; // next calendar slick state is the same as current
+        return clickStateEnum.NOTHING; // next calendar slick state is the same as current
 
       currentStartDate = clickedDate;
       
       showCurrentSelectionOnCalendar();
 
-      return calendarClickStateEnum.STARTED; // next calendar click state
+      return clickStateEnum.STARTED; // next calendar click state
     }
     
     function showCurrentSelectionOnCalendar()
@@ -442,7 +452,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       if (clickedDate < (currentStartDate - 2)) // if the user clicked far away before the current start
       {
         clearCalendarSelectionUI();
-        return calendarClickStateEnum.NOTHING; // he probably wants to cancel the selected start
+        return clickStateEnum.NOTHING; // he probably wants to cancel the selected start
       }
       
       if (clickedDate < currentStartDate) // if the user clicked before, but near, the current start
@@ -451,7 +461,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       }
       currentDurationDays = clickedDate - currentStartDate;
       setStartingDayOnCalendar(currentStartDate);
-      return calendarClickStateEnum.COMPLETE;
+      return clickStateEnum.COMPLETE;
     }
     
     function editOrClearCalendarSelection(clickedDate)
@@ -464,7 +474,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
         var currentEnd = currentStartDate + limitedCurrentDurationDays;
         setStartingDayOnCalendar(clickedDate);
         setEndingDayOnCalendar(currentEnd);
-        return calendarClickStateEnum.COMPLETE; // we stay in the current state
+        return clickStateEnum.COMPLETE; // we stay in the current state
       }
       // if the user clicked within 1 day more or 1 day less than the current end
       // and the period is 3 days or longer
@@ -472,7 +482,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       if (Math.abs(clickedDate - (currentStartDate + limitedCurrentDurationDays)) <= 1 && currentDurationDays >= 3) 
       {
         setEndingDayOnCalendar(clickedDate);
-        return calendarClickStateEnum.COMPLETE; // we stay in the current state
+        return clickStateEnum.COMPLETE; // we stay in the current state
       }
       
       // in all other cases we assume the user is clicking far away from the
@@ -482,7 +492,7 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       currentDurationDays = defaultDurationDays;
       currentStartDate = 0;
       updateCalendarRecap();
-      return calendarClickStateEnum.NOTHING;
+      return clickStateEnum.NOTHING;
     }
     
     function clearCalendarSelectionUI()
@@ -495,6 +505,97 @@ if (it_virtualbit_vacancyshop_was_here_global_flag !== true)
       $(document).find("[data-wpvdayid='" + (currentStartDate + currentDurationDays + 1) + "']").removeClass(selectedLastDayCssClass);
     }
     
+    function onTimepickerClick(clickedTime)
+    {
+      switch(timepickerClickState)
+      {
+        case clickStateEnum.NOTHING:
+          calendarClickState = setStartingTimeOnTimepicker(clickedTime);
+          break;
+        case clickStateEnum.STARTED:
+          calendarClickState = setEndingTimeOnTimepicker(clickedTime);
+          break;
+        case clickStateEnum.COMPLETE:
+          calendarClickState = editOrClearTimeSelection(clickedTime);
+          break;
+      }
+    }
+
+    function timeSelection(jqThis, event, argsarray)
+    {    
+      event.stopImmediatePropagation();
+      event.preventDefault();
+      selectableTimeCssClass = argsarray[0];
+      selectedFirstTimeCssClass = argsarray[1];
+      selectedTimeCssClass = argsarray[2];
+      selectedLastTimeCssClass = argsarray[3];
+      var clickedTime = $(jqThis).data("timeid");
+      onTimepickerClick(clickedTime);
+    }
+
+    function requestTimepickerMarkup(cfg)
+    {
+      var wrappermapid = $("." + cfg.wrapperclass).data("mapid");
+      callWP('getTimepickerMarkup',
+            {
+              includeavailabilitytags: false,
+              mapid: wrappermapid
+            },function (results)
+            {
+              replaceTimepickerMarkup(results.markup, cfg);
+            });
+    }
+
+    function disableTimepickerClicks(cfg)
+    {
+      $("." + cfg.previousTimeClass).off("click");
+      $("." + cfg.nextTimeClass).off("click");
+    }
+    
+    function enableTimepickerClicks(cfg)
+    {
+      $("." + cfg.previousTimeClass).on("click", function (event)
+      {
+        disableTimepickerClicks(cfg);
+        requestTimepickerMarkup(cfg);
+      });
+
+      $("." + cfg.nextTimeClass).on("click", function (event)
+      {
+        disableTimepickerClicks(cfg);
+        requestTimepickerMarkup(cfg);
+      });
+    }
+    
+    function registerTimepickerClicks(cfg)
+    {
+      disableTimepickerClicks(cfg);
+      enableTimepickerClicks(cfg);
+    }
+
+    function getLoadTimepickerConfig(argsarray)
+    {
+      var config = 
+      {
+        wrapperclass: argsarray[1],
+        layoutclass: argsarray[2],
+        containerclass: argsarray[3],
+        scrollclass: argsarray[4],
+        previousTimeClass: argsarray[5],
+        nextTimeClass: argsarray[6],
+        selectMonthButton: argsarray[7],
+        availabilityTarget: argsarray[10],
+        timeSelectionParams: argsarray[11]
+      };
+      return config;
+    }
+    
+    function loadTimepicker(jqThis, event, argsarray)
+    {
+      var cfg = getLoadTimepickerConfig(argsarray);
+      registerTimepickerClicks(cfg);
+    }
+
     function recapDate(dayIdToShow, targetClass)
     {
       callWP('getRecapInfo',

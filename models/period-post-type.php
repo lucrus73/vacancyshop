@@ -1,5 +1,33 @@
 <?php
 
+class VS_PeriodMetaKeys
+{
+  public static $startDate;
+  public static $startTime;
+  public static $endDate;
+  public static $endTime;
+  public static $bookingsStartOn;
+  public static $minimumMinutes;
+  public static $minimumDays;
+  public static $maximumMinutes;
+  public static $maximumDays;
+  
+  function __construct()
+  {
+    global $vb_wpv_custom_fields_prefix;
+    $prefix = $vb_wpv_custom_fields_prefix.'period_';
+    self::$singleDaySelection = $prefix . 'start_date';
+    self::$endDate = $prefix . 'end_date';
+    self::$startTime = $prefix . 'start_time';
+    self::$endTime = $prefix . 'end_time';
+    self::$bookingsStartOn = $prefix . 'bookings_start_on';
+    self::$minimumMinutes = $prefix . 'min_minutes_for_bookings';
+    self::$maximumMinutes = $prefix . 'max_minutes_for_bookings';
+    self::$minimumDays = $prefix . 'min_days_for_bookings';
+    self::$maximumDays = $prefix . 'max_days_for_bookings';
+  }    
+}
+
 // let's create the function for the custom type
 function period_post_type() { 
   global $vb_wpv_basedir;
@@ -72,7 +100,7 @@ function period_custom_fields() {
     $cmb->add_field( array(
         'name'       => __( 'Start date', 'wpvacancy' ),
         'desc'       => __( 'The date this period starts on.', 'wpvacancy' ),
-        'id'         => $prefix . 'period_start_date',
+        'id'         => VS_PeriodMetaKeys::$startDate,
         'type'       => 'text_date',
         // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
         // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -85,7 +113,7 @@ function period_custom_fields() {
     $cmb->add_field( array(
         'name'       => __( 'End date', 'wpvacancy' ),
         'desc'       => __( 'The date this period ends on (inclusive).', 'wpvacancy' ),
-        'id'         => $prefix . 'period_end_date',
+        'id'         => VS_PeriodMetaKeys::$endDate,
         'type'       => 'text_date',
         // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
         // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
@@ -97,32 +125,24 @@ function period_custom_fields() {
 
     $cmb->add_field( array(
         'name'       => __( 'Start time', 'wpvacancy' ),
-        'desc'       => __( 'The time this period starts at (recurring every day of the period)', 'wpvacancy' ),
-        'id'         => $prefix . 'period_start_time',
+        'desc'       => __( 'The time bookings in this period start in the first booked day', 'wpvacancy' ),
+        'id'         => VS_PeriodMetaKeys::$startTime,
         'type'       => 'text_time',
-        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
-        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
-        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
         'on_front'        => false, // Optionally designate a field to wp-admin only
-        // 'repeatable'      => true,
     ) );
 
     $cmb->add_field( array(
         'name'       => __( 'End time', 'wpvacancy' ),
-        'desc'       => __( 'The time this period ends at (recurring every day of the period)', 'wpvacancy' ),
-        'id'         => $prefix . 'period_end_time',
+        'desc'       => __( 'The time bookings in this period end in the last booked day', 'wpvacancy' ),
+        'id'         => VS_PeriodMetaKeys::$endTime,
         'type'       => 'text_time',
-        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
-        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
-        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
         'on_front'        => false, // Optionally designate a field to wp-admin only
-        // 'repeatable'      => true,
     ) );
     
     $cmb->add_field( array(
         'name'       => __( 'Bookings start on', 'wpvacancy' ),
         'desc'       => __( 'Choose days bookings periods must start on. Check all or none if any day will do.', 'wpvacancy' ),
-        'id'         => $prefix . 'period_start_on_weekday',
+        'id'         => VS_PeriodMetaKeys::$bookingsStartOn,
         'type'       => 'multicheck',
         'options'    => $vb_wpv_weekdays,
         // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
@@ -135,7 +155,7 @@ function period_custom_fields() {
     $cmb->add_field( array(
         'name'       => __( 'Minimum minutes for booking', 'wpvacancy' ),
         'desc'       => __( 'Defaults to zero, which means there\'s no minimum set. If set, bookings must last a multiple of this number of minutes.', 'wpvacancy' ),
-        'id'         => $prefix . 'period_min_minutes_for_bookings',
+        'id'         => VS_PeriodMetaKeys::$minimumMinutes,
         'type'       => 'text',
         'default'    => 30,
         'attributes' => array(
@@ -160,7 +180,7 @@ function period_custom_fields() {
     $cmb->add_field( array(
         'name'       => __( 'Min days for booking', 'wpvacancy' ),
         'desc'       => __( 'Defaults to one day/night. If set, bookings must last a multiple of this number of days/nights.', 'wpvacancy' ),
-        'id'         => $prefix . 'period_min_nights_for_bookings',
+        'id'         => VS_PeriodMetaKeys::$minimumDays,
         'type'       => 'text',
         'default'    => 1,
         'attributes' => array(
@@ -174,6 +194,41 @@ function period_custom_fields() {
         // 'repeatable'      => true,
     ) );
 
+    $cmb->add_field( array(
+        'name'       => __( 'Maximum minutes for booking', 'wpvacancy' ),
+        'desc'       => __( 'Defaults to zero, which means there\'s no maximum set.', 'wpvacancy' ),
+        'id'         => VS_PeriodMetaKeys::$maximumMinutes,
+        'type'       => 'text',
+        'default'    => 0,
+        'attributes' => array(
+          'type' => 'number',
+          'min'  => '0',
+        ),        
+        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+        'on_front'        => false, // Optionally designate a field to wp-admin only
+        // 'repeatable'      => true,
+    ) );
+
+    /* 
+     */
+    $cmb->add_field( array(
+        'name'       => __( 'Max days for booking', 'wpvacancy' ),
+        'desc'       => __( 'Defaults to zero, that means no maximum.', 'wpvacancy' ),
+        'id'         => VS_PeriodMetaKeys::$maximumDays,
+        'type'       => 'text',
+        'default'    => 0,
+        'attributes' => array(
+          'type' => 'number',
+          'min'  => '0',
+        ),        
+        // 'show_on_cb' => 'cmb2_hide_if_no_cats', // function should return a bool value
+        // 'sanitization_cb' => 'my_custom_sanitization', // custom sanitization callback parameter
+        // 'escape_cb'       => 'my_custom_escaping',  // custom escaping callback parameter
+        'on_front'        => false, // Optionally designate a field to wp-admin only
+        // 'repeatable'      => true,
+    ) );
 }
 
 add_action( 'cmb2_admin_init', 'period_custom_fields' );

@@ -37,21 +37,21 @@ $vb_wpv_basedir = plugin_dir_path(__FILE__);
 global $vb_wpv_baseurl;
 $vb_wpv_baseurl = plugin_dir_url(__FILE__);
 
-define('VB_WPV_SUNDAY', 1);
-define('VB_WPV_MONDAY', 2);
-define('VB_WPV_TUESDAY', 4);
-define('VB_WPV_WEDNESDAY', 8);
-define('VB_WPV_THURSDAY', 16);
-define('VB_WPV_FRIDAY', 32);
-define('VB_WPV_SATURDAY', 64);
+define('VS_SUNDAY', 1);
+define('VS_MONDAY', 2);
+define('VS_TUESDAY', 4);
+define('VS_WEDNESDAY', 8);
+define('VS_THURSDAY', 16);
+define('VS_FRIDAY', 32);
+define('VS_SATURDAY', 64);
 
-$vb_wpv_weekdays = array(VB_WPV_SUNDAY => __('Sunday', 'wpvacancy'),
-    VB_WPV_MONDAY => __('Monday', 'wpvacancy'),
-    VB_WPV_TUESDAY => __('Tuesday', 'wpvacancy'),
-    VB_WPV_WEDNESDAY => __('Wednesday', 'wpvacancy'),
-    VB_WPV_THURSDAY => __('Thursday', 'wpvacancy'),
-    VB_WPV_FRIDAY => __('Friday', 'wpvacancy'),
-    VB_WPV_SATURDAY => __('Saturday', 'wpvacancy')
+$vb_wpv_weekdays = array(VS_SUNDAY => __('Sunday', 'wpvacancy'),
+    VS_MONDAY => __('Monday', 'wpvacancy'),
+    VS_TUESDAY => __('Tuesday', 'wpvacancy'),
+    VS_WEDNESDAY => __('Wednesday', 'wpvacancy'),
+    VS_THURSDAY => __('Thursday', 'wpvacancy'),
+    VS_FRIDAY => __('Friday', 'wpvacancy'),
+    VS_SATURDAY => __('Saturday', 'wpvacancy')
 );
 
 /**

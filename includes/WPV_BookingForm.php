@@ -85,14 +85,26 @@ class WPV_BookingForm
       return '<div class="wpv-error">You must specify a map with the map_id attribute</div>';
     
     $res = '<div class="'.self::$bookingformcontainerclass.'" data-'.self::$bookingformmapiddatatag.'="'.$map_id.'">';
-      $res .= $this->cal->getCalendar($map_id);
-
-      $res .= $this->maps->map([$map_id]);
+      if ($this->isMapDriven($map_id))
+      {
+        $res .= $this->maps->map([$map_id]);
+        $res .= $this->cal->getCalendar($map_id);
+      }
+      else
+      {
+        $res .= $this->cal->getCalendar($map_id);
+        $res .= $this->maps->map([$map_id]);
+      }
       $res .= $this->recap();
       $res .= $this->addToCartButton();
     $res .= "</div>";
     
     return $res;
+  }
+  
+  private function isMapDriven($map_id)
+  {
+    return get_post_meta($map_id, VS_AccommodationMapMetaKeys::$mapDrivenBooking, true);
   }
   
   public function getHtml($atts = null, $content = '')

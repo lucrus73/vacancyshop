@@ -4,6 +4,7 @@ class VS_AccommodationMapMetaKeys
 {
   public static $singleDaySelection;
   public static $defaultDuration;
+  public static $mapDrivenBooking;
   
   function __construct()
   {
@@ -11,6 +12,7 @@ class VS_AccommodationMapMetaKeys
     $prefix = $vb_wpv_custom_fields_prefix;
     self::$singleDaySelection = $prefix . 'accm_map_singledayselection';
     self::$defaultDuration = $prefix . 'accm_map_defaultduration';
+    self::$mapDrivenBooking = $prefix . 'accm_map_mapdriven';
   }  
 }
 
@@ -118,7 +120,7 @@ function wpv_accommodationmap_editor_content( $content, $post )
 {
   if ( $post->post_type == 'accm_map_type') 
   {
-    $content = __('Please use the featured image of this post to set the map image', 'wpvacancy');
+    $content = __('Please use the featured image of this post to set the map image, then add a standard WordPress gallery to this content if you want images to show up in the carousel.', 'wpvacancy');
   }
 
   return $content;
@@ -161,6 +163,15 @@ function vb_wpv_accmap_custom_fields()
         'type' => 'number',
         'min'  => '1',
     ),
+    'on_front'        => false, // Optionally designate a field to wp-admin only
+	));
+
+  $cmb->add_field( array(
+		'name'    => __( 'Map driven booking', 'wpvacancy' ),
+		'desc'    => __( 'Is the map above the calendar? It also enables calendar and timepicker constraints per service on the map', 'wpvacancy' ),
+		'id'      => VS_AccommodationMapMetaKeys::$mapDrivenBooking,
+		'type'    => 'checkbox',
+    'default' => false, 
     'on_front'        => false, // Optionally designate a field to wp-admin only
 	));
 }
